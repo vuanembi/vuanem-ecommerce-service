@@ -5,9 +5,10 @@ import requests
 
 BASE_URL = "https://api.tiki.vn/integration"
 HEADERS = {
-    "Authorization": f"Bearer {os.getenv('ACCESS_TOKEN')}",
+    "Authorization": f"Bearer {os.getenv('TIKI_ACCESS_TOKEN')}",
     "User-Agent": "PostmanRuntime/7.28.3",
 }
+QUEUE_CODE = "6cd68367-3bde-4aac-a24e-258bc907d68b"
 
 
 class Payload(TypedDict):
@@ -22,11 +23,6 @@ class Event(TypedDict):
     payload: Payload
 
 
-class EventRes(TypedDict):
-    ack_id: str
-    events: list[Event]
-
-
 class Product(TypedDict):
     seller_product_code: str
 
@@ -34,6 +30,7 @@ class Product(TypedDict):
 class Item(TypedDict):
     product: Product
     qty: int
+    price: int
 
 
 class Address(TypedDict):
@@ -41,13 +38,11 @@ class Address(TypedDict):
     street: str
     ward: str
     district: str
-    region: str
-    country: str
     phone: str
 
 
 class Shipping(TypedDict):
-    address: str
+    address: Address
 
 
 class Order(TypedDict):
@@ -57,15 +52,19 @@ class Order(TypedDict):
     shipping: Shipping
 
 
-def pull_events(session: requests.Session, ack_id: Optional[str] = None) -> EventRes:
+def pull_events(
+    session: requests.Session,
+    ack_id: Optional[str] = None,
+) -> tuple[str, list[Event]]:
     with session.post(
-        f"{BASE_URL}/v1/queues/{os.getenv('QUEUE_CODE')}/events/pull",
+        f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull",
         json={
             "ack_id": ack_id,
         },
         headers=HEADERS,
     ) as r:
-        return r.json()
+        data = r.json()
+    return data["ack_id"], data["events"]
 
 
 def get_order(session: requests.Session, order_id: str) -> Order:
@@ -76,10 +75,27 @@ def get_order(session: requests.Session, order_id: str) -> Order:
         },
         headers=HEADERS,
     ) as r:
-        return r.json()
-
-
-with requests.Session() as session:
-    # x = pull_events(session, "fbf93903-8cf4-4ae8-8c1e-24cb73e016f7")
-    x = get_order(session, "753075217")
-    x
+        data = r.json()
+    return {
+        "id": data["id"],
+        "code": data["code"],
+        "items": [
+            {
+                "product": {
+                    "seller_product_code": item["product"]["seller_product_code"],
+                },
+                "qty": item["qty"],
+                "price": item["price"],
+            }
+            for item in data["items"]
+        ],
+        "shipping": {
+            "address": {
+                "full_name": data["shipping"]["address"]["full_name"],
+                "street": data["shipping"]["address"]["street"],
+                "ward": data["shipping"]["address"]["ward"],
+                "district": data["shipping"]["address"]["district"],
+                "phone": data["shipping"]["address"]["phone"],
+            },
+        },
+    }

@@ -136,6 +136,8 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-voltaic-country-280607-ea3eb5348029.json
-.DS_store
+
 .vscode
+creds
+.DS_Store
+voltaic-country-280607-ea3eb5348029.json

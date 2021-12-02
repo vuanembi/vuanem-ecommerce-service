@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vuanem-tiki-service"
+name = "vuanem-ecommerce-service"
 version = "0.1.0"
 description = ""
 authors = ["HM <hieumdd@gmail.com>"]
@@ -7,15 +7,24 @@ authors = ["HM <hieumdd@gmail.com>"]
 [tool.poetry.dependencies]
 python = "~3.9"
 requests = "^2.26.0"
-pymongo = "^4.0"
 firebase-admin = "^5.1.0"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b1"
 pytest = "^6.2.5"
 mypy = "^0.910"
 types-requests = "^2.26.1"
+types-PyYAML = "^6.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = "-s --durations=0"
+# timeout = 530
+testpaths = [
+    "test",
+]
