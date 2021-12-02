@@ -1,11 +1,10 @@
-from typing import TypedDict
+from typing import TypedDict, Optional
 
-from restlet import (
-    create_sales_order,
-    get_customer,
-    create_customer,
-    get_inventory_item,
-)
+import requests
+
+import restlet
+
+LEAD_SOURCE = 144506
 
 
 class Customer(TypedDict):
@@ -14,24 +13,29 @@ class Customer(TypedDict):
     lastname: str
 
 
-def get_customer_if_not_exist(session, customer: Customer):
+def get_customer_if_not_exist(session: requests.Session, customer: Customer) -> str:
     try:
-        return get_customer(session, params={"phone": customer["phone"]})["id"]
+        return restlet.customer("GET")(session, params={"phone": customer["phone"]})[
+            "id"
+        ]
     except:
-        return create_customer(
+        return restlet.customer("POST")(
             session,
             body={
-                "leadsource": 144506,
+                "leadsource": LEAD_SOURCE,
                 "firstname": customer["firstname"],
                 "lastname": customer["lastname"],
                 "phone": customer["phone"],
             },
         )["id"]
 
-def map_sku_to_item_id(session, sku):
+
+def map_sku_to_item_id(session: requests.Session, sku: str) -> Optional[str]:
     try:
-        return get_inventory_item(session, params={"itemid": sku})
+        return restlet.inventory_item("GET")(session, params={"itemid": sku})["id"]
     except:
         return None
 
 
+def create_ecommerce_sales_order(session: requests.Session, order, customer, ecommerce):
+    pass

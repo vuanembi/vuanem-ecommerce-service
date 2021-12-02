@@ -3,9 +3,9 @@ import os
 import json
 from urllib.parse import urlencode
 
+from typing_extensions import Protocol
 import requests
 import oauthlib.oauth1
-from mypy_extensions import DefaultNamedArg
 
 
 class Restlet(TypedDict):
@@ -13,11 +13,14 @@ class Restlet(TypedDict):
     deploy: int
 
 
-RestletRequest = Callable[
-    [requests.Session, DefaultNamedArg(dict, "params"), DefaultNamedArg(dict, "body")],
-    dict,
-]
-
+class RestletRequest(Protocol):
+    def __call__(
+        self,
+        session: requests.Session,
+        params: Optional[dict] = None,
+        body: Optional[dict] = None,
+    ) -> dict:
+        pass
 
 OAUTH_CLIENT = oauthlib.oauth1.Client(
     client_key=os.getenv("CONSUMER_KEY"),
@@ -55,13 +58,5 @@ def restlet(restlet: Restlet) -> Callable[[str], RestletRequest]:
 
 
 sales_order = restlet({"script": 997, "deploy": 1})
-get_sales_order = sales_order("GET")
-create_sales_order = sales_order("POST")
-close_sales_order = sales_order("DELETE")
-
 customer = restlet({"script": 1099, "deploy": 1})
-get_customer = customer("GET")
-create_customer = customer("POST")
-
 inventory_item = restlet({"script": 1101, "deploy": 1})
-get_inventory_item = inventory_item("GET")
