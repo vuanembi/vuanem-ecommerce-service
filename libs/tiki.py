@@ -24,6 +24,7 @@ class Event(TypedDict):
 
 
 class Product(TypedDict):
+    name: str
     seller_product_code: str
 
 
@@ -82,6 +83,7 @@ def get_order(session: requests.Session, order_id: str) -> Order:
         "items": [
             {
                 "product": {
+                    "name": item["product"]["name"],
                     "seller_product_code": item["product"]["seller_product_code"],
                 },
                 "qty": item["qty"],
