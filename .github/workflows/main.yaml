@@ -38,6 +38,7 @@ jobs:
       - name: Deploy to Cloud Functions
         run: >-
           gcloud functions deploy ${{ env.FUNCTION_NAME }}
+          --allow-unauthenticated
           --entry-point=main
           --region=us-central1
           --timeout=530
