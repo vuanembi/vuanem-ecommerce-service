@@ -1,10 +1,18 @@
-from typing import Optional
-from unittest.mock import Mock
-from main import main
+import requests
+import pytest
+
+from test.utils import run
+from libs.tiki import get_order
+from libs.telegram import send_tiki_order
 
 
-def run(path: str, data: Optional[dict] = None) -> dict:
-    return main(Mock(get_json=Mock(return_value=data), path=path, args=data))
+@pytest.fixture()
+def order():
+    return get_order(requests.Session(), "753075217")
+
+def test_send_telegram(order):
+    res = send_tiki_order(order)
+    assert res
 
 
 def test_tiki():
