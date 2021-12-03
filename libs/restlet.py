@@ -1,11 +1,10 @@
 from typing import Callable, TypedDict, Optional
 import os
 import json
-from urllib.parse import urlencode
 
 from typing_extensions import Protocol
-import requests
 import oauthlib.oauth1
+from requests_oauthlib import OAuth1Session
 
 
 class Restlet(TypedDict):
@@ -16,41 +15,48 @@ class Restlet(TypedDict):
 class RestletRequest(Protocol):
     def __call__(
         self,
-        session: requests.Session,
-        params: Optional[dict] = None,
+        session: OAuth1Session,
+        params: dict = {},
         body: Optional[dict] = None,
-    ) -> dict:
+    ) -> Optional[dict]:
         pass
 
-OAUTH_CLIENT = oauthlib.oauth1.Client(
-    client_key=os.getenv("CONSUMER_KEY"),
-    client_secret=os.getenv("CONSUMER_SECRET"),
-    resource_owner_key=os.getenv("ACCESS_TOKEN"),
-    resource_owner_secret=os.getenv("TOKEN_SECRET"),
-    realm=os.getenv("ACCOUNT_ID"),
-    signature_method=oauthlib.oauth1.SIGNATURE_HMAC_SHA256,
-)
 
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
+
+
+def oauth_session():
+    return OAuth1Session(
+        client_key=os.getenv("CONSUMER_KEY"),
+        client_secret=os.getenv("CONSUMER_SECRET"),
+        resource_owner_key=os.getenv("ACCESS_TOKEN"),
+        resource_owner_secret=os.getenv("TOKEN_SECRET"),
+        realm=os.getenv("ACCOUNT_ID"),
+        signature_method=oauthlib.oauth1.SIGNATURE_HMAC_SHA256,
+    )
 
 
 def restlet(restlet: Restlet) -> Callable[[str], RestletRequest]:
     def request_restlet(method: str) -> RestletRequest:
         def request(
-            session: requests.Session,
-            params: Optional[dict] = None,
+            session: OAuth1Session,
+            params: dict = {},
             body: Optional[dict] = None,
-        ) -> dict:
-            url, headers, body = OAUTH_CLIENT.sign(
-                uri=f"{BASE_URL}?{urlencode({**restlet, **params}) if params else urlencode({**restlet})}",
-                http_method=method,
-                body=body,
-                headers={
-                    "Content-type": "application/json",
+        ) -> Optional[dict]:
+            with session.request(
+                method,
+                BASE_URL,
+                params={
+                    **restlet,
+                    **params,
                 },
-            )
-            with session.request(method, url, headers=headers) as r:
-                return json.loads(r.json())
+                json=body,
+                headers={"Content-type": "application/json"},
+            ) as r:
+                if r.status_code == 400:
+                    return None
+                else:
+                    return r.json()
 
         return request
 
