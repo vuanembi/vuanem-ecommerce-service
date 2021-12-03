@@ -2,7 +2,7 @@ from typing import TypedDict
 from datetime import date
 
 from models.customer import Customer
-from models.ecommerce import Ecommerce
+from models.ecommerce import LEAD_SOURCE, Ecommerce
 
 
 class Item(TypedDict):
@@ -20,11 +20,15 @@ class Order(Customer, Ecommerce):
 
 
 def build(customer: Customer, items: list[Item], ecommerce: Ecommerce) -> Order:
-    return {
-        "leadsource": 144506,
-        "custbody_expecteddeliverytime": 4,
-        "trandate": date.today().isoformat(),
-        **ecommerce,  # type: ignore
-        **customer,
-        "item": items,
-    }
+    return (
+        {
+            "leadsource": LEAD_SOURCE,
+            "custbody_expecteddeliverytime": 4,
+            "trandate": date.today().isoformat(),
+        }
+        | customer
+        | ecommerce
+        | {
+            "item": items,
+        }
+    )

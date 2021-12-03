@@ -1,5 +1,6 @@
 from typing import TypedDict
 
+LEAD_SOURCE = 144506
 
 class Ecommerce(TypedDict):
     custbody_order_payment_method: int
@@ -9,7 +10,7 @@ class Ecommerce(TypedDict):
     custbody_onl_rep: int
 
 Tiki: Ecommerce = {
-    "custbody_order_payment_method": 22,
+    "custbody_order_payment_method": 23,
     "salesrep": 1664,
     "partner": 916906,
     "location": 788,
