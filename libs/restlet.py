@@ -25,7 +25,7 @@ class RestletRequest(Protocol):
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
 
 
-def oauth_session():
+def netsuite_session():
     return OAuth1Session(
         client_key=os.getenv("CONSUMER_KEY"),
         client_secret=os.getenv("CONSUMER_SECRET"),
@@ -56,6 +56,7 @@ def restlet(restlet: Restlet) -> Callable[[str], RestletRequest]:
                 if r.status_code == 400:
                     return None
                 else:
+                    r.raise_for_status()
                     return r.json()
 
         return request
