@@ -28,10 +28,14 @@ class Product(TypedDict):
     seller_product_code: str
 
 
+class Invoice(TypedDict):
+    row_total: int
+
+
 class Item(TypedDict):
     product: Product
     qty: int
-    price: int
+    invoice: Invoice
 
 
 class Address(TypedDict):
@@ -87,7 +91,9 @@ def get_order(session: requests.Session, order_id: str) -> Order:
                     "seller_product_code": item["product"]["seller_product_code"],
                 },
                 "qty": item["qty"],
-                "price": item["price"],
+                "invoice": {
+                    "row_total": item["invoice"]["row_total"],
+                },
             }
             for item in data["items"]
         ],
