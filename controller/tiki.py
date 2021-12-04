@@ -11,7 +11,7 @@ from libs.netsuite import (
     create_sales_order,
 )
 from libs.restlet import netsuite_session
-from libs.telegram import send_created_order, send_new_order
+from libs.telegram import send_created_order, send_error_create_order, send_new_order
 
 from models import order, ecommerce, customer
 
@@ -22,18 +22,24 @@ def handle_event_queue() -> dict:
         orders = [
             tiki.get_order(session, event["payload"]["order_code"]) for event in events
         ]
+        print(orders)
         response: dict[str, Union[str, list[str]]] = {
             "controller": "tiki",
         }
         if orders:
-            response["orders"] = handle_new_orders(orders)
+            [send_new_order("Tiki", order) for order in orders]
+            try:
+                print("Not creating orders")
+                # response["orders"] = handle_new_orders(orders)
+            except Exception as e:
+                send_error_create_order("Tiki", e, orders)
+                raise e
         response["ack_id"] = add_ack(ack_id)
 
         return response
 
 
 def handle_new_orders(orders: list[tiki.Order]) -> list[str]:
-    [send_new_order("Tiki", order) for order in orders]
     with netsuite_session() as oauth_session:
         created_sales_order = [
             create_sales_order(
@@ -62,12 +68,7 @@ def build_customer(session: OAuth1Session, tiki_order: tiki.Order) -> customer.C
 
 def build_items(session: dict, tiki_order: tiki.Order) -> list[order.Item]:
     return [
-        {
-            "item": item,
-            "quantity": quantity,
-            "price": -1,
-            "amount": amount / 1.1,
-        }
+        order.build_item(item, quantity, amount)
         for item, quantity, amount in zip(
             [
                 map_sku_to_item_id(session, i["product"]["seller_product_code"])

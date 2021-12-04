@@ -11,3 +11,4 @@ def session():
 @pytest.fixture()
 def oauth_session():
     return netsuite_session()
+    
