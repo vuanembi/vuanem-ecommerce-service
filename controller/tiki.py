@@ -11,7 +11,7 @@ from libs.netsuite import (
     create_sales_order,
 )
 from libs.restlet import netsuite_session
-from libs.telegram import send_created_order, send_new_order
+from libs.telegram import send_created_order, send_error_create_order, send_new_order
 
 from models import order, ecommerce, customer
 
@@ -22,29 +22,34 @@ def handle_event_queue() -> dict:
         orders = [
             tiki.get_order(session, event["payload"]["order_code"]) for event in events
         ]
+        print(orders)
         response: dict[str, Union[str, list[str]]] = {
             "controller": "tiki",
         }
         if orders:
-            response["orders"] = handle_new_orders(orders)
+            [send_new_order("Tiki", order) for order in orders]
+            try:
+                print("Not creating orders")
+                # response["orders"] = handle_new_orders(orders)
+            except Exception as e:
+                send_error_create_order("Tiki", e, orders)
+                raise e
         response["ack_id"] = add_ack(ack_id)
 
         return response
 
 
 def handle_new_orders(orders: list[tiki.Order]) -> list[str]:
-    [send_new_order("Tiki", order) for order in orders]
-    # with netsuite_session() as oauth_session:
-    #     created_sales_order = [
-    #         create_sales_order(
-    #             oauth_session,
-    #             build_sales_order(oauth_session, order),
-    #         )
-    #         for order in orders
-    #     ]
-    # [send_created_order("Tiki", id) for id in created_sales_order]
-    # return created_sales_order
-    return []
+    with netsuite_session() as oauth_session:
+        created_sales_order = [
+            create_sales_order(
+                oauth_session,
+                build_sales_order(oauth_session, order),
+            )
+            for order in orders
+        ]
+    [send_created_order("Tiki", id) for id in created_sales_order]
+    return created_sales_order
 
 
 def build_customer(session: OAuth1Session, tiki_order: tiki.Order) -> customer.Customer:

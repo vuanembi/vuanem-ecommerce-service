@@ -47,8 +47,19 @@ def send_new_order(ecommerce: str, order: Union[tiki.Order, None]) -> dict:
 def send_created_order(ecommerce: str, id: str) -> dict:
     url = f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/app/accounting/transactions/salesord\.nl?id\={id}"
     return send_telegram(
-        f"""Tạo Đơn hàng *{ecommerce}* thành công ^^
+        f"""Tạo dơn hàng *{ecommerce}* thành công ^^
 {divider}
 Check ngay: [{url}]({url})
 """
+    )
+
+
+def send_error_create_order(ecommerce: str, error: Exception, order_ids: list[str]):
+    return send_telegram(
+        f"""Tạo đơn hàng *{ecommerce}* thất bại: {",".join(order_ids)}
+{divider}
+```
+{repr(error)}
+```
+    """
     )
