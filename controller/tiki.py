@@ -34,16 +34,17 @@ def handle_event_queue() -> dict:
 
 def handle_new_orders(orders: list[tiki.Order]) -> list[str]:
     [send_new_order("Tiki", order) for order in orders]
-    with netsuite_session() as oauth_session:
-        created_sales_order = [
-            create_sales_order(
-                oauth_session,
-                build_sales_order(oauth_session, order),
-            )
-            for order in orders
-        ]
-    [send_created_order("Tiki", id) for id in created_sales_order]
-    return created_sales_order
+    # with netsuite_session() as oauth_session:
+    #     created_sales_order = [
+    #         create_sales_order(
+    #             oauth_session,
+    #             build_sales_order(oauth_session, order),
+    #         )
+    #         for order in orders
+    #     ]
+    # [send_created_order("Tiki", id) for id in created_sales_order]
+    # return created_sales_order
+    return []
 
 
 def build_customer(session: OAuth1Session, tiki_order: tiki.Order) -> customer.Customer:
