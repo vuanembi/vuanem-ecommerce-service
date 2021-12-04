@@ -1,2 +1,6 @@
 .github
 test
+poetry.lock
+pyproject.toml
+.markdownlint.yaml
+README.md
