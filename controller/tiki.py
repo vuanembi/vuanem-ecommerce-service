@@ -84,4 +84,5 @@ def build_sales_order(session: OAuth1Session, tiki_order: tiki.Order) -> order.O
         build_customer(session, tiki_order),
         build_items(session, tiki_order),
         ecommerce.Tiki,
+        f"tiki - {tiki_order['code']}"
     )
