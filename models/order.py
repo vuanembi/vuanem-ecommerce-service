@@ -4,6 +4,7 @@ from datetime import date
 from models.customer import Customer
 from models.ecommerce import LEAD_SOURCE, Ecommerce
 
+EXPECTED_DELIVERY_TIME = 4
 
 class Item(TypedDict):
     item: int
@@ -21,12 +22,15 @@ class Order(Customer, Ecommerce):
 
 
 def build(
-    customer: Customer, items: list[Item], ecommerce: Ecommerce, memo: str
+    customer: Customer,
+    items: list[Item],
+    ecommerce: Ecommerce,
+    memo: str,
 ) -> Order:
     return (
         {
             "leadsource": LEAD_SOURCE,
-            "custbody_expecteddeliverytime": 4,
+            "custbody_expecteddeliverytime": EXPECTED_DELIVERY_TIME,
             "trandate": date.today().isoformat(),
         }
         | customer

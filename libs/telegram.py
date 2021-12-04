@@ -47,8 +47,8 @@ def send_new_order(ecommerce: str, order: Union[tiki.Order, None]) -> dict:
 def send_created_order(ecommerce: str, id: str) -> dict:
     url = f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/app/accounting/transactions/salesord\.nl?id\={id}"
     return send_telegram(
-        f"""Ôi bạn ơi, Tạo Đơn hàng *{ecommerce}* thành công ^^
+        f"""Tạo Đơn hàng *{ecommerce}* thành công ^^
 {divider}
-Xem ngay: [{url}]({url})
+Check ngay: [{url}]({url})
 """
     )
