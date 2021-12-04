@@ -17,9 +17,12 @@ class Order(Customer, Ecommerce):
     custbody_expecteddeliverytime: int
     trandate: str
     item: list[Item]
+    memo: str
 
 
-def build(customer: Customer, items: list[Item], ecommerce: Ecommerce) -> Order:
+def build(
+    customer: Customer, items: list[Item], ecommerce: Ecommerce, memo: str
+) -> Order:
     return (
         {
             "leadsource": LEAD_SOURCE,
@@ -30,5 +33,8 @@ def build(customer: Customer, items: list[Item], ecommerce: Ecommerce) -> Order:
         | ecommerce
         | {
             "item": items,
+        }
+        | {
+            "memo": memo,
         }
     )
