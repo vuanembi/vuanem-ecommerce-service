@@ -53,11 +53,8 @@ def restlet(restlet: Restlet) -> Callable[[str], RestletRequest]:
                 json=body,
                 headers={"Content-type": "application/json"},
             ) as r:
-                if r.status_code == 400:
-                    return None
-                else:
-                    r.raise_for_status()
-                    return r.json()
+                r.raise_for_status()
+                return r.json()
 
         return request
 

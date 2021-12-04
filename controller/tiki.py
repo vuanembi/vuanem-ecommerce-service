@@ -26,7 +26,7 @@ def handle_event_queue() -> dict:
             "controller": "tiki",
         }
         if orders:
-            response["orders"] = handle_new_orders(events)
+            response["orders"] = handle_new_orders(orders)
         response["ack_id"] = add_ack(ack_id)
 
         return response
@@ -66,7 +66,7 @@ def build_items(session: dict, tiki_order: tiki.Order) -> list[order.Item]:
             "item": item,
             "quantity": quantity,
             "price": -1,
-            "amount": amount,
+            "amount": amount / 1.1,
         }
         for item, quantity, amount in zip(
             [

@@ -3,7 +3,8 @@ import pytest
 
 from test.utils import run
 from controller.tiki import build_customer, build_items, build_sales_order, handle_new_orders
-from libs.tiki import get_order
+from libs.tiki import get_order, pull_events
+from libs.firestore import get_latest_ack_id
 from libs.netsuite import create_sales_order
 from libs.restlet import netsuite_session
 from libs.telegram import send_new_order
@@ -21,7 +22,11 @@ def oauth_session():
 
 @pytest.fixture()
 def order(session):
-    return get_order(session, "753075217")
+    return get_order(session, "678789503")
+
+def test_pull_event(session):
+    ack_id, events = pull_events(session, get_latest_ack_id())
+    assert ack_id
 
 
 def test_alert_on_order(order):
