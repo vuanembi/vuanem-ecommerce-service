@@ -68,12 +68,7 @@ def build_customer(session: OAuth1Session, tiki_order: tiki.Order) -> customer.C
 
 def build_items(session: dict, tiki_order: tiki.Order) -> list[order.Item]:
     return [
-        {
-            "item": item,
-            "quantity": quantity,
-            "price": -1,
-            "amount": amount / 1.1,
-        }
+        order.build_item(item, quantity, amount)
         for item, quantity, amount in zip(
             [
                 map_sku_to_item_id(session, i["product"]["seller_product_code"])

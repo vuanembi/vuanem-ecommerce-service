@@ -6,6 +6,7 @@ from models.ecommerce import LEAD_SOURCE, Ecommerce
 
 EXPECTED_DELIVERY_TIME = 4
 
+
 class Item(TypedDict):
     item: int
     quantity: int
@@ -19,6 +20,15 @@ class Order(Customer, Ecommerce):
     trandate: str
     item: list[Item]
     memo: str
+
+
+def build_item(item: str, quantity: int, amount: int) -> Item:
+    return {
+        "item": int(item),
+        "quantity": quantity,
+        "price": -1,
+        "amount": int(amount / 1.1),
+    }
 
 
 def build(
