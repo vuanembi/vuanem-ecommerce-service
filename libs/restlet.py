@@ -1,6 +1,5 @@
 from typing import Callable, TypedDict, Optional
 import os
-import json
 
 from typing_extensions import Protocol
 import oauthlib.oauth1
@@ -18,14 +17,14 @@ class RestletRequest(Protocol):
         session: OAuth1Session,
         params: dict = {},
         body: Optional[dict] = None,
-    ) -> Optional[dict]:
+    ) -> dict:
         pass
 
 
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
 
 
-def netsuite_session():
+def netsuite_session() -> OAuth1Session:
     return OAuth1Session(
         client_key=os.getenv("CONSUMER_KEY"),
         client_secret=os.getenv("CONSUMER_SECRET"),
@@ -42,7 +41,7 @@ def restlet(restlet: Restlet) -> Callable[[str], RestletRequest]:
             session: OAuth1Session,
             params: dict = {},
             body: Optional[dict] = None,
-        ) -> Optional[dict]:
+        ) -> dict:
             with session.request(
                 method,
                 BASE_URL,

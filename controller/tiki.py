@@ -32,7 +32,7 @@ def handle_event_queue() -> dict:
         return response
 
 
-def handle_new_orders(orders):
+def handle_new_orders(orders: list[tiki.Order]) -> list[str]:
     [send_new_order("Tiki", order) for order in orders]
     with netsuite_session() as oauth_session:
         created_sales_order = [
@@ -84,5 +84,5 @@ def build_sales_order(session: OAuth1Session, tiki_order: tiki.Order) -> order.O
         build_customer(session, tiki_order),
         build_items(session, tiki_order),
         ecommerce.Tiki,
-        f"tiki - {tiki_order['code']}"
+        f"tiki - {tiki_order['code']}",
     )

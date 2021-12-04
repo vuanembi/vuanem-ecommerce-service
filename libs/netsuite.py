@@ -2,7 +2,6 @@ from typing import Optional
 
 from requests_oauthlib import OAuth1Session
 
-
 from libs import restlet
 from models.order import Order
 from models.customer import CustomerRequest
