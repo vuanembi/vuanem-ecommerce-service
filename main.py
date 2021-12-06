@@ -1,6 +1,10 @@
 from controller.tiki import handle_event_queue
 from controller.chatbot import handle_callback
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def main(request) -> dict:
     request_json: dict = request.get_json()

@@ -5,4 +5,5 @@ from models import telegram
 
 def handle_callback(request_data: telegram.Update) -> dict:
     data = get_callback_query_data(request_data)
-    return send_telegram(yaml.dump(data))
+    print(data)
+    return send_telegram("nhận thông tin")
