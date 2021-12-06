@@ -1,19 +1,31 @@
-from typing import Union
+from typing import Optional, Union
 import os
+import json
 
 import yaml
 import requests
 
 from libs import tiki
+from models import telegram
+
+CHAT_ID = "-645664226"
+
+def get_chat_id(update: telegram.Update) -> Optional[int]:
+    return update.get("callback_query", {}).get("message", {}).get("chat", {}).get("id")
+
+def filter_chat_id(update: telegram.Update) -> bool:
+    return True if str(get_chat_id(update)) == CHAT_ID else False
+
+def get_callback_query_data(update: telegram.Update) -> dict:
+    return json.loads(update["callback_query"].get("data")) if filter_chat_id(update) else None
 
 divider = "\=\=\=\=\=\=\=\=\=\=\="
-
 
 def send_telegram(text: str) -> dict:
     with requests.post(
         f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage",
         json={
-            "chat_id": "-1001685563275",
+            "chat_id": CHAT_ID,
             "parse_mode": "MarkdownV2",
             "reply_markup": {
                 "keyboard": [
