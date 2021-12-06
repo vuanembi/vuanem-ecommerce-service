@@ -3,9 +3,9 @@ from typing import Optional
 from requests_oauthlib import OAuth1Session
 
 from libs import restlet
-from models.order import Order
-from models.customer import CustomerRequest
-from models.ecommerce import LEAD_SOURCE
+from models.netsuite.order import Order
+from models.netsuite.customer import CustomerRequest
+from models.netsuite.ecommerce import LEAD_SOURCE
 
 
 def get_customer_if_not_exist(session: OAuth1Session, customer: CustomerRequest) -> str:
@@ -34,3 +34,5 @@ def map_sku_to_item_id(session: OAuth1Session, sku: str) -> Optional[str]:
 
 def create_sales_order(session: OAuth1Session, order: Order) -> str:
     return restlet.sales_order("POST")(session, body=order)["id"]
+
+

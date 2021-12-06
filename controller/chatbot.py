@@ -1,5 +1,3 @@
-import yaml
-
 from libs.telegram import get_callback_query_data, send_telegram
 from models import telegram
 

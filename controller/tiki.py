@@ -1,19 +1,14 @@
 from typing import Union
 
 import requests
-from requests_oauthlib import OAuth1Session
 
 from libs.firestore import add_ack, get_latest_ack_id
 from libs import tiki
-from libs.netsuite import (
-    get_customer_if_not_exist,
-    map_sku_to_item_id,
-    create_sales_order,
-)
+from libs.netsuite import map_sku_to_item_id
 from libs.restlet import netsuite_session
-from libs.telegram import send_created_order, send_error_create_order, send_new_order
+from libs.telegram import send_created_order, send_new_order
 
-from models import order, ecommerce, customer
+from models.netsuite import order, customer, ecommerce
 
 
 def handle_event_queue() -> dict:
@@ -27,63 +22,44 @@ def handle_event_queue() -> dict:
             "controller": "tiki",
         }
         if orders:
-            [send_new_order("Tiki", order) for order in orders]
-            try:
-                print("Not creating orders")
-                # response["orders"] = handle_new_orders(orders)
-            except Exception as e:
-                send_error_create_order("Tiki", e, orders)
-                raise e
+            response["orders"] = handle_new_orders(orders)
         response["ack_id"] = add_ack(ack_id)
 
         return response
 
 
 def handle_new_orders(orders: list[tiki.Order]) -> list[str]:
-    with netsuite_session() as oauth_session:
-        created_sales_order = [
-            create_sales_order(
-                oauth_session,
-                build_sales_order(oauth_session, order),
-            )
-            for order in orders
-        ]
-    [send_created_order("Tiki", id) for id in created_sales_order]
-    return created_sales_order
+    prepared_order_ids = [build_prepared_order(order) for order in orders]
+    [send_new_order("Tiki", order) for order in orders]
+    return prepared_order_ids
 
 
-def build_customer(session: OAuth1Session, tiki_order: tiki.Order) -> customer.Customer:
-    return customer.build(
-        get_customer_if_not_exist(
-            session,
-            customer.build_customer_request(
-                tiki_order["shipping"]["address"]["full_name"],
-                tiki_order["shipping"]["address"]["phone"],
-            ),
-        ),
-        tiki_order["shipping"]["address"]["phone"],
-        tiki_order["shipping"]["address"]["full_name"],
+def build_customer(order: tiki.Order) -> customer.PreparedCustomer:
+    return customer.build_prepared_customer(
+        order["shipping"]["address"]["phone"],
+        order["shipping"]["address"]["full_name"],
     )
 
 
-def build_items(session: dict, tiki_order: tiki.Order) -> list[order.Item]:
-    return [
-        order.build_item(item, quantity, amount)
-        for item, quantity, amount in zip(
-            [
-                map_sku_to_item_id(session, i["product"]["seller_product_code"])
-                for i in tiki_order["items"]
-            ],
-            [i["qty"] for i in tiki_order["items"]],
-            [i["invoice"]["row_total"] for i in tiki_order["items"]],
-        )
-    ]
+def build_items(order: tiki.Order) -> list[order.Item]:
+    with netsuite_session() as session:
+        return [
+            order.build_item(item, quantity, amount)
+            for item, quantity, amount in zip(
+                [
+                    map_sku_to_item_id(session, i["product"]["seller_product_code"])
+                    for i in order["items"]
+                ],
+                [i["qty"] for i in order["items"]],
+                [i["invoice"]["row_total"] for i in order["items"]],
+            )
+        ]
 
 
-def build_sales_order(session: OAuth1Session, tiki_order: tiki.Order) -> order.Order:
+def build_prepared_order(order: tiki.Order) -> order.Order:
     return order.build(
-        build_customer(session, tiki_order),
-        build_items(session, tiki_order),
+        build_customer(order),
+        build_items(order),
         ecommerce.Tiki,
-        f"tiki - {tiki_order['code']}",
+        f"tiki - {order['code']}",
     )

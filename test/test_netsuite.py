@@ -2,7 +2,7 @@ import requests
 import pytest
 
 from libs.netsuite import get_customer_if_not_exist
-from models.customer import build_customer_request
+from models.netsuite.customer import build_customer_request
 
 
 @pytest.fixture()
