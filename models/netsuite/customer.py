@@ -1,18 +1,25 @@
 from typing import TypedDict
 
-from models.ecommerce import LEAD_SOURCE
+from models.netsuite.ecommerce import LEAD_SOURCE
 
 
 class ShippingAddress(TypedDict):
     addressee: str
 
 
-class Customer(TypedDict):
-    entity: int
+class CustomerBase(TypedDict):
     custbody_customer_phone: str
     custbody_recipient_phone: str
     custbody_recipient: str
     shippingaddress: ShippingAddress
+
+
+class Customer(CustomerBase):
+    entity: int
+
+
+class PreparedCustomer(CustomerBase):
+    entity: None
 
 
 class CustomerRequest(TypedDict):
@@ -31,9 +38,9 @@ def build_customer_request(name, phone) -> CustomerRequest:
     }
 
 
-def build(id: str, phone: str, name: str) -> Customer:
+def build_prepared_customer(phone: str, name: str) -> PreparedCustomer:
     return {
-        "entity": int(id),
+        "entity": None,
         "custbody_customer_phone": phone,
         "custbody_recipient_phone": phone,
         "custbody_recipient": name,
