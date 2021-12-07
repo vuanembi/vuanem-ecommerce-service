@@ -1,5 +1,5 @@
 from controller.tiki import tiki_controller
-from controller.chatbot import handle_callback
+from controller.callback import callback_controller
 
 
 def main(request) -> dict:
@@ -11,7 +11,7 @@ def main(request) -> dict:
     if request_path == "/tiki":
         response = tiki_controller()
     elif request_path == '/chatbot':
-        response = handle_callback(request_json)
+        response = callback_controller(request_json)
 
     print(response)
     return response

@@ -19,6 +19,7 @@ FIRESTORE_DB = firestore.client()
 
 D = TypeVar("D")
 
+
 def add_doc(
     collection: str,
     template: Callable[[D], dict[str, Any]],
@@ -38,10 +39,13 @@ add_ack: Callable[[str], str] = add_doc(
     },
 )
 
-add_prepared_order: Callable[
-    [order.PreparedOrder],
-    str,
-] = add_doc("PreparedOrders", lambda x: x)
+add_prepared_order: Callable[[order.PreparedOrder], str] = add_doc(
+    "PreparedOrders",
+    lambda x: {
+        "order": x,
+        "status": "added",
+    },
+)
 
 
 def get_latest_ack_id() -> str:

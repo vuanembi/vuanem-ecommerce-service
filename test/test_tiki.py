@@ -27,6 +27,7 @@ def prepared_customer():
         "shippingaddress": {"addressee": "Nguyễn Vũ Ngọc Giang"},
     }
 
+
 @pytest.fixture()
 def prepared_items():
     return {
@@ -39,7 +40,8 @@ def prepared_items():
             },
         ],
     }
-    
+
+
 def test_pull_event(session):
     ack_id, events = pull_events(session, get_latest_ack_id())
     assert ack_id
@@ -64,8 +66,7 @@ def test_build_prepared_components(order):
 
 
 def test_handle_orders(order):
-    res = handle_orders([order])
-    assert res["orders"]
+    assert handle_orders([order])({})["orders"]
 
 
 def test_tiki():

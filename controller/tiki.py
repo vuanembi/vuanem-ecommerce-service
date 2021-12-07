@@ -1,8 +1,6 @@
-from typing import Optional
-
 import requests
 
-from libs.firestore import add_ack, get_latest_ack_id
+from libs.firestore import add_ack, add_prepared_order, get_latest_ack_id
 from libs.tiki import pull_events, get_order
 from libs.netsuite import (
     build_item,
@@ -17,10 +15,10 @@ from libs.utils import compose
 
 from models.netsuite import order, customer, ecommerce
 from models.ecommerce import tiki
-from models.utils import ResponseBuilder
+from models.utils import Response, ResponseBuilder
 
 
-def tiki_controller() -> dict:
+def tiki_controller() -> Response:
     with requests.Session() as session:
         ack_id, events = pull_events(session, get_latest_ack_id())
         orders = [
@@ -39,10 +37,16 @@ def tiki_controller() -> dict:
 
 
 def handle_orders(orders: list[tiki.Order]) -> ResponseBuilder:
-    def handle(res: dict) -> dict:
+    def handle(res: dict) -> Response:
         if len(orders):
-            prepared_order_ids = [build_prepared_components(order) for order in orders]
-            [send_new_order("Tiki", order) for order in orders]
+            prepared_orders = [build_prepared_components(order) for order in orders]
+            prepared_order_ids = [
+                add_prepared_order(order) for order in prepared_orders
+            ]
+            [
+                send_new_order("Tiki", order, prepared_order_id)
+                for order, prepared_order_id in zip(orders, prepared_order_ids)
+            ]
             return {
                 **res,
                 "orders": prepared_order_ids,
@@ -54,7 +58,7 @@ def handle_orders(orders: list[tiki.Order]) -> ResponseBuilder:
 
 
 def ack_ack_id(ack_id: str) -> ResponseBuilder:
-    def ack(res: dict) -> dict:
+    def ack(res: dict) -> Response:
         return {
             **res,
             "ack_id": add_ack(ack_id),

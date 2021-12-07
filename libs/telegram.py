@@ -1,15 +1,17 @@
-from typing import Any, Optional, Union
+from typing import Optional
 import os
 import json
 
 import yaml
 import requests
 
+from libs.utils import compose
+from libs.netsuite import get_sales_order_url
 from models import telegram
-from models.ecommerce import tiki
+from models.ecommerce import ecommerce
 
 
-CHAT_ID = "-645664226"
+CHAT_ID = os.getenv("CHAT_ID")
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
 
 
@@ -29,28 +31,42 @@ def get_callback_query_data(update: telegram.Update) -> dict:
     )
 
 
-def send_telegram(text: str, reply_markup: Optional[dict] = None) -> dict:
-    payload: dict[str, Any] = {
-        "chat_id": CHAT_ID,
-        "parse_mode": "MarkdownV2",
-        "text": text,
-    }
-    if reply_markup:
-        payload["reply_markup"] = reply_markup
+def _build_send_payload(builder, *args):
+    def build(payload: dict) -> dict:
+        return {
+            **payload,
+            **builder(*args),
+        }
+
+    return build
+
+
+def build_callback_data(type_: str, action: int, value: str) -> telegram.CalbackData:
+    return json.dumps(
+        {
+            "t": type_,
+            "a": action,
+            "v": value,
+        }
+    )
+
+
+def _send_telegram(payload: telegram.Payload) -> dict:
     with requests.post(
         f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage",
-        json=payload,
+        json={
+            **payload,
+            "chat_id": CHAT_ID,
+            "parse_mode": "MarkdownV2",
+        },
     ) as r:
+        r.raise_for_status()
         return r.json()
 
 
-def send_new_order(
-    ecom: str,
-    order: Union[tiki.Order, None],
-    prepared_order,
-) -> dict:
-    return send_telegram(
-        "\n".join(
+def _add_new_ecommerce_order(ecom: str, order: ecommerce.Order) -> telegram.Payload:
+    return {
+        "text": "\n".join(
             [
                 f"Đơn hàng *{ecom}* mới",
                 DIVIDER,
@@ -58,43 +74,96 @@ def send_new_order(
                 yaml.dump(order, allow_unicode=True),
                 "```",
             ]
-        ),
-        {
+        )
+    }
+
+
+def _add_new_ecommerce_order_callback(prepared_order_id: str):
+    return {
+        "reply_markup": {
             "inline_keyboard": [
                 [
-                    {"text": "Tạo đơn", "callback_data": json.dumps(prepared_order)},
-                    {"text": "Huỷ đơn", "callback_data": json.dumps(prepared_order)},
+                    {
+                        "text": "Tạo đơn (+)",
+                        "callback_data": build_callback_data("O", 1, prepared_order_id),
+                    },
+                    {
+                        "text": "Huỷ đơn (-)",
+                        "callback_data": build_callback_data(
+                            "O", -1, prepared_order_id
+                        ),
+                    },
                 ]
             ]
-        },
-    )
+        }
+    }
 
 
-def get_sales_order_url(id):
-    return f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/app/accounting/transactions/salesord\.nl?id\={id}"
+def _add_acknowledge_callback():
+    return {
+        "reply_markup": {
+            "keyboard": [
+                [
+                    {
+                        "text": "Đã Nhận thông tin",
+                    },
+                    {
+                        "text": "Đã Check đơn trên NetSuite",
+                    },
+                ],
+            ]
+        }
+    }
 
 
-def send_created_order(ecommerce: str, id: str) -> dict:
-    return send_telegram(
-        "\n".join(
+def _add_created_order(ecom: str, id: str) -> dict:
+    return {
+        "text": "\n".join(
             [
-                f"Tạo dơn hàng *{ecommerce}* thành công ^^",
+                f"Tạo đơn hàng *{ecom}* thành công ^^",
                 DIVIDER,
                 f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
             ]
         )
-    )
+    }
 
 
-def send_error_create_order(ecommerce: str, error: Exception, order_ids: list[str]):
-    return send_telegram(
-        "\n".join(
+def _add_create_order_error(ecom: str, error: Exception, id: str):
+    return {
+        "text": "\n".join(
             [
-                f"Tạo đơn hàng *{ecommerce}* thất bại: {','.join(order_ids)}",
+                f"Tạo đơn hàng *{ecom}* thất bại: `{id}`",
                 DIVIDER,
                 "```",
                 repr(error),
                 "```",
             ]
         )
+    }
+
+
+def send_new_order(ecom: str, order: ecommerce.Order, prepared_order_id: str) -> dict:
+    return _send_telegram(
+        compose(
+            _build_send_payload(_add_new_ecommerce_order, ecom, order),
+            _build_send_payload(_add_new_ecommerce_order_callback, prepared_order_id),
+        )({})
+    )
+
+
+def send_created_order(ecom: str, id: str):
+    return _send_telegram(
+        compose(
+            _build_send_payload(_add_created_order, ecom, id),
+            _build_send_payload(_add_acknowledge_callback),
+        )({})
+    )
+
+
+def send_create_order_error(ecom: str, error: Exception, id: str):
+    return _send_telegram(
+        compose(
+            _build_send_payload(_add_create_order_error, ecom, error, id),
+            _build_send_payload(_add_acknowledge_callback),
+        )({})
     )

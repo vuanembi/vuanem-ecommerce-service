@@ -1,3 +1,5 @@
+import os
+
 from typing import Callable, Optional, TypeVar
 from datetime import date
 
@@ -93,9 +95,17 @@ def build_prepared_order(
 
 
 def build_item(item: Optional[str], quantity: int, amount: int) -> order.Item:
-    return {
-        "item": int(item),
-        "quantity": quantity,
-        "price": -1,
-        "amount": int(amount / 1.1),
-    } if item else {}
+    return (
+        {
+            "item": int(item),
+            "quantity": quantity,
+            "price": -1,
+            "amount": int(amount / 1.1),
+        }
+        if item
+        else {}
+    )
+
+
+def get_sales_order_url(id):
+    return f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/app/accounting/transactions/salesord\.nl?id\={id}"

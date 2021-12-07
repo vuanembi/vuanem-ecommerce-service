@@ -28,12 +28,14 @@ jobs:
         run: |
           echo "FUNCTION_NAME=vuanem-ecommerce-service-dev" >> $GITHUB_ENV
           echo "PUBLIC_URL=https://us-central1-voltaic-country-280607.cloudfunctions.net/vuanem-ecommerce-service-dev" >> $GITHUB_ENV
+          echo "CHAT_ID=-645664226" >> $GITHUB_ENV
 
       - name: Set env vars (prod)
         if: endsWith(github.ref, '/master')
         run: |
           echo "FUNCTION_NAME=vuanem-ecommerce-service" >> $GITHUB_ENV
           echo "PUBLIC_URL=https://us-central1-voltaic-country-280607.cloudfunctions.net/vuanem-ecommerce-service" >> $GITHUB_ENV
+          echo "CHAT_ID=-1001685563275" >> $GITHUB_ENV
 
       - name: Deploy to Cloud Functions
         run: >-
