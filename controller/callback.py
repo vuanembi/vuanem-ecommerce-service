@@ -4,7 +4,7 @@ from libs.telegram import (
     is_chat_id,
     is_callback,
     get_callback_query_data,
-    _send_telegram,
+    _send,
     answer_callback,
 )
 from models import telegram
@@ -15,7 +15,7 @@ def callback_controller(request_data: telegram.Update) -> dict:
         callback_query_id, data = get_callback_query_data(request_data)
         print(data)
         answer_callback(callback_query_id)
-        _send_telegram({"text": f"`{json.dumps(data)}`"})
+        _send({"text": f"`{json.dumps(data)}`"})
     return {
         "controller": "callback",
     }

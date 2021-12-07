@@ -34,7 +34,7 @@ def get_callback_query_data(update: telegram.Update) -> tuple[str, dict]:
     )
 
 
-def _build_send_payload(builder: Callable, *args):
+def _build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
     def build(payload: telegram.Payload) -> telegram.Payload:
         return {
             **payload,
@@ -54,7 +54,7 @@ def build_callback_data(type_: str, action: int, value: str) -> telegram.Calback
     )
 
 
-def _send_telegram(payload: telegram.Payload) -> dict:
+def _send(payload: telegram.Payload) -> dict:
     with requests.post(
         f"{BASE_URL}/sendMessage",
         json={
@@ -67,7 +67,7 @@ def _send_telegram(payload: telegram.Payload) -> dict:
         return r.json()
 
 
-def answer_callback(callback_query_id):
+def answer_callback(callback_query_id: str) -> dict:
     with requests.post(
         f"{BASE_URL}/answerCallbackQuery",
         json={
@@ -108,7 +108,7 @@ def _add_new_ecommerce_order_callback(prepared_order_id: str):
     }
 
 
-def _add_acknowledge_callback():
+def _add_acknowledge_callback() -> telegram.Payload:
     return {
         "reply_markup": {
             "keyboard": [
@@ -122,7 +122,7 @@ def _add_acknowledge_callback():
     }
 
 
-def _add_created_order(ecom: str, id: str) -> dict:
+def _add_created_order(ecom: str, id: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
@@ -134,7 +134,7 @@ def _add_created_order(ecom: str, id: str) -> dict:
     }
 
 
-def _add_create_order_error(ecom: str, error: Exception, id: str):
+def _add_create_order_error(ecom: str, error: Exception, id: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
@@ -148,7 +148,7 @@ def _add_create_order_error(ecom: str, error: Exception, id: str):
     }
 
 
-def _add_closed_created_order(ecom: str, id: str):
+def _add_closed_created_order(ecom: str, id: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
@@ -160,7 +160,7 @@ def _add_closed_created_order(ecom: str, id: str):
     }
 
 
-def _add_closed_created_order_callback(prepared_order_id: str):
+def _add_closed_created_order_callback(prepared_order_id: str) -> telegram.Payload:
     return {
         "reply_markup": {
             "inline_keyboard": [
@@ -178,7 +178,7 @@ def _add_closed_created_order_callback(prepared_order_id: str):
 
 
 def send_new_order(ecom: str, order: ecommerce.Order, prepared_order_id: str) -> dict:
-    return _send_telegram(
+    return _send(
         compose(
             _build_send_payload(_add_new_ecommerce_order, ecom, order),
             _build_send_payload(_add_new_ecommerce_order_callback, prepared_order_id),
@@ -186,8 +186,8 @@ def send_new_order(ecom: str, order: ecommerce.Order, prepared_order_id: str) ->
     )
 
 
-def send_created_order(ecom: str, id: str):
-    return _send_telegram(
+def send_created_order(ecom: str, id: str) -> dict:
+    return _send(
         compose(
             _build_send_payload(_add_created_order, ecom, id),
             _build_send_payload(_add_closed_created_order_callback, id),
@@ -196,8 +196,8 @@ def send_created_order(ecom: str, id: str):
     )
 
 
-def send_create_order_error(ecom: str, error: Exception, id: str):
-    return _send_telegram(
+def send_create_order_error(ecom: str, error: Exception, id: str) -> dict:
+    return _send(
         compose(
             _build_send_payload(_add_create_order_error, ecom, error, id),
             _build_send_payload(_add_acknowledge_callback),
@@ -205,8 +205,8 @@ def send_create_order_error(ecom: str, error: Exception, id: str):
     )
 
 
-def send_closed_created_order(ecom: str, id: str):
-    return _send_telegram(
+def send_closed_created_order(ecom: str, id: str) -> dict:
+    return _send(
         compose(
             _build_send_payload(_add_closed_created_order, ecom, id),
             _build_send_payload(_add_acknowledge_callback),

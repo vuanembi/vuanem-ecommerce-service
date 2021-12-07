@@ -1,4 +1,4 @@
-from typing import TypedDict, Any
+from typing import TypedDict, Any, Callable
 
 
 class Chat(TypedDict):
@@ -21,6 +21,8 @@ class Update(TypedDict):
 
 
 Payload = dict[str, Any]
+
+PayloadBuilder = Callable[[Payload], Payload]
 
 class CalbackData(TypedDict):
     t: str
