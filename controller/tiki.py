@@ -40,9 +40,11 @@ def handle_orders(orders: list[tiki.Order]) -> ResponseBuilder:
     def handle(res: dict) -> Response:
         if len(orders):
             prepared_orders = [build_prepared_components(order) for order in orders]
+            print(prepared_orders)
             prepared_order_ids = [
                 add_prepared_order(order) for order in prepared_orders
             ]
+            print(prepared_order_ids)
             [
                 send_new_order("Tiki", order, prepared_order_id)
                 for order, prepared_order_id in zip(orders, prepared_order_ids)
