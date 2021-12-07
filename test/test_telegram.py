@@ -1,6 +1,10 @@
 import pytest
 
-from libs.telegram import send_created_order, send_create_order_error
+from libs.telegram import (
+    send_created_order,
+    send_create_order_error,
+    send_closed_created_order,
+)
 
 
 @pytest.fixture()
@@ -19,3 +23,7 @@ def test_send_created_order(ecommerce, order):
 
 def test_send_error_create_order(ecommerce, order):
     assert send_create_order_error(ecommerce, Exception("Test exception"), order)["ok"]
+
+
+def test_send_closed_created_order(ecommerce, order):
+    assert send_closed_created_order(ecommerce, order)["ok"]

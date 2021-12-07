@@ -84,17 +84,11 @@ def _add_new_ecommerce_order_callback(prepared_order_id: str):
             "inline_keyboard": [
                 [
                     {
-                        "text": "Tạo đơn (+)",
+                        "text": "Tạo đơn",
                         "callback_data": build_callback_data("O", 1, prepared_order_id),
                     },
-                    {
-                        "text": "Huỷ đơn (-)",
-                        "callback_data": build_callback_data(
-                            "O", -1, prepared_order_id
-                        ),
-                    },
                 ]
-            ]
+            ],
         }
     }
 
@@ -106,9 +100,6 @@ def _add_acknowledge_callback():
                 [
                     {
                         "text": "Đã Nhận thông tin",
-                    },
-                    {
-                        "text": "Đã Check đơn trên NetSuite",
                     },
                 ],
             ]
@@ -142,6 +133,35 @@ def _add_create_order_error(ecom: str, error: Exception, id: str):
     }
 
 
+def _add_closed_created_order(ecom: str, id: str):
+    return {
+        "text": "\n".join(
+            [
+                f"Đóng đơn hàng *{ecom}* thành công X\.X",
+                DIVIDER,
+                f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
+            ]
+        )
+    }
+
+
+def _add_closed_created_order_callback(prepared_order_id: str):
+    return {
+        "reply_markup": {
+            "inline_keyboard": [
+                [
+                    {
+                        "text": "Đóng đơn",
+                        "callback_data": build_callback_data(
+                            "O", -1, prepared_order_id
+                        ),
+                    },
+                ]
+            ]
+        }
+    }
+
+
 def send_new_order(ecom: str, order: ecommerce.Order, prepared_order_id: str) -> dict:
     return _send_telegram(
         compose(
@@ -155,6 +175,7 @@ def send_created_order(ecom: str, id: str):
     return _send_telegram(
         compose(
             _build_send_payload(_add_created_order, ecom, id),
+            _build_send_payload(_add_closed_created_order_callback, id),
             _build_send_payload(_add_acknowledge_callback),
         )({})
     )
@@ -164,6 +185,15 @@ def send_create_order_error(ecom: str, error: Exception, id: str):
     return _send_telegram(
         compose(
             _build_send_payload(_add_create_order_error, ecom, error, id),
+            _build_send_payload(_add_acknowledge_callback),
+        )({})
+    )
+
+
+def send_closed_created_order(ecom: str, id: str):
+    return _send_telegram(
+        compose(
+            _build_send_payload(_add_closed_created_order, ecom, id),
             _build_send_payload(_add_acknowledge_callback),
         )({})
     )
