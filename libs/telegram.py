@@ -5,13 +5,13 @@ import json
 import yaml
 import requests
 
-from libs.utils import compose
+from libs.utils import compose, get_env
 from libs.netsuite import get_sales_order_url
 from models import telegram
 from models.ecommerce import ecommerce
 
 
-CHAT_ID = os.getenv("CHAT_ID")
+CHAT_ID = get_env("TELEGRAM_CHAT_ID")
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
 
 

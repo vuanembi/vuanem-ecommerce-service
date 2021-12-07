@@ -27,15 +27,13 @@ jobs:
         if: endsWith(github.ref, '/dev')
         run: |
           echo "FUNCTION_NAME=vuanem-ecommerce-service-dev" >> $GITHUB_ENV
-          echo "PUBLIC_URL=https://us-central1-voltaic-country-280607.cloudfunctions.net/vuanem-ecommerce-service-dev" >> $GITHUB_ENV
-          echo "CHAT_ID=-645664226" >> $GITHUB_ENV
+          echo "PYTHON_ENV=dev" >> $GITHUB_ENV
 
       - name: Set env vars (prod)
         if: endsWith(github.ref, '/master')
         run: |
           echo "FUNCTION_NAME=vuanem-ecommerce-service" >> $GITHUB_ENV
-          echo "PUBLIC_URL=https://us-central1-voltaic-country-280607.cloudfunctions.net/vuanem-ecommerce-service" >> $GITHUB_ENV
-          echo "CHAT_ID=-1001685563275" >> $GITHUB_ENV
+          echo "PYTHON_ENV=prod" >> $GITHUB_ENV
 
       - name: Deploy to Cloud Functions
         run: >-
@@ -49,4 +47,4 @@ jobs:
           --runtime=python39
           --trigger-http
           --service-account=${{ env.GCP_SA }}
-          --set-env-vars=GCP_SA=${{ env.GCP_SA }},PUBLIC_URL=${{ env.PUBLIC_URL}},CONSUMER_KEY=${{ secrets.CONSUMER_KEY }},CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }},ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }},TOKEN_SECRET=${{ secrets.TOKEN_SECRET }},ACCOUNT_ID=${{ secrets.ACCOUNT_ID }},TIKI_ACCESS_TOKEN=${{ secrets.TIKI_ACCESS_TOKEN }},TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }},CHAT_ID=${{ env.CHAT_ID }}
+          --set-env-vars=PYTHON_ENV=${{ env.PYTHON_ENV }},GCP_SA=${{ env.GCP_SA }},CONSUMER_KEY=${{ secrets.CONSUMER_KEY }},CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }},ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }},TOKEN_SECRET=${{ secrets.TOKEN_SECRET }},ACCOUNT_ID=${{ secrets.ACCOUNT_ID }},TIKI_ACCESS_TOKEN=${{ secrets.TIKI_ACCESS_TOKEN }},TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
