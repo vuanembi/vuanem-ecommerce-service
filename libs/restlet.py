@@ -1,24 +1,10 @@
-from typing import Callable, TypedDict, Optional
+from typing import Optional
 import os
 
-from typing_extensions import Protocol
 import oauthlib.oauth1
 from requests_oauthlib import OAuth1Session
 
-
-class Restlet(TypedDict):
-    script: int
-    deploy: int
-
-
-class RestletRequest(Protocol):
-    def __call__(
-        self,
-        session: OAuth1Session,
-        params: dict = {},
-        body: Optional[dict] = None,
-    ) -> dict:
-        pass
+from models.netsuite.restlet import Restlet, RestletRequest
 
 
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
@@ -35,31 +21,29 @@ def netsuite_session() -> OAuth1Session:
     )
 
 
-def restlet(restlet: Restlet) -> Callable[[str], RestletRequest]:
-    def request_restlet(method: str) -> RestletRequest:
-        def request(
-            session: OAuth1Session,
-            params: dict = {},
-            body: Optional[dict] = None,
-        ) -> dict:
-            with session.request(
-                method,
-                BASE_URL,
-                params={
-                    **restlet,
-                    **params,
-                },
-                json=body,
-                headers={"Content-type": "application/json"},
-            ) as r:
-                r.raise_for_status()
-                return r.json()
+def request_restlet(restlet: Restlet) -> RestletRequest:
+    def request(
+        session: OAuth1Session,
+        method: str,
+        params: dict = {},
+        body: Optional[dict] = None,
+    ) -> dict:
+        with session.request(
+            method,
+            BASE_URL,
+            params={
+                **restlet,
+                **params,
+            },
+            json=body,
+            headers={"Content-type": "application/json"},
+        ) as r:
+            r.raise_for_status()
+            return r.json()
 
-        return request
-
-    return request_restlet
+    return request
 
 
-sales_order = restlet({"script": 997, "deploy": 1})
-customer = restlet({"script": 1099, "deploy": 1})
-inventory_item = restlet({"script": 1101, "deploy": 1})
+sales_order = request_restlet({"script": 997, "deploy": 1})
+customer = request_restlet({"script": 1099, "deploy": 1})
+inventory_item = request_restlet({"script": 1101, "deploy": 1})

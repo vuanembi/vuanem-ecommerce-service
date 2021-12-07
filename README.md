@@ -1,6 +1,6 @@
 # Vuanem Ecommerce Service
 
-[![CI/CD](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml/badge.svg)](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml)
+[![CI/CD](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml/badge.svg)](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml) ![Lines of code](https://img.shields.io/tokei/lines/github/vuanembi/vuanem-ecommerce-service)
 
 - [Vuanem Ecommerce Service](#vuanem-ecommerce-service)
   - [Architect](#architect)
@@ -49,16 +49,21 @@ Tiki utilises `Event Queue API`, polling data at a specified frequency. Upon rec
 
 ### Telegram
 
-Với mỗi đơn hàng đc tạo trên các sàn, Telegram sẽ gửi 2 tin nhắn:
+Telegram đc vận hành bằng Bot để gửi tin nhắn và nhận yêu cầu từ ng dùng. Có 2 loại tin nhắn
+
+- **Thông tin**: Chỉ cung cấp thông tin, ko yêu cầu ng dùng input
+- **Yêu cầu**: Cung cấp các lựa chọn sẵn cho chính đối tượng tin nhắn đang nói đến, gắn vào với **chính tin nhắn đó** sẽ ko tạo ra thay đổi gì nếu ko có input của ng dùng
+
+Với mỗi tin nhắn **thông tin**, Telegram sẽ hiển thị thêm 2 nút quick reply:
+
+![Telegram Reply](docs/tele-reply.png)
+
+Ng dùng có thể sử dụng để trả lời nhanh + reply vào tin nhắn vừa, đánh dấu tình trạng. Dựa trên các tình huống trên sàn, Telegram sẽ gửi tin nhắn:
 
 - Đã có đơn hàng đc tạo trên sàn
+  - Bot sẽ hiển thị thêm 1 nút **Tạo đơn** ![Telegram Keyboard New](docs/tele-kb-new.png).
 - Đơn hàng trên đã đc tạo thành công trên NetSuite
-
-Với mỗi tin nhắn, App Telegram sẽ hiển thị thêm 2 nút quick reply:
-
-![Telegram Quick Reply](docs/telegram_quick_reply.png)
-
-Ng dùng có thể sử dụng để trả lời nhanh + reply vào tin nhắn vừa, đánh dấu tình trạng.
+  - Bot sẽ hiển thị thêm nút **Đóng đơn** ![Telegram Keyboard Created](docs/tele-kb-created.png).
 
 ### Tiki
 

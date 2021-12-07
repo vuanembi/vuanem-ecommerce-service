@@ -1,4 +1,5 @@
-from controller.tiki import handle_event_queue
+from controller.tiki import tiki_controller
+from controller.callback import callback_controller
 
 
 def main(request) -> dict:
@@ -8,7 +9,12 @@ def main(request) -> dict:
     print(request_path, request_json)
 
     if request_path == "/tiki":
-        response = handle_event_queue()
-
+        response = tiki_controller()
+    elif request_path == "/callback":
+        response = callback_controller(request_json)
+    else:
+        response = {
+            "status": 200,
+        }
     print(response)
     return response
