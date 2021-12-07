@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from models.netsuite.ecommerce import LEAD_SOURCE
+from models.netsuite import ecommerce
 
 
 class ShippingAddress(TypedDict):
@@ -23,28 +23,7 @@ class PreparedCustomer(CustomerBase):
 
 
 class CustomerRequest(TypedDict):
-    leadsource: int
+    leadsource: ecommerce.LEAD_SOURCE
     phone: str
     firstname: str
     lastname: str
-
-
-def build_customer_request(name, phone) -> CustomerRequest:
-    return {
-        "leadsource": LEAD_SOURCE,
-        "firstname": "Anh Chị",
-        "lastname": name,
-        "phone": phone,
-    }
-
-
-def build_prepared_customer(phone: str, name: str) -> PreparedCustomer:
-    return {
-        "entity": None,
-        "custbody_customer_phone": phone,
-        "custbody_recipient_phone": phone,
-        "custbody_recipient": name,
-        "shippingaddress": {
-            "addressee": name,
-        },
-    }

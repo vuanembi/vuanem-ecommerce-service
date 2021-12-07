@@ -1,14 +1,9 @@
-from typing import TypedDict, Optional
+from typing import Optional
 import os
 
 import requests
 
-BASE_URL = "https://api.tiki.vn/integration"
-HEADERS = {
-    "Authorization": f"Bearer {os.getenv('TIKI_ACCESS_TOKEN')}",
-    "User-Agent": "PostmanRuntime/7.28.3",
-}
-QUEUE_CODE = "6cd68367-3bde-4aac-a24e-258bc907d68b"
+from typing import TypedDict
 
 
 class Payload(TypedDict):
@@ -55,6 +50,14 @@ class Order(TypedDict):
     code: str
     items: list[Item]
     shipping: Shipping
+
+
+BASE_URL = "https://api.tiki.vn/integration"
+HEADERS = {
+    "Authorization": f"Bearer {os.getenv('TIKI_ACCESS_TOKEN')}",
+    "User-Agent": "PostmanRuntime/7.28.3",
+}
+QUEUE_CODE = "6cd68367-3bde-4aac-a24e-258bc907d68b"
 
 
 def pull_events(
