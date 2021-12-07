@@ -10,7 +10,7 @@ def main(request) -> dict:
 
     if request_path == "/tiki":
         response = tiki_controller()
-    elif request_path == '/chatbot':
+    elif request_path == '/callback':
         response = callback_controller(request_json)
 
     print(response)

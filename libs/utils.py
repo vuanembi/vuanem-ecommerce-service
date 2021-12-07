@@ -10,5 +10,6 @@ def compose(*func):
 
     return reduce(_compose, func, lambda x: x)
 
+
 def get_env(key: str):
-    return ENV[os.getenv("PYTHON_ENV","")].get(key)
+    return ENV[os.getenv("PYTHON_ENV", "dev")].get(key)
