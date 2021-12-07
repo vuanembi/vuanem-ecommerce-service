@@ -1,4 +1,4 @@
-from controller.tiki import handle_event_queue
+from controller.tiki import tiki_controller
 from controller.chatbot import handle_callback
 
 
@@ -9,7 +9,7 @@ def main(request) -> dict:
     print(request_path, request_json)
 
     if request_path == "/tiki":
-        response = handle_event_queue()
+        response = tiki_controller()
     elif request_path == '/chatbot':
         response = handle_callback(request_json)
 

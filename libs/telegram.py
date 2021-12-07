@@ -5,8 +5,9 @@ import json
 import yaml
 import requests
 
-from libs import tiki
 from models import telegram
+from models.ecommerce import tiki
+
 
 CHAT_ID = "-645664226"
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
@@ -44,14 +45,14 @@ def send_telegram(text: str, reply_markup: Optional[dict] = None) -> dict:
 
 
 def send_new_order(
-    ecommerce: str,
+    ecom: str,
     order: Union[tiki.Order, None],
     prepared_order,
 ) -> dict:
     return send_telegram(
         "\n".join(
             [
-                f"Đơn hàng *{ecommerce}* mới",
+                f"Đơn hàng *{ecom}* mới",
                 DIVIDER,
                 "```",
                 yaml.dump(order, allow_unicode=True),

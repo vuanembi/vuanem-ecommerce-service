@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from models.netsuite import customer, ecommerce
+from models.netsuite import ecommerce, customer
 
 EXPECTED_DELIVERY_TIME = 4
 
@@ -12,15 +12,20 @@ class Item(TypedDict):
     amount: int
 
 
-class OrderBase(customer.CustomerBase, ecommerce.Ecommerce):
-    leadsource: ecommerce.LEAD_SOURCE
+class Items(TypedDict):
+    items: list[Item]
+
+
+class OrderMeta(TypedDict):
+    leadsource: int
     custbody_expecteddeliverytime: int
     trandate: str
-    item: list[Item]
     memo: str
 
-class PreparedOrder(customer.PreparedCustomer, ecommerce.Ecommerce):
+
+class PreparedOrder(customer.PreparedCustomer, OrderMeta, Items, ecommerce.Ecommerce):  # type: ignore
     pass
 
-class Order(customer.Customer, ecommerce.Ecommerce):
+
+class Order(customer.Customer, OrderMeta, Items, ecommerce.Ecommerce):  # type: ignore
     pass

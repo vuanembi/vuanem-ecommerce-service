@@ -3,54 +3,7 @@ import os
 
 import requests
 
-from typing import TypedDict
-
-
-class Payload(TypedDict):
-    order_code: str
-    status: str
-
-
-class Event(TypedDict):
-    id: str
-    sid: str
-    created_at: str
-    payload: Payload
-
-
-class Product(TypedDict):
-    name: str
-    seller_product_code: str
-
-
-class Invoice(TypedDict):
-    row_total: int
-
-
-class Item(TypedDict):
-    product: Product
-    qty: int
-    invoice: Invoice
-
-
-class Address(TypedDict):
-    full_name: str
-    street: str
-    ward: str
-    district: str
-    phone: str
-
-
-class Shipping(TypedDict):
-    address: Address
-
-
-class Order(TypedDict):
-    id: int
-    code: str
-    items: list[Item]
-    shipping: Shipping
-
+from models.ecommerce import tiki
 
 BASE_URL = "https://api.tiki.vn/integration"
 HEADERS = {
@@ -63,7 +16,7 @@ QUEUE_CODE = "6cd68367-3bde-4aac-a24e-258bc907d68b"
 def pull_events(
     session: requests.Session,
     ack_id: Optional[str] = None,
-) -> tuple[str, list[Event]]:
+) -> tuple[str, list[tiki.Event]]:
     with session.post(
         f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull",
         json={
@@ -75,7 +28,7 @@ def pull_events(
     return data["ack_id"], data["events"]
 
 
-def get_order(session: requests.Session, order_id: str) -> Order:
+def get_order(session: requests.Session, order_id: str) -> tiki.Order:
     with session.get(
         f"{BASE_URL}/v2/orders/{order_id}",
         params={
