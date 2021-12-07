@@ -1,6 +1,6 @@
 # Vuanem Ecommerce Service
 
-[![CI/CD](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml/badge.svg)](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml)
+[![CI/CD](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml/badge.svg)](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml) ![Lines of code](https://img.shields.io/tokei/lines/github/vuanembi/vuanem-ecommerce-service)
 
 - [Vuanem Ecommerce Service](#vuanem-ecommerce-service)
   - [Architect](#architect)
@@ -56,15 +56,14 @@ Telegram đc vận hành bằng Bot để gửi tin nhắn và nhận yêu cầu
 
 Với mỗi tin nhắn **thông tin**, Telegram sẽ hiển thị thêm 2 nút quick reply:
 
-![Telegram Reply](docs/telegram-reply.png)
+![Telegram Reply](docs/tele-reply.png)
 
-Ng dùng có thể sử dụng để trả lời nhanh + reply vào tin nhắn vừa, đánh dấu tình trạng.
-Dựa trên các tình huống trên sàn, Telegram sẽ gửi tin nhắn:
+Ng dùng có thể sử dụng để trả lời nhanh + reply vào tin nhắn vừa, đánh dấu tình trạng. Dựa trên các tình huống trên sàn, Telegram sẽ gửi tin nhắn:
 
 - Đã có đơn hàng đc tạo trên sàn
-  - Bot sẽ hiển thị thêm 1 nút **Tạo đơn** ![Telegram Keyboard Create](docs/telegram-keyboard-create.png).
-  - Khi click nút **Tạo đơn** gắn với tin nhắn đó, hệ thống sẽ tự động lên đơn và trả kết quả về cho ng dùng.
+  - Bot sẽ hiển thị thêm 1 nút **Tạo đơn** ![Telegram Keyboard New](docs/tele-kb-new.png).
 - Đơn hàng trên đã đc tạo thành công trên NetSuite
+  - Bot sẽ hiển thị thêm nút **Đóng đơn** ![Telegram Keyboard Created](docs/tele-kb-created.png).
 
 ### Tiki
 
