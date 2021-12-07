@@ -10,7 +10,7 @@ from libs.netsuite import get_sales_order_url
 from models import telegram
 from models.ecommerce import ecommerce
 
-
+BASE_URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
 CHAT_ID = get_env("TELEGRAM_CHAT_ID")
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
 
@@ -19,15 +19,18 @@ def _get_chat_id(update: telegram.Update) -> Optional[int]:
     return update.get("callback_query", {}).get("message", {}).get("chat", {}).get("id")
 
 
-def _filter_chat_id(update: telegram.Update) -> bool:
+def is_chat_id(update: telegram.Update) -> bool:
     return True if str(_get_chat_id(update)) == CHAT_ID else False
 
 
-def get_callback_query_data(update: telegram.Update) -> dict:
+def is_callback(update: telegram.Update) -> bool:
+    return True if update.get("callback_query") else False
+
+
+def get_callback_query_data(update: telegram.Update) -> tuple[str, dict]:
     return (
-        json.loads(update["callback_query"].get("data"))
-        if _filter_chat_id(update)
-        else None
+        update["callback_query"]["id"],
+        json.loads(update["callback_query"].get("data")),
     )
 
 
@@ -53,11 +56,23 @@ def build_callback_data(type_: str, action: int, value: str) -> telegram.Calback
 
 def _send_telegram(payload: telegram.Payload) -> dict:
     with requests.post(
-        f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage",
+        f"{BASE_URL}/sendMessage",
         json={
             **payload,
             "chat_id": CHAT_ID,
             "parse_mode": "MarkdownV2",
+        },
+    ) as r:
+        r.raise_for_status()
+        return r.json()
+
+
+def answer_callback(callback_query_id):
+    with requests.post(
+        f"{BASE_URL}/answerCallbackQuery",
+        json={
+            "callback_query_id": callback_query_id,
+            "text": "Processing...",
         },
     ) as r:
         r.raise_for_status()

@@ -14,7 +14,7 @@ from libs.telegram import send_new_order
 
 @pytest.fixture()
 def order(session):
-    return get_order(session, "771958146")
+    return get_order(session, "678789503")
 
 
 @pytest.fixture()
