@@ -75,8 +75,10 @@ def answer_callback(callback_query_id: str) -> dict:
             "text": "Processing...",
         },
     ) as r:
+        data = r.json()
+        print(data)
         r.raise_for_status()
-        return r.json()
+        return data
 
 
 def _add_new_ecommerce_order(ecom: str, order: ecommerce.Order) -> telegram.Payload:
