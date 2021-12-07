@@ -24,7 +24,7 @@ def is_chat_id(update: telegram.Update) -> bool:
 
 
 def is_callback(update: telegram.Update) -> bool:
-    return True if update.get("callback_query") else False
+    return True if "callback_query" in update else False
 
 
 def get_callback_query_data(update: telegram.Update) -> tuple[str, dict]:
