@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 import os
 import json
 
@@ -15,24 +15,24 @@ CHAT_ID = os.getenv("CHAT_ID")
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
 
 
-def get_chat_id(update: telegram.Update) -> Optional[int]:
+def _get_chat_id(update: telegram.Update) -> Optional[int]:
     return update.get("callback_query", {}).get("message", {}).get("chat", {}).get("id")
 
 
-def filter_chat_id(update: telegram.Update) -> bool:
-    return True if str(get_chat_id(update)) == CHAT_ID else False
+def _filter_chat_id(update: telegram.Update) -> bool:
+    return True if str(_get_chat_id(update)) == CHAT_ID else False
 
 
 def get_callback_query_data(update: telegram.Update) -> dict:
     return (
         json.loads(update["callback_query"].get("data"))
-        if filter_chat_id(update)
+        if _filter_chat_id(update)
         else None
     )
 
 
-def _build_send_payload(builder, *args):
-    def build(payload: dict) -> dict:
+def _build_send_payload(builder: Callable, *args):
+    def build(payload: telegram.Payload) -> telegram.Payload:
         return {
             **payload,
             **builder(*args),
