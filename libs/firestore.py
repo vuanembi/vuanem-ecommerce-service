@@ -44,6 +44,8 @@ add_prepared_order: Callable[[order.PreparedOrder], str] = add_doc(
     lambda x: {
         "order": x,
         "status": "added",
+        "created_at": firestore.SERVER_TIMESTAMP,
+        "updated_at": firestore.SERVER_TIMESTAMP,
     },
 )
 
