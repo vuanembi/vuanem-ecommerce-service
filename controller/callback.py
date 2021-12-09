@@ -1,3 +1,5 @@
+import json
+
 from libs.firestore import create_telegram_update, get_telegram_update
 from libs.telegram import (
     get_callback_query_data,
@@ -10,7 +12,11 @@ from models.utils import Response, ResponseBuilder
 
 
 def callback_controller(request_data: telegram.Update) -> Response:
-    return compose(handle_echo(request_data), handle_update(request_data))(
+    return compose(
+        handle_load_callback_data,
+        handle_echo(request_data),
+        handle_update(request_data),
+    )(
         {
             "controller": "callback",
         }
@@ -44,3 +50,16 @@ def handle_echo(update: telegram.Update) -> ResponseBuilder:
             return res
 
     return handle
+
+
+def handle_load_callback_data(res: dict) -> Response:
+    try:
+        return {
+            **res,
+            "data": json.loads(res["data_str"]),
+        }
+    except (TypeError, json.decoder.JSONDecodeError):
+        return {
+            **res,
+            "data": False,
+        }

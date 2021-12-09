@@ -109,3 +109,17 @@ def build_item(item: Optional[str], quantity: int, amount: int) -> order.Item:
 
 def get_sales_order_url(id):
     return f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/app/accounting/transactions/salesord\.nl?id\={id}"
+
+
+def build_sales_order_from_prepared(session, order: order.PreparedOrder) -> order.Order:
+    return {
+        **order,
+        "entity_id": int(
+            get_customer_if_not_exist(
+                session,
+                build_customer_request(
+                    order["custbody_recipient"], order["custbody_customer_phone"]
+                ),
+            )
+        ),
+    }

@@ -33,6 +33,13 @@ def prepared_order() -> order.PreparedOrder:
         "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
     }
 
+@pytest.fixture()
+def netsuite_order(prepared_order):
+    return {
+        **prepared_order,
+        "entity_id": 599656,
+    }
+
 
 @pytest.fixture()
 def update():
