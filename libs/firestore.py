@@ -24,7 +24,7 @@ def _create(
 ) -> Callable[[Any], str]:
     def create(input_) -> str:
         id, data = factory(input_)
-        doc_ref = collection.document(str(id))
+        doc_ref = collection.document(str(id)) if id else collection.document()
         doc_ref.create(data)
         return doc_ref.id
 

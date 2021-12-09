@@ -1,5 +1,6 @@
 import pytest
 
+from libs.firestore import get_prepared_order
 from libs.telegram import (
     send_created_order,
     send_create_order_error,
@@ -27,3 +28,7 @@ def test_send_error_create_order(ecommerce, order):
 
 def test_send_closed_created_order(ecommerce, order):
     assert send_closed_created_order(ecommerce, order)["ok"]
+
+
+def test_get_prepared_order(callback_data):
+    assert get_prepared_order(callback_data["v"])["order"]

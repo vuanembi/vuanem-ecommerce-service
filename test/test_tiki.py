@@ -64,12 +64,13 @@ def test_build_prepared_components(order):
     res = build_prepared_components(order)
     assert res
 
+
 def test_send_new_order(order):
-    assert send_new_order("Tiki", order, '111')['ok']
+    assert send_new_order("Tiki", order, "111")["ok"]
 
 
 def test_handle_orders(order):
-    assert handle_orders([order])({})["orders"]
+    assert handle_orders({"orders": [order]})["orders"]
 
 
 def test_tiki():

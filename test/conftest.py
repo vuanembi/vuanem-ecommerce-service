@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import requests
 import pytest
+import random
 
 from libs.restlet import netsuite_session
 from models.netsuite import order
@@ -50,7 +51,7 @@ def netsuite_order(prepared_order):
 @pytest.fixture()
 def update():
     return {
-        "update_id": 54011326,
+        "update_id": random.randint(100000, 900000),
         "callback_query": {
             "id": "3662730095478523210",
             "from": {
@@ -96,6 +97,14 @@ def update():
                 },
             },
             "chat_instance": "8890303927539922236",
-            "data": '{"t": "O", "a": -1, "v": "pI9Jog6n1fFkNsVk4x7Y"}',
+            "data": '{"t": "O", "a": 1, "v": "k6PT1g0vGRGeDEFtjJuY"}',
         },
     }
+
+@pytest.fixture()
+def prepared_order_id():
+    return "k6PT1g0vGRGeDEFtjJuY"
+
+@pytest.fixture()
+def callback_data():
+    return {"t": "O", "a": 1, "v": "k6PT1g0vGRGeDEFtjJuY"}

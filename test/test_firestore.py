@@ -4,6 +4,7 @@ from libs.firestore import (
     create_tiki_ack_id,
     get_latest_tiki_ack_id,
     create_prepared_order,
+    get_prepared_order,
     create_telegram_update,
     get_telegram_update,
 )
@@ -36,4 +37,8 @@ def test_get_telegram_update(update):
 
 def test_create_prepared_order(prepared_order):
     res = create_prepared_order(prepared_order)
+    res
+
+def test_get_prepared_order(prepared_order_id):
+    res = get_prepared_order(prepared_order_id)
     res
