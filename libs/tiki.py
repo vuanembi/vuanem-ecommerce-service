@@ -3,7 +3,6 @@ import os
 
 import requests
 
-from libs.utils import get_env
 from models.ecommerce import tiki
 
 BASE_URL = "https://api.tiki.vn/integration"
@@ -11,7 +10,11 @@ HEADERS = {
     "Authorization": f"Bearer {os.getenv('TIKI_ACCESS_TOKEN')}",
     "User-Agent": "PostmanRuntime/7.28.3",
 }
-QUEUE_CODE = get_env("TIKI_QUEUE_CODE")
+QUEUE_CODE = (
+    "6cd68367-3bde-4aac-a24e-258bc907d68b"
+    if os.getenv("PYTHON_ENV") == "prod"
+    else "f0c586e1-fb27-4d73-90bb-bcfe31464dba"
+)
 
 
 def pull_events(

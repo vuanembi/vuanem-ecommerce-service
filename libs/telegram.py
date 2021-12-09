@@ -5,13 +5,13 @@ import json
 import yaml
 import requests
 
-from libs.utils import compose, get_env
+from libs.utils import compose
 from libs.netsuite import get_sales_order_url
 from models import telegram
 from models.ecommerce import ecommerce
 
 BASE_URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
-CHAT_ID = get_env("TELEGRAM_CHAT_ID")
+CHAT_ID = "-1001685563275" if os.getenv("PYTHON_ENV") == "prod" else "-645664226"
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
 
 

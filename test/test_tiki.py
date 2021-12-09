@@ -8,7 +8,7 @@ from controller.tiki import (
     handle_orders,
 )
 from libs.tiki import get_order, pull_events
-from libs.firestore import get_latest_ack_id
+from libs.firestore import get_latest_tiki_ack_id
 from libs.telegram import send_new_order
 
 
@@ -43,7 +43,7 @@ def prepared_items():
 
 
 def test_pull_event(session):
-    ack_id, events = pull_events(session, get_latest_ack_id())
+    ack_id, events = pull_events(session, get_latest_tiki_ack_id())
     assert ack_id
 
 

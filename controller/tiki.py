@@ -1,6 +1,6 @@
 import requests
 
-from libs.firestore import add_ack, add_prepared_order, get_latest_ack_id
+from libs.firestore import create_tiki_ack_id, create_prepared_order, get_latest_tiki_ack_id
 from libs.tiki import pull_events, get_order
 from libs.netsuite import (
     build_item,
@@ -20,7 +20,7 @@ from models.utils import Response, ResponseBuilder
 
 def tiki_controller() -> Response:
     with requests.Session() as session:
-        ack_id, events = pull_events(session, get_latest_ack_id())
+        ack_id, events = pull_events(session, get_latest_tiki_ack_id())
         orders = [
             get_order(
                 session,
@@ -42,7 +42,7 @@ def handle_orders(orders: list[tiki.Order]) -> ResponseBuilder:
             prepared_orders = [build_prepared_components(order) for order in orders]
             print(prepared_orders)
             prepared_order_ids = [
-                add_prepared_order(order) for order in prepared_orders
+                create_prepared_order(order) for order in prepared_orders
             ]
             print(prepared_order_ids)
             [
@@ -63,7 +63,7 @@ def ack_ack_id(ack_id: str) -> ResponseBuilder:
     def ack(res: dict) -> Response:
         return {
             **res,
-            "ack_id": add_ack(ack_id),
+            "ack_id": create_tiki_ack_id(ack_id),
         }
 
     return ack
