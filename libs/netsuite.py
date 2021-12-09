@@ -1,6 +1,7 @@
 import os
 
 from typing import Callable, Optional, TypeVar
+from collections import OrderedDict
 from datetime import date
 
 from requests_oauthlib import OAuth1Session
@@ -30,12 +31,14 @@ def get_customer_if_not_exist(
         else restlet.customer(
             session,
             "POST",
-            body={
-                "leadsource": LEAD_SOURCE,
-                "firstname": customer["firstname"],
-                "lastname": customer["lastname"],
-                "phone": customer["phone"],
-            },
+            body=OrderedDict(
+                {
+                    "leadsource": LEAD_SOURCE,
+                    "firstname": customer["firstname"],
+                    "lastname": customer["lastname"],
+                    "phone": customer["phone"],
+                }
+            ),
         )["id"]
     )
 
@@ -55,7 +58,6 @@ def build_customer_request(name: str, phone: str) -> customer.CustomerRequest:
 
 def build_prepared_customer(phone: str, name: str) -> customer.PreparedCustomer:
     return {
-        "entity": None,
         "custbody_customer_phone": phone,
         "custbody_recipient_phone": phone,
         "custbody_recipient": name,
@@ -112,14 +114,16 @@ def get_sales_order_url(id):
 
 
 def build_sales_order_from_prepared(session, order: order.PreparedOrder) -> order.Order:
-    return {
-        **order,
-        "entity_id": int(
-            get_customer_if_not_exist(
-                session,
-                build_customer_request(
-                    order["custbody_recipient"], order["custbody_customer_phone"]
-                ),
-            )
-        ),
-    }
+    return OrderedDict(
+        {
+            "entity": int(
+                get_customer_if_not_exist(
+                    session,
+                    build_customer_request(
+                        order["custbody_recipient"], order["custbody_customer_phone"]
+                    ),
+                )
+            ),
+            **order,
+        }
+    )

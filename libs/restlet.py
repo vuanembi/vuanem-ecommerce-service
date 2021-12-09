@@ -1,4 +1,5 @@
 from typing import Optional
+from collections import OrderedDict
 import os
 
 import oauthlib.oauth1
@@ -26,7 +27,7 @@ def request_restlet(restlet: Restlet) -> RestletRequest:
         session: OAuth1Session,
         method: str,
         params: dict = {},
-        body: Optional[dict] = None,
+        body: Optional[OrderedDict] = None,
     ) -> dict:
         with session.request(
             method,

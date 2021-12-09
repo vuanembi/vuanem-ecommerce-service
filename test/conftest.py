@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import requests
 import pytest
 
@@ -17,28 +18,33 @@ def oauth_session():
 
 @pytest.fixture()
 def prepared_order() -> order.PreparedOrder:
-    return {
-        "custbody_customer_phone": "0773314403",
-        "custbody_expecteddeliverytime": 4,
-        "custbody_recipient": "Hieu",
-        "custbody_recipient_phone": "0773314403",
-        "shippingaddress": {"addressee": "anh Hiếu", "country": "VN"},
-        "custbody_order_payment_method": 22,
-        "salesrep": 1666,
-        "trandate": "2021-10-26",
-        "leadsource": 144506,
-        "partner": 916906,
-        "custbody_onl_rep": 942960,
-        "location": 788,
-        "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
-    }
+    return OrderedDict(
+        {
+            "trandate": "2021-10-26",
+            "subsidiary": 1,
+            "location": 788,
+            "department": 1044,
+            "custbody_customer_phone": "0773314403",
+            "custbody_expecteddeliverytime": 4,
+            "custbody_recipient": "Hieu",
+            "custbody_recipient_phone": "0773314403",
+            "shippingaddress": {"addressee": "anh Hiếu", "country": "VN"},
+            "custbody_order_payment_method": 22,
+            "salesrep": 1666,
+            "leadsource": 144506,
+            "partner": 916906,
+            "custbody_onl_rep": 942960,
+            "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
+        }
+    )
+
 
 @pytest.fixture()
 def netsuite_order(prepared_order):
-    return {
+    return OrderedDict({
+        "entity": 599656,
         **prepared_order,
-        "entity_id": 599656,
-    }
+    })
 
 
 @pytest.fixture()
