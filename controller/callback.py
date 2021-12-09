@@ -9,7 +9,7 @@ from models import telegram
 from models.utils import Response, ResponseBuilder
 
 
-def callback_controller(request_data: telegram.Update) -> dict:
+def callback_controller(request_data: telegram.Update) -> Response:
     return compose(handle_echo(request_data), handle_update(request_data))(
         {
             "controller": "callback",

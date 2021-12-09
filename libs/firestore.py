@@ -96,6 +96,7 @@ create_prepared_order: Callable[[order.PreparedOrder], str] = _create(
 )
 get_prepared_order: Callable[[str], Optional[dict]] = _get_one_by_id(PREPARED_ORDERS)
 
+
 create_telegram_update: Callable[[dict], str] = _create(
     TELEGRAM_UPDATES,
     lambda update: (
