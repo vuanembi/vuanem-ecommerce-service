@@ -1,6 +1,6 @@
 # Vuanem Ecommerce Service
 
-[![CI/CD](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml/badge.svg)](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml) ![Lines of code](https://img.shields.io/tokei/lines/github/vuanembi/vuanem-ecommerce-service)
+[![CI/CD](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml/badge.svg)](https://github.com/vuanembi/vuanem-ecommerce-service/actions/workflows/main.yaml) [![Hits-of-Code](https://hitsofcode.com/github/vuanembi/vuanem-ecommerce-service)](https://hitsofcode.com/github/vuanembi/vuanem-ecommerce-service/view) ![Lines of code](https://img.shields.io/tokei/lines/github/vuanembi/vuanem-ecommerce-service)
 
 - [Vuanem Ecommerce Service](#vuanem-ecommerce-service)
   - [Architect](#architect)
