@@ -1,6 +1,10 @@
 import requests
 
-from libs.firestore import create_tiki_ack_id, create_prepared_order, get_latest_tiki_ack_id
+from libs.firestore import (
+    create_tiki_ack_id,
+    create_prepared_order,
+    get_latest_tiki_ack_id,
+)
 from libs.tiki import pull_events, get_order
 from libs.netsuite import (
     build_item,
@@ -15,10 +19,18 @@ from libs.utils import compose
 
 from models.netsuite import order, customer, ecommerce
 from models.ecommerce import tiki
-from models.utils import Response, ResponseBuilder
+from models.utils import Response
 
 
 def tiki_controller() -> Response:
+    return compose(handle_ack, handle_orders, handle_events,)(
+        {
+            "controller": "tiki",
+        }
+    )
+
+
+def handle_events(res: dict) -> Response:
     with requests.Session() as session:
         ack_id, events = pull_events(session, get_latest_tiki_ack_id())
         orders = [
@@ -28,55 +40,52 @@ def tiki_controller() -> Response:
             )
             for event in events
         ]
-    print(orders)
-    return compose(handle_orders(orders), ack_ack_id(ack_id))(
-        {
-            "controller": "tiki",
-        }
-    )
+    return {
+        **res,
+        "ack_id": ack_id,
+        "orders": orders,
+    }
 
 
-def handle_orders(orders: list[tiki.Order]) -> ResponseBuilder:
-    def handle(res: dict) -> Response:
-        if len(orders):
-            prepared_orders = [build_prepared_components(order) for order in orders]
-            print(prepared_orders)
-            prepared_order_ids = [
-                create_prepared_order(order) for order in prepared_orders
-            ]
-            print(prepared_order_ids)
-            [
-                send_new_order("Tiki", order, prepared_order_id)
-                for order, prepared_order_id in zip(orders, prepared_order_ids)
-            ]
-            return {
-                **res,
-                "orders": prepared_order_ids,
-            }
-        else:
-            return res
-
-    return handle
-
-
-def ack_ack_id(ack_id: str) -> ResponseBuilder:
-    def ack(res: dict) -> Response:
+def handle_orders(res: dict) -> Response:
+    if len(res["orders"]):
+        prepared_order_ids = [
+            create_prepared_order(order)
+            for order in [build_prepared_components(order) for order in res["orders"]]
+        ]
+        print(prepared_order_ids)
+        [
+            send_new_order("Tiki", order, prepared_order_id)
+            for order, prepared_order_id in zip(res["orders"], prepared_order_ids)
+        ]
         return {
             **res,
-            "ack_id": create_tiki_ack_id(ack_id),
+            "results": {
+                **res.get("results", {}),
+                "orders": prepared_order_ids,
+            },
         }
+    else:
+        return res
 
-    return ack
+
+def handle_ack(res: dict) -> Response:
+    return {
+        **res,
+        "results": {
+            **res.get("results", {}),
+            "ack_id": create_tiki_ack_id(res["ack_id"]),
+        },
+    }
 
 
-def build_prepared_components(order: tiki.Order) -> order.Order:
-    build = compose(
-        build_prepared_order(add_customer, order),
-        build_prepared_order(add_items, order),
+def build_prepared_components(tiki_order: tiki.Order) -> order.Order:
+    return compose(
+        build_prepared_order(add_customer, tiki_order),
+        build_prepared_order(add_items, tiki_order),
         build_prepared_order(lambda _: ecommerce.Tiki),
-        build_prepared_order(build_prepared_order_meta, f"tiki - {order['code']}"),
-    )
-    return build({})
+        build_prepared_order(build_prepared_order_meta, f"tiki - {tiki_order['code']}"),
+    )({})
 
 
 def add_customer(order: tiki.Order) -> customer.PreparedCustomer:

@@ -15,7 +15,7 @@ EXPECTED_DELIVERY_TIME = 4
 def map_sku_to_item_id(session: OAuth1Session, sku: str) -> Optional[str]:
     try:
         return restlet.inventory_item(session, "GET", params={"itemid": sku})["id"]
-    except Exception as e:
+    except Exception:
         return None
 
 

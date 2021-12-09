@@ -43,16 +43,19 @@ def _get_one_by_id(
 def _get_latest(
     collection: firestore.CollectionReference,
     timestamp_col: str,
-) -> Callable[[], str]:
-    def get() -> str:
-        return [
-            i
-            for i in collection.order_by(
-                timestamp_col, direction=firestore.Query.DESCENDING
-            )
-            .limit(1)
-            .get()
-        ][0].id
+) -> Callable[[], Optional[str]]:
+    def get() -> Optional[str]:
+        try:
+            return [
+                i
+                for i in collection.order_by(
+                    timestamp_col, direction=firestore.Query.DESCENDING
+                )
+                .limit(1)
+                .get()
+            ][0].id
+        except IndexError:
+            return None
 
     return get
 

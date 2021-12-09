@@ -67,18 +67,14 @@ def _send(payload: telegram.Payload) -> dict:
         return r.json()
 
 
-def answer_callback(callback_query_id: str) -> dict:
-    with requests.post(
+def answer_callback(callback_query_id: str) -> None:
+    requests.post(
         f"{BASE_URL}/answerCallbackQuery",
         json={
             "callback_query_id": callback_query_id,
-            "text": "Processing...",
+            "text": "Đợi xíu...",
         },
-    ) as r:
-        data = r.json()
-        print(data)
-        r.raise_for_status()
-        return data
+    )
 
 
 def _add_new_ecommerce_order(ecom: str, order: ecommerce.Order) -> telegram.Payload:
