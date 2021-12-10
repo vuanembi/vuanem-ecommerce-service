@@ -31,7 +31,7 @@ def get_customer_if_not_exist(
             session,
             "GET",
             params={"phone": customer["phone"]},
-        )
+        )['id']
     except requests.exceptions.HTTPError as e:
         print(e.response.text)
         return restlet.customer(
