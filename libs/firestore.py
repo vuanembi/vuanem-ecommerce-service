@@ -60,6 +60,18 @@ def _get_latest(
     return get
 
 
+def _update(
+    collection: firestore.CollectionReference,
+    update_callback: Callable[..., dict],
+) -> Callable[[str], str]:
+    def update(id: str) -> str:
+        doc_ref = collection.document(id)
+        doc_ref.update(update_callback(id))
+        return doc_ref.id
+
+    return update
+
+
 def _delete(
     collection: firestore.CollectionReference,
 ):
@@ -96,6 +108,20 @@ create_prepared_order: Callable[[order.PreparedOrder], str] = _create(
 )
 get_prepared_order: Callable[[str], firestore.DocumentReference] = _get_one_by_id(
     PREPARED_ORDERS
+)
+update_prepared_order_created = _update(
+    PREPARED_ORDERS,
+    lambda _: {
+        "status": "created",
+        "updated_at": firestore.SERVER_TIMESTAMP,
+    },
+)
+update_prepared_order_closed = _update(
+    PREPARED_ORDERS,
+    lambda _: {
+        "status": "closed",
+        "updated_at": firestore.SERVER_TIMESTAMP,
+    },
 )
 
 

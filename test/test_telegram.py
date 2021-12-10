@@ -20,7 +20,7 @@ def ecommerce(request):
 
 
 def test_send_new_order(ecommerce, order):
-    assert send_new_order(ecommerce, order, "EC1jR8OJJXOPLdBgfG0o")["ok"]
+    assert send_new_order(ecommerce, order, "dcKwUknGf8eY2vePOJVA")["ok"]
 
 def test_send_created_order(order):
     assert send_created_order(order)["ok"]

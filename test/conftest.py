@@ -99,16 +99,16 @@ def update():
                 },
             },
             "chat_instance": "8890303927539922236",
-            "data": '{"t": "O", "a": 1, "v": "EC1jR8OJJXOPLdBgfG0o"}',
+            "data": '{"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}',
         },
     }
 
 
 @pytest.fixture()
 def prepared_order_id():
-    return "k6PT1g0vGRGeDEFtjJuY"
+    return "dcKwUknGf8eY2vePOJVA"
 
 
 @pytest.fixture()
 def callback_data():
-    return {"t": "O", "a": 1, "v": "k6PT1g0vGRGeDEFtjJuY"}
+    return {"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}
