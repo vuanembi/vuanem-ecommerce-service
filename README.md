@@ -8,7 +8,9 @@
     - [Event Handler App](#event-handler-app)
     - [Firestore](#firestore)
     - [Tiki](#tiki)
-  - [Sử dụng](#sử-dụng)
+  - [Logic - Sử dụng](#logic---sử-dụng)
+    - [Khách hàng](#khách-hàng)
+    - [Sản phẩm](#sản-phẩm)
     - [Telegram](#telegram)
     - [Tiki](#tiki-1)
 
@@ -23,11 +25,11 @@ NetSuite Records are integrated using REST API specs. Details can be found on **
 - Methods:
   - `GET`: Get a Record
   - `POST`: Create a Record
-  - `DELETE`: Soft delete a Record
+  - `DELETE`: Soft delete a Record (Close)
 - Response Statuses:
-  - `200`: **Success**
-  - `400`: **Not Found**
-  - `>400`: **Failure**
+  - `200`: Success
+  - `400`: Not Found
+  - `>400`: Failure
 
 ### Event Handler App
 
@@ -45,7 +47,22 @@ Tiki utilises `Event Queue API`, polling data at a specified frequency. Upon rec
 
 ---
 
-## Sử dụng
+## Logic - Sử dụng
+
+### Khách hàng
+
+Việc mapping với KH trên NetSuite **chỉ dựa trên SĐT làm định danh của 1 KH**. Vì vậy sẽ có các case sau:
+
+- Ko tìm thấy KH nào ứng với SĐT lên đơn ở sàn trên NetSuite: Tạo 1 KH mới với Tên + SĐT dựa trên thông tin từ trên sàn
+- Tìm thấy ít nhất 1 KH ứng với SĐT lên đơn ở sàn trên NetSuite: Sử dụng KH **đầu tiên** tìm được ở trên NetSuite, sắp xếp theo thứ tự cũ trước - mới sau.
+  - Ví dụ: 1 SĐT P có 2 KH A và B, KH A tồn tại từ 2020, KH B tồn tại từ 2021, sẽ chọn KH A
+
+### Sản phẩm
+
+Việc mapping với item trên NetSuite **chỉ dựa vào SKU**. Vì vậy sẽ có các case sau:
+
+- Ko tìm thấy item nào ứng với SKU từ sàn ở trên NetSuite: Ko tính item đó vào đơn
+- Tìm thấy ít nhất 1 SKU ứng với SKU sàn ở trên NetSuite: Sử dụng Item **đầu tiên** tìm đc ở trên NetSuite, sắp xếp theo thứ tự cũ trước - mới sau.
 
 ### Telegram
 
