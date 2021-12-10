@@ -24,6 +24,7 @@ Payload = dict[str, Any]
 
 PayloadBuilder = Callable[[Payload], Payload]
 
+
 class CalbackData(TypedDict):
     t: str
     a: int

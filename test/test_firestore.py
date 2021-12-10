@@ -39,6 +39,7 @@ def test_create_prepared_order(prepared_order):
     res = create_prepared_order(prepared_order)
     res
 
+
 def test_get_prepared_order(prepared_order_id):
     res = get_prepared_order(prepared_order_id)
     res

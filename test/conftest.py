@@ -42,10 +42,12 @@ def prepared_order() -> order.PreparedOrder:
 
 @pytest.fixture()
 def netsuite_order(prepared_order):
-    return OrderedDict({
-        "entity": 599656,
-        **prepared_order,
-    })
+    return OrderedDict(
+        {
+            "entity": 599656,
+            **prepared_order,
+        }
+    )
 
 
 @pytest.fixture()
@@ -101,9 +103,11 @@ def update():
         },
     }
 
+
 @pytest.fixture()
 def prepared_order_id():
     return "k6PT1g0vGRGeDEFtjJuY"
+
 
 @pytest.fixture()
 def callback_data():
