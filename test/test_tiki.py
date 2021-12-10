@@ -31,7 +31,7 @@ def prepared_customer():
 @pytest.fixture()
 def prepared_items():
     return {
-        "items": [
+        "item": [
             {
                 "item": 196870,
                 "quantity": 1,

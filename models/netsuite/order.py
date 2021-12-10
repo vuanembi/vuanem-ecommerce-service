@@ -11,7 +11,7 @@ class Item(TypedDict):
 
 
 class Items(TypedDict):
-    items: list[Item]
+    item: list[Item]
 
 
 class OrderMeta(TypedDict):

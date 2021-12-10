@@ -98,7 +98,7 @@ def add_customer(order: tiki.Order) -> customer.PreparedCustomer:
 def add_items(order: tiki.Order) -> order.Items:
     with netsuite_session() as session:
         return {
-            "items": [
+            "item": [
                 i
                 for i in [
                     build_item(item, quantity, amount)
