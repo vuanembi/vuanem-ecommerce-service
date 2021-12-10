@@ -34,7 +34,7 @@ def callback_controller(request_data: telegram.Update) -> Response:
 
 def handle_update(update: telegram.Update) -> ResponseBuilder:
     def handle(res: dict) -> Response:
-        if get_telegram_update(update["update_id"]):
+        if not update.get("callback_query") or get_telegram_update(update["update_id"]):
             return res
         else:
             return {
@@ -53,8 +53,9 @@ def handle_echo(update: telegram.Update) -> ResponseBuilder:
     def handle(res: dict) -> Response:
         if res.get("update"):
             callback_query_id, data = get_callback_query(update)
+            print(data)
             answer_callback(callback_query_id)
-            _send({"text": f"`{json.dumps(data)}`"})
+            _send(lambda res: {**res, "text": f"`{json.dumps(data)}`"})
             return {
                 **res,
                 "data": data,
