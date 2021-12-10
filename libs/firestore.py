@@ -33,9 +33,9 @@ def _create(
 
 def _get_one_by_id(
     collection: firestore.CollectionReference,
-) -> Callable[[str], Optional[dict]]:
-    def get(id: str) -> Optional[dict]:
-        return collection.document(str(id)).get().to_dict()
+) -> Callable[[str], firestore.DocumentReference]:
+    def get(id: str) -> firestore.DocumentReference:
+        return collection.document(str(id)).get()
 
     return get
 
@@ -94,7 +94,9 @@ create_prepared_order: Callable[[order.PreparedOrder], str] = _create(
         },
     ),
 )
-get_prepared_order: Callable[[str], Optional[dict]] = _get_one_by_id(PREPARED_ORDERS)
+get_prepared_order: Callable[[str], firestore.DocumentReference] = _get_one_by_id(
+    PREPARED_ORDERS
+)
 
 
 create_telegram_update: Callable[[dict], str] = _create(
@@ -113,4 +115,6 @@ create_telegram_update: Callable[[dict], str] = _create(
         },
     ),
 )
-get_telegram_update: Callable[[str], Optional[dict]] = _get_one_by_id(TELEGRAM_UPDATES)
+get_telegram_update: Callable[[str], firestore.DocumentReference] = _get_one_by_id(
+    TELEGRAM_UPDATES
+)

@@ -21,6 +21,7 @@ from models.utils import Response, ResponseBuilder
 
 def callback_controller(request_data: telegram.Update) -> Response:
     return compose(
+        handle_cleanup,
         handle_create_order,
         handle_prepared_order,
         handle_echo(request_data),
@@ -33,8 +34,11 @@ def callback_controller(request_data: telegram.Update) -> Response:
 
 
 def handle_update(update: telegram.Update) -> ResponseBuilder:
-    def handle(res: dict) -> Response:
-        if not update.get("callback_query") or get_telegram_update(update["update_id"]):
+    def handle(res: Response) -> Response:
+        if (
+            not update.get("callback_query")
+            or get_telegram_update(update["update_id"]).exists
+        ):
             return res
         else:
             return {
@@ -50,10 +54,9 @@ def handle_update(update: telegram.Update) -> ResponseBuilder:
 
 
 def handle_echo(update: telegram.Update) -> ResponseBuilder:
-    def handle(res: dict) -> Response:
+    def handle(res: Response) -> Response:
         if res.get("update"):
             callback_query_id, data = get_callback_query(update)
-            print(data)
             answer_callback(callback_query_id)
             _send(lambda res: {**res, "text": f"`{json.dumps(data)}`"})
             return {
@@ -66,7 +69,7 @@ def handle_echo(update: telegram.Update) -> ResponseBuilder:
     return handle
 
 
-def handle_prepared_order(res: dict) -> Response:
+def handle_prepared_order(res: Response) -> Response:
     if res.get("data"):
         return {
             **res,
@@ -76,15 +79,17 @@ def handle_prepared_order(res: dict) -> Response:
         return res
 
 
-def handle_create_order(res: dict) -> Response:
+def handle_create_order(res: Response) -> Response:
     if res.get("prepared_order"):
         with netsuite_session() as session:
             try:
                 order = create_sales_order(
                     session,
-                    build_sales_order_from_prepared(session, res["prepared_order"]),
+                    build_sales_order_from_prepared(
+                        session, res["prepared_order"].to_dict()["order"]
+                    ),
                 )
-                send_created_order(res["prepared_order"])
+                send_created_order(order)
                 return {
                     **res,
                     "results": {
@@ -95,7 +100,17 @@ def handle_create_order(res: dict) -> Response:
 
             except Exception as e:
                 print(e)
-                send_create_order_error(res["prepared_order"])
+                send_create_order_error(e, res["prepared_order"].id)
                 return res
+    else:
+        return res
+
+
+def handle_cleanup(res: Response) -> Response:
+    if res.get("prepared_order"):
+        return {
+            **res,
+            "prepared_order": res["prepared_order"].to_dict(),
+        }
     else:
         return res

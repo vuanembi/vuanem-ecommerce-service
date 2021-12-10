@@ -124,6 +124,30 @@ def build_sales_order_from_prepared(session, order: order.PreparedOrder) -> orde
                     ),
                 )
             ),
-            **order,
+            "trandate": order["trandate"],
+            "subsidiary": order["subsidiary"],
+            "location": order["location"],
+            "department": order["department"],
+            "custbody_customer_phone": order["custbody_customer_phone"],
+            "custbody_expecteddeliverytime": order["custbody_expecteddeliverytime"],
+            "custbody_recipient": order["custbody_recipient"],
+            "custbody_recipient_phone": order["custbody_recipient_phone"],
+            "shippingaddress": order["shippingaddress"],
+            "custbody_order_payment_method": order["custbody_order_payment_method"],
+            "salesrep": order["salesrep"],
+            "leadsource": order["leadsource"],
+            "partner": order["partner"],
+            "custbody_onl_rep": order["custbody_onl_rep"],
+            "item": [
+                OrderedDict(
+                    {
+                        "item": i["item"],
+                        "quantity": i["quantity"],
+                        "price": i["price"],
+                        "amount": i["amount"],
+                    }
+                )
+                for i in order["item"]
+            ],
         }
     )

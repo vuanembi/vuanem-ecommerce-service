@@ -30,7 +30,7 @@ def tiki_controller() -> Response:
     )
 
 
-def handle_events(res: dict) -> Response:
+def handle_events(res: Response) -> Response:
     with requests.Session() as session:
         ack_id, events = pull_events(session, get_latest_tiki_ack_id())
         orders = [
@@ -47,7 +47,7 @@ def handle_events(res: dict) -> Response:
     }
 
 
-def handle_orders(res: dict) -> Response:
+def handle_orders(res: Response) -> Response:
     if len(res["orders"]):
         prepared_order_ids = [
             create_prepared_order(order)
@@ -81,10 +81,10 @@ def handle_ack(res: dict) -> Response:
 
 def build_prepared_components(tiki_order: tiki.Order) -> order.Order:
     return compose(
-        build_prepared_order(add_customer, tiki_order),
         build_prepared_order(add_items, tiki_order),
-        build_prepared_order(lambda _: ecommerce.Tiki),
+        build_prepared_order(add_customer, tiki_order),
         build_prepared_order(build_prepared_order_meta, f"tiki - {tiki_order['code']}"),
+        build_prepared_order(lambda _: ecommerce.Tiki),
     )({})
 
 

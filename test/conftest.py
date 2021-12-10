@@ -99,7 +99,7 @@ def update():
                 },
             },
             "chat_instance": "8890303927539922236",
-            "data": '{"t": "O", "a": 1, "v": "k6PT1g0vGRGeDEFtjJuY"}',
+            "data": '{"t": "O", "a": 1, "v": "EC1jR8OJJXOPLdBgfG0o"}',
         },
     }
 

@@ -2,6 +2,7 @@ import pytest
 
 from libs.firestore import get_prepared_order
 from libs.telegram import (
+    send_new_order,
     send_created_order,
     send_create_order_error,
     send_closed_created_order,
@@ -17,6 +18,9 @@ def order():
 def ecommerce(request):
     return request.param
 
+
+def test_send_new_order(ecommerce, order):
+    assert send_new_order(ecommerce, order, "EC1jR8OJJXOPLdBgfG0o")["ok"]
 
 def test_send_created_order(order):
     assert send_created_order(order)["ok"]
