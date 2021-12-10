@@ -2,8 +2,6 @@ from typing import TypedDict
 
 from models.netsuite import ecommerce, customer
 
-EXPECTED_DELIVERY_TIME = 4
-
 
 class Item(TypedDict):
     item: int

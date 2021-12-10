@@ -4,6 +4,7 @@ from typing import Callable, Optional, TypeVar
 from collections import OrderedDict
 from datetime import date
 
+import requests
 from requests_oauthlib import OAuth1Session
 
 from libs import restlet
@@ -16,7 +17,8 @@ EXPECTED_DELIVERY_TIME = 4
 def map_sku_to_item_id(session: OAuth1Session, sku: str) -> Optional[str]:
     try:
         return restlet.inventory_item(session, "GET", params={"itemid": sku})["id"]
-    except Exception:
+    except requests.exceptions.HTTPError as e:
+        print(e.response.text)
         return None
 
 
@@ -24,11 +26,15 @@ def get_customer_if_not_exist(
     session: OAuth1Session,
     customer: customer.CustomerRequest,
 ) -> str:
-    _customer = restlet.customer(session, "GET", params={"phone": customer["phone"]})
-    return (
-        _customer["id"]
-        if _customer
-        else restlet.customer(
+    try:
+        return restlet.customer(
+            session,
+            "GET",
+            params={"phone": customer["phone"]},
+        )
+    except requests.exceptions.HTTPError as e:
+        print(e.response.text)
+        return restlet.customer(
             session,
             "POST",
             body=OrderedDict(
@@ -40,7 +46,6 @@ def get_customer_if_not_exist(
                 }
             ),
         )["id"]
-    )
 
 
 def create_sales_order(session: OAuth1Session, order: order.Order) -> str:
