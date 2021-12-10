@@ -1,0 +1,24 @@
+services:
+  app:
+    image: vuanem-ecommerce-service:latest
+    build:
+      context: .
+    container_name: vuanem-ecommerce-service
+    volumes:
+      - ./voltaic-country-280607-ea3eb5348029.json:/tmp/voltaic-country-280607-ea3eb5348029.json
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/voltaic-country-280607-ea3eb5348029.json
+      K_SERVICE: dev
+      K_CONFIGURATION: dev
+      K_REVISION: dev-00001
+      TIKI_ACCESS_TOKEN: ${TIKI_ACCESS_TOKEN}
+      ACCOUNT_ID: ${ACCOUNT_ID}
+      CONSUMER_KEY: ${CONSUMER_KEY}
+      CONSUMER_SECRET: ${CONSUMER_SECRET}
+      ACCESS_TOKEN: ${ACCESS_TOKEN}
+      TOKEN_SECRET: ${TOKEN_SECRET}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      PYTHON_ENV: ${PYTHON_ENV}
+    ports:
+      - '8080:8080'
+    user: '0'
