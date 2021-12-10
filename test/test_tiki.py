@@ -8,7 +8,7 @@ from controller.tiki import (
     handle_orders,
 )
 from libs.tiki import get_order, pull_events
-from libs.firestore import get_latest_ack_id
+from libs.firestore import get_latest_tiki_ack_id
 from libs.telegram import send_new_order
 
 
@@ -31,7 +31,7 @@ def prepared_customer():
 @pytest.fixture()
 def prepared_items():
     return {
-        "items": [
+        "item": [
             {
                 "item": 196870,
                 "quantity": 1,
@@ -43,7 +43,7 @@ def prepared_items():
 
 
 def test_pull_event(session):
-    ack_id, events = pull_events(session, get_latest_ack_id())
+    ack_id, events = pull_events(session, get_latest_tiki_ack_id())
     assert ack_id
 
 
@@ -64,12 +64,13 @@ def test_build_prepared_components(order):
     res = build_prepared_components(order)
     assert res
 
+
 def test_send_new_order(order):
-    assert send_new_order("Tiki", order, '111')['ok']
+    assert send_new_order("Tiki", order, "111")["ok"]
 
 
 def test_handle_orders(order):
-    assert handle_orders([order])({})["orders"]
+    assert handle_orders({"orders": [order]})["orders"]
 
 
 def test_tiki():

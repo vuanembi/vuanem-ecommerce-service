@@ -1,7 +1,5 @@
 from typing import TypedDict
 
-LEAD_SOURCE = 144506
-
 
 class Ecommerce(TypedDict):
     subsidiary: int

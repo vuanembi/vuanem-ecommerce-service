@@ -1,6 +1,6 @@
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Protocol
+from collections import OrderedDict
 
-from typing_extensions import Protocol
 from requests_oauthlib import OAuth1Session
 
 
@@ -15,6 +15,6 @@ class RestletRequest(Protocol):
         session: OAuth1Session,
         method: str,
         params: dict = {},
-        body: Optional[dict] = None,
+        body: Optional[OrderedDict] = None,
     ) -> dict:
         pass
