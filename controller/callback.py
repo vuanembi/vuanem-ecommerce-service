@@ -6,6 +6,7 @@ from libs.firestore import (
     create_telegram_update,
     get_telegram_update,
     get_prepared_order,
+    update_prepared_order_created,
 )
 from libs.telegram import (
     get_callback_query,
@@ -89,6 +90,7 @@ def handle_create_order(res: Response) -> Response:
                         session, res["prepared_order"].to_dict()["order"]
                     ),
                 )
+                update_prepared_order_created(res["prepared_order"].id)
                 send_created_order(order)
                 return {
                     **res,
