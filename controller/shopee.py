@@ -11,11 +11,15 @@ from models.ecommerce import shopee
 def shopee_controller(request_data: shopee.OrderStatusPush) -> dict:
     x: shopee.Order = flow(
         request_data,
-        unpaid_status_predicate,
+        order_status_predicate,
+        bind_optional(unpaid_status_predicate),
         bind_optional(get_push_order_id),
         bind_optional(get_push_order),
     )
     return {}
+
+def order_status_predicate(push: shopee.OrderStatusPush) -> Maybe[shopee.OrderStatusPush]:
+    return Some(push) if push['code'] == 3 else Nothing
 
 def unpaid_status_predicate(push: shopee.OrderStatusPush) -> Maybe[shopee.OrderStatusPush]:
     return Some(push) if push['data']['status'] == 'UNPAID' else Nothing
