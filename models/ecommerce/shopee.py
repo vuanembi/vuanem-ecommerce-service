@@ -1,6 +1,18 @@
 from typing import TypedDict
 
 
+class OrderStatusPushData(TypedDict):
+    ordersn: str
+    status: str
+
+
+class OrderStatusPush(TypedDict):
+    shop_id: int
+    code: int
+    timestamp: int
+    data: OrderStatusPushData
+
+
 class Item(TypedDict):
     variation_sku: str
     variation_quantity_purchased: int
