@@ -13,6 +13,9 @@ TIKI_ACKS = FIRESTORE.collection(
 PREPARED_ORDERS = FIRESTORE.collection(
     "PreparedOrders" if os.getenv("PYTHON_ENV") == "prod" else "PreparedOrders-dev"
 )
+SHOPEE_PUSH = FIRESTORE.collection(
+    "ShopeePush" if os.getenv("PYTHON_ENV") == "prod" else "ShopeePush-dev"
+)
 TELEGRAM_UPDATES = FIRESTORE.collection(
     "TelegramUpdates" if os.getenv("PYTHON_ENV") == "prod" else "TelegramUpdates-dev"
 )
@@ -92,6 +95,17 @@ create_tiki_ack_id: Callable[[str], str] = _create(
 )
 get_latest_tiki_ack_id = _get_latest(TIKI_ACKS, "created_at")
 delete_tiki_ack_id = _delete(TIKI_ACKS)
+
+create_shopee_push: Callable[[str], str] = _create(
+    SHOPEE_PUSH,
+    lambda ordersn: (
+        ordersn,
+        {
+            "created_at": firestore.SERVER_TIMESTAMP,
+        },
+    ),
+)
+get_shopee_push: Callable[[str], firestore.DocumentReference] = _get_one_by_id(SHOPEE_PUSH)
 
 
 create_prepared_order: Callable[[order.PreparedOrder], str] = _create(

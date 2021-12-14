@@ -20,3 +20,13 @@ Tiki: Ecommerce = {
     "partner": 916906,
     "custbody_onl_rep": 942960,
 }
+
+Shopee: Ecommerce = {
+    "subsidiary": 1,
+    "department": 1041,
+    "location": 787,
+    "custbody_order_payment_method": 23,
+    "salesrep": 1664,
+    "partner": 915574,
+    "custbody_onl_rep": 933725,
+}

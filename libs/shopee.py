@@ -73,7 +73,7 @@ get_order_details: Callable[[str], shopee.Order] = request_shopee(
         "ordersn_list": [order_id],
     },
     lambda res: {
-        "ordersn": res["orders"][0],
+        "ordersn": res["orders"][0]['ordersn'],
         "items": [
             {
                 "variation_sku": item["variation_sku"],

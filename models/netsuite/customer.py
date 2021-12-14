@@ -21,3 +21,14 @@ class CustomerRequest(TypedDict):
     phone: str
     firstname: str
     lastname: str
+
+
+ShopeeMock: Customer = {
+    "entity": 966287,
+    "custbody_customer_phone": "1998103101",
+    "custbody_recipient_phone": "1998103101",
+    "custbody_recipient": "TEMP Shopee",
+    "shippingaddress": {
+        "addressee": "TEMP Shopee",
+    },
+}
