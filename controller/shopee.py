@@ -30,6 +30,7 @@ def shopee_controller(request_data: shopee.OrderStatusPush) -> dict:
                 validate_order_code,
                 bind(validate_order_status),
                 bind(get_push_order_id),
+                bind(validate_order_id),
                 bind(get_push_order),
                 bind(build_prepared_components),
                 bind(create_prepared_component),
