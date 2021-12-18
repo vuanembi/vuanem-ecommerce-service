@@ -1,9 +1,9 @@
 from typing import Optional
 import os
 
-import requests
+from requests import Session
 
-from models.ecommerce import tiki
+from tiki.Tiki import Event, Order
 
 BASE_URL = "https://api.tiki.vn/integration"
 HEADERS = {
@@ -18,26 +18,22 @@ QUEUE_CODE = (
 
 
 def pull_events(
-    session: requests.Session,
+    session: Session,
     ack_id: Optional[str] = None,
-) -> tuple[str, list[tiki.Event]]:
+) -> tuple[str, Optional[list[Event]]]:
     with session.post(
         f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull",
-        json={
-            "ack_id": ack_id,
-        },
+        json={"ack_id": ack_id},
         headers=HEADERS,
     ) as r:
         data = r.json()
     return data["ack_id"], data["events"]
 
 
-def get_order(session: requests.Session, order_id: str) -> tiki.Order:
+def get_order(session: Session, order_id: str) -> Order:
     with session.get(
         f"{BASE_URL}/v2/orders/{order_id}",
-        params={
-            "include": "items.fees",
-        },
+        params={"include": "items.fees"},
         headers=HEADERS,
     ) as r:
         data = r.json()

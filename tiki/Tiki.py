@@ -1,5 +1,7 @@
 from typing import TypedDict
 
+# ----------------------------------- Event ---------------------------------- #
+
 
 class Payload(TypedDict):
     order_code: str
@@ -11,6 +13,9 @@ class Event(TypedDict):
     sid: str
     created_at: str
     payload: Payload
+
+
+# ----------------------------------- Order ---------------------------------- #
 
 
 class Product(TypedDict):

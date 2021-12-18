@@ -5,8 +5,8 @@ import json
 import yaml
 import requests
 
-from libs.utils import compose
-from libs.netsuite import get_sales_order_url
+from common.utils import compose
+from netsuite.NetSuiteRepo import get_sales_order_url
 from models import telegram
 from models.ecommerce import ecommerce
 

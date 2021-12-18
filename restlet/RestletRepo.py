@@ -1,11 +1,10 @@
 from typing import Optional
-from collections import OrderedDict
 import os
 
 import oauthlib.oauth1
 from requests_oauthlib import OAuth1Session
 
-from models.netsuite.restlet import Restlet, RestletRequest
+from restlet.Restlet import Restlet, RestletRequest
 
 
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
@@ -27,7 +26,7 @@ def request_restlet(restlet: Restlet) -> RestletRequest:
         session: OAuth1Session,
         method: str,
         params: dict = {},
-        body: Optional[OrderedDict] = None,
+        body: Optional[dict] = None,
     ) -> dict:
         with session.request(
             method,
