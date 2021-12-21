@@ -1,5 +1,9 @@
 import os
 
+from typing import Callable, Optional, Any
+from datetime import date
+
+from requests.exceptions import HTTPError
 from requests_oauthlib import OAuth1Session
 from returns.maybe import Maybe
 from returns.pipeline import flow
@@ -9,10 +13,26 @@ from returns.converters import result_to_maybe
 from restlet.RestletRepo import sales_order, inventory_item, customer
 from netsuite.NetSuite import (
     LEAD_SOURCE,
+    EXPECTED_DELIVERY_TIME,
     CustomerReq,
+    PreparedCustomer,
+    Item,
     PreparedOrder,
+    OrderMeta,
     Order,
 )
+
+
+def map_sku_to_item_id(session: OAuth1Session, sku: str) -> Maybe[str]:
+    return result_to_maybe(
+        inventory_item(
+            session,
+            "GET",
+            params={
+                "itemid": sku,
+            },
+        )
+    ).bind(lambda x: x["id"])
 
 
 def get_customer(session, customer_req):
@@ -53,6 +73,10 @@ def get_customer_if_not_exist(
     )
 
 
+def create_sales_order(session: OAuth1Session, order: Order) -> str:
+    return sales_order(session, "POST", body=order)["id"]
+
+
 def build_customer_request(name: str, phone: str) -> CustomerReq:
     return {
         "leadsource": LEAD_SOURCE,
@@ -60,6 +84,52 @@ def build_customer_request(name: str, phone: str) -> CustomerReq:
         "lastname": name,
         "phone": phone,
     }
+
+
+def build_prepared_customer(phone: str, name: str) -> PreparedCustomer:
+    return {
+        "custbody_customer_phone": phone,
+        "custbody_recipient_phone": phone,
+        "custbody_recipient": name,
+        "shippingaddress": {
+            "addressee": name,
+        },
+    }
+
+
+def build_prepared_order_meta(memo: str) -> OrderMeta:
+    return {
+        "leadsource": LEAD_SOURCE,
+        "custbody_expecteddeliverytime": EXPECTED_DELIVERY_TIME,
+        "trandate": date.today().isoformat(),
+        "memo": memo,
+    }
+
+
+def build_prepared_order(
+    builder: Callable[[Any], dict],
+    data: Optional[Any] = None,
+) -> Callable[[dict], PreparedOrder]:
+    def build(prepared_order: dict = {}) -> PreparedOrder:
+        return {
+            **prepared_order,
+            **builder(data),
+        }
+
+    return build
+
+
+def build_item(item: Optional[str], quantity: int, amount: int) -> Item:
+    return (
+        {
+            "item": int(item),
+            "quantity": quantity,
+            "price": -1,
+            "amount": int(amount / 1.1),
+        }
+        if item
+        else {}
+    )
 
 
 def get_sales_order_url(id: str) -> str:
@@ -106,7 +176,3 @@ def build_sales_order_from_prepared(
             for i in order["item"]
         ],
     }
-
-
-def create_sales_order(session: OAuth1Session, order: Order) -> str:
-    return sales_order(session, "POST", body=order)["id"]

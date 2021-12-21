@@ -23,14 +23,14 @@ class Customer(PreparedCustomer):
     entity: int
 
 
-class CustomerRequest(TypedDict):
+class CustomerReq(TypedDict):
     leadsource: int
     phone: str
     firstname: str
     lastname: str
 
 
-ShopeeMock: Customer = {
+ShopeeCustomer: Customer = {
     "entity": 966287,
     "custbody_customer_phone": "1998103101",
     "custbody_recipient_phone": "1998103101",
@@ -53,7 +53,7 @@ class Ecommerce(TypedDict):
     custbody_onl_rep: int
 
 
-Tiki: Ecommerce = {
+TikiEcommerce: Ecommerce = {
     "subsidiary": 1,
     "department": 1044,
     "location": 788,

@@ -2,43 +2,44 @@ from typing import Optional, Callable
 import os
 
 from requests import Session
-from oauthlib.oauth2 import BackendApplicationClient
-from requests_oauthlib import OAuth2Session
 
 from returns.io import IOResultE, impure_safe
 
-from firestore.FirestoreRepo import get_latest, create
-from tiki.Tiki import Order, EventRes
+from tiki.Tiki import Event, Order, EventRes
+from firestore.FirestoreRepo import FIRESTORE
 
 BASE_URL = "https://api.tiki.vn/integration"
-HEADERS = {
-    "Authorization": f"Bearer {os.getenv('TIKI_ACCESS_TOKEN')}",
-    "User-Agent": "PostmanRuntime/7.28.3",
-}
 QUEUE_CODE = (
     "6cd68367-3bde-4aac-a24e-258bc907d68b"
     if os.getenv("PYTHON_ENV") == "prod"
     else "f0c586e1-fb27-4d73-90bb-bcfe31464dba"
 )
 
-@impure_safe
-def get_new_access_token():
-    return OAuth2Session(
-        client=BackendApplicationClient(client_id=os.getenv("TIKI_CLIENT_ID"))
-    ).fetch_token(
-        token_url="https://provider.com/oauth2/token",
-        client_id=os.getenv("TIKI_CLIENT_ID"),
-        client_secret=os.getenv("TIKI_CLIENT_SECRET"),
-    )
+collection = FIRESTORE.collection(
+    "TikiAcks" if os.getenv("PYTHON_ENV") == "prod" else "TikiAcks-dev"
+)
 
 
-def get_events(session: Session) -> Callable[[Optional[str]], IOResultE[EventRes]]:
+def get_seller_info(session):
+    @impure_safe
+    def _get(headers: dict):
+        with session.get(f"{BASE_URL}/v2/sellers/me", headers=headers) as r:
+            r.raise_for_status()
+            return headers
+
+    return _get
+
+
+def get_events(
+    session: Session,
+    headers: dict,
+) -> Callable[[Optional[str]], IOResultE[EventRes]]:
     @impure_safe
     def _get(ack_id: Optional[str] = None) -> EventRes:
         with session.post(
             f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull",
             json={"ack_id": ack_id},
-            headers=HEADERS,
+            headers=headers,
         ) as r:
             data = r.json()
         return data["ack_id"], data["events"]
@@ -46,13 +47,17 @@ def get_events(session: Session) -> Callable[[Optional[str]], IOResultE[EventRes
     return _get
 
 
-def get_order(session: Session) -> Callable[[str], IOResultE[Order]]:
+def parse_event(event: Event) -> str:
+    return event["payload"]["order_code"]
+
+
+def get_order(session: Session, headers: dict) -> Callable[[str], IOResultE[Order]]:
     @impure_safe
     def _get(order_id: str) -> Order:
         with session.get(
             f"{BASE_URL}/v2/orders/{order_id}",
             params={"include": "items.fees"},
-            headers=HEADERS,
+            headers=headers,
         ) as r:
             data = r.json()
         return {

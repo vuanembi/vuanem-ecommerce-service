@@ -5,41 +5,42 @@ from google.cloud.firestore import (
     CollectionReference as ColRef,
     DocumentReference as DocRef,
 )
+from returns.io import IOResultE, impure_safe
 
 FIRESTORE = firestore.Client()
 
 
-def create(
+def persist(
     collection: ColRef,
     factory: Callable[[Any], tuple[Optional[str], dict]],
-) -> Callable[[Any], str]:
-    def _create(input_: Any) -> str:
+) -> Callable[[Any], IOResultE[DocRef]]:
+    @impure_safe
+    def _persist(input_: Any) -> DocRef:
         id, data = factory(input_)
         doc_ref = collection.document(str(id)) if id else collection.document()
         doc_ref.create(data)
-        return doc_ref.id
+        return doc_ref
 
-    return _create
+    return _persist
 
 
-def get_one(col: ColRef) -> Callable[[str], DocRef]:
+def get_one(col: ColRef) -> Callable[[str], IOResultE[DocRef]]:
+    @impure_safe
     def get(id: str) -> DocRef:
         return col.document(str(id)).get()
 
     return get
 
 
-def get_latest(col: ColRef, ts_key: str) -> Callable[[], Optional[str]]:
-    def get() -> Optional[str]:
-        try:
-            return [
-                i
-                for i in col.order_by(ts_key, direction=firestore.Query.DESCENDING)
-                .limit(1)
-                .get()
-            ][0].id
-        except IndexError:
-            return None
+def get_latest(col: ColRef, ts_key: str) -> Callable[[], IOResultE[DocRef]]:
+    @impure_safe
+    def get(*args) -> DocRef:
+        return [
+            i
+            for i in col.order_by(ts_key, direction=firestore.Query.DESCENDING)
+            .limit(1)
+            .get()
+        ][0]
 
     return get
 

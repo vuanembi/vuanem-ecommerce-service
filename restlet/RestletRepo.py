@@ -3,6 +3,7 @@ import os
 
 import oauthlib.oauth1
 from requests_oauthlib import OAuth1Session
+from returns.io import IOResultE, impure_safe
 
 from restlet.Restlet import Restlet, RestletRequest
 
@@ -22,12 +23,13 @@ def netsuite_session() -> OAuth1Session:
 
 
 def request_restlet(restlet: Restlet) -> RestletRequest:
+    @impure_safe
     def request(
         session: OAuth1Session,
         method: str,
         params: dict = {},
         body: Optional[dict] = None,
-    ) -> dict:
+    ) -> IOResultE[dict]:
         with session.request(
             method,
             BASE_URL,
