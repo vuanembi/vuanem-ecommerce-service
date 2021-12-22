@@ -109,10 +109,3 @@ class TestIntegration:
     def test_controller(self):
         res = TikiController.tiki_controller({})
         assert res
-
-# def test_alert_on_order(order):
-#     res = send_new_order("TIKI", order)
-#     assert res
-
-# def test_send_new_order(order):
-#     assert send_new_order("Tiki", order, "111")["ok"]
