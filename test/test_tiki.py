@@ -3,6 +3,7 @@ from returns.pipeline import is_successful
 
 from tiki import TikiController, TikiService, TikiAuthRepo, TikiDataRepo
 
+from test.conftest import run
 
 class TestAuth:
     def test_get_new_access_token(self):
@@ -110,3 +111,7 @@ class TestIntegration:
     def test_controller(self):
         res = TikiController.tiki_controller({})
         assert res
+
+    def test_tiki(self):
+        res = run("/tiki")
+        res

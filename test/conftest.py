@@ -1,10 +1,14 @@
+from typing import Optional
 from collections import OrderedDict
+from unittest.mock import Mock
+
 import requests
 import pytest
 import random
 
 from restlet.RestletRepo import netsuite_session
 from netsuite.NetSuite import PreparedOrder
+from main import main
 
 
 @pytest.fixture()
@@ -15,6 +19,10 @@ def session():
 @pytest.fixture()
 def oauth_session():
     return netsuite_session()
+
+
+def run(path: str, data: Optional[dict] = None) -> dict:
+    return main(Mock(get_json=Mock(return_value=data), path=path, args=data))
 
 
 @pytest.fixture()

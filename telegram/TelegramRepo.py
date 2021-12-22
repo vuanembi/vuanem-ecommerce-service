@@ -1,5 +1,7 @@
 from typing import Callable
 import os
+import time
+
 import requests
 
 from telegram.Telegram import Payload, PayloadBuilder
@@ -23,6 +25,7 @@ def send(payload_builder: PayloadBuilder) -> dict:
         f"{BASE_URL}/sendMessage",
         json=payload_builder({"chat_id": CHAT_ID, "parse_mode": "MarkdownV2"}),
     ) as r:
+        time.sleep(1)
         r.raise_for_status()
         return r.json()
 
