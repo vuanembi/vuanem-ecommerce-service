@@ -1,4 +1,12 @@
-from typing import TypedDict
+from typing import TypedDict, Optional
+
+# ----------------------------------- Auth ----------------------------------- #
+
+class Auth(TypedDict):
+    access_token: str
+    expires_in: int
+
+# ----------------------------------- Event ---------------------------------- #
 
 
 class Payload(TypedDict):
@@ -11,6 +19,11 @@ class Event(TypedDict):
     sid: str
     created_at: str
     payload: Payload
+
+EventRes = tuple[str, Optional[list[Event]]]
+
+
+# ----------------------------------- Order ---------------------------------- #
 
 
 class Product(TypedDict):

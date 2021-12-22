@@ -3,8 +3,8 @@ import requests
 import pytest
 import random
 
-from libs.restlet import netsuite_session
-from models.netsuite import order
+from restlet.RestletRepo import netsuite_session
+from netsuite.NetSuite import PreparedOrder
 
 
 @pytest.fixture()
@@ -18,7 +18,7 @@ def oauth_session():
 
 
 @pytest.fixture()
-def prepared_order() -> order.PreparedOrder:
+def prepared_order() -> PreparedOrder:
     return OrderedDict(
         {
             "trandate": "2021-10-26",

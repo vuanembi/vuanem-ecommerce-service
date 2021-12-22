@@ -1,6 +1,7 @@
 from typing import TypedDict, Optional, Protocol
 from collections import OrderedDict
 
+from returns.io import IOResultE
 from requests_oauthlib import OAuth1Session
 
 
@@ -16,5 +17,5 @@ class RestletRequest(Protocol):
         method: str,
         params: dict = {},
         body: Optional[OrderedDict] = None,
-    ) -> dict:
+    ) -> IOResultE[dict]:
         pass

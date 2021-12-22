@@ -1,6 +1,6 @@
 import pytest
 
-from libs.firestore import (
+from firestore import (
     create_tiki_ack_id,
     get_latest_tiki_ack_id,
     create_prepared_order,
