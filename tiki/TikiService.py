@@ -1,12 +1,14 @@
-from requests import Session
+from typing import Callable
 
-from returns.result import Success, safe
+from requests import Session
+from returns.result import ResultE, Success, safe
 from returns.pointfree import bind, lash
 from returns.pipeline import flow
 
 from tiki import Tiki, TikiAuthRepo, TikiDataRepo
 from restlet import RestletRepo
 from netsuite import NetSuite, NetSuitePrepareRepo
+from telegram import TelegramService
 
 
 def _persist_new_access_token(*args) -> Success[dict]:
@@ -73,42 +75,47 @@ def _build_order(order: Tiki.Order) -> NetSuite.PreparedOrder:
     )
 
 
-def _handle_order(session, id):
-    return flow(
-        id,
-        TikiDataRepo.get_order(session),
+def _handle_order(order: ResultE[Tiki.Order]) -> str:
+    return flow(  # type: ignore
+        order,
         bind(_build_order),
         NetSuitePrepareRepo.persist_prepared_order,
         bind(lambda x: Success(x.id)),
     ).unwrap()
 
 
-def get_events(session) -> tuple[Success[str], Success[list[Tiki.Event]]]:
+def get_events(session: Session) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
     return (
         TikiDataRepo.get_latest_ack_id()
         .bind(lambda x: Success(x.id))
         .bind(TikiDataRepo.get_events(session))
-        # .bind(lambda x: (Success(x[0]), Success(x[1])))
-        .bind(lambda x: (Success(x[0]), Success(x[1][:2])))
+        .bind(lambda x: (Success(x[0]), Success(x[1])))
+        # .bind(lambda x: (Success(x[0]), Success(x[1][:2])))
     )
 
 
-def events_service(session):
+def events_service(session: Session) -> Callable[[list[Tiki.Event]], ResultE[dict]]:
     @safe
-    def _svc(events: list[Tiki.Event]):
+    def _svc(events: list[Tiki.Event]) -> dict:
+        orders = [
+            TikiDataRepo.get_order(session)(TikiDataRepo.extract_order(e))
+            for e in events
+        ]
+        persisted_orders = [_handle_order(order) for order in orders]
+        [
+            TelegramService.send_new_order("Tiki", order.unwrap(), id)
+            for order, id in zip(orders, persisted_orders)
+        ]
         return {
-            "orders": [
-                _handle_order(session, order)
-                for order in [TikiDataRepo.extract_order(e) for e in events]
-            ],
+            "orders": persisted_orders,
         }
 
     return _svc
 
 
-def ack_service(ack_id: Success[str]):
+def ack_service(ack_id: Success[str]) -> Callable[[str], ResultE[dict]]:
     @safe
-    def _svc(res: dict = {}):
+    def _svc(res: dict = {}) -> dict:
         return {
             **res,
             "ack": ack_id.bind(TikiDataRepo.persist_ack_id)
