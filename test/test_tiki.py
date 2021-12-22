@@ -63,6 +63,7 @@ class TestData:
     def test_get_order(self, order):
         res = order
         assert res
+
     def test_get_orders(self, auth_session):
         _, events = TikiService.get_events(auth_session)
         res = events.bind(
@@ -97,12 +98,12 @@ class TestData:
         res = order.bind(TikiService._build_order)
         assert res
 
-    def test_handle_order(self, auth_session, order_id):
-        res = TikiService._handle_order(auth_session, order_id)
+    def test_handle_order(self, order):
+        res = order.bind(TikiService._handle_order)
         assert res
 
     def test_events_service(self, auth_session, events):
-        res = TikiService.events_service(auth_session, events)({})
+        res = TikiService.events_service(auth_session)(events)
         res
 
 class TestIntegration:

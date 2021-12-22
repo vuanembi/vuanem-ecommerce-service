@@ -64,9 +64,9 @@ def get_order(session: OAuth2Session) -> Callable[[str], ResultE[Order]]:
                         "name": item["product"]["name"],
                         "seller_product_code": item["product"]["seller_product_code"],
                     },
-                    "qty": item["qty"],
-                    "invoice": {
-                        "row_total": item["invoice"]["row_total"],
+                    "seller_income_detail": {
+                        "item_qty": item["seller_income_detail"]["item_qty"],
+                        "sub_total": item["seller_income_detail"]["sub_total"],
                     },
                 }
                 for item in data["items"]

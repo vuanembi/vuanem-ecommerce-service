@@ -53,8 +53,11 @@ def _add_items(order: Tiki.Order) -> NetSuite.Items:
                             )
                             for i in order["items"]
                         ],
-                        [i["qty"] for i in order["items"]],
-                        [i["invoice"]["row_total"] for i in order["items"]],
+                        [i["seller_income_detail"]["item_qty"] for i in order["items"]],
+                        [
+                            i["seller_income_detail"]["sub_total"]
+                            for i in order["items"]
+                        ],
                     )
                 ]
                 if i
@@ -75,10 +78,10 @@ def _build_order(order: Tiki.Order) -> NetSuite.PreparedOrder:
     )
 
 
-def _handle_order(order: ResultE[Tiki.Order]) -> str:
+def _handle_order(order: Tiki.Order) -> str:
     return flow(  # type: ignore
         order,
-        bind(_build_order),
+        _build_order,
         NetSuitePrepareRepo.persist_prepared_order,
         bind(lambda x: Success(x.id)),
     ).unwrap()
@@ -101,7 +104,7 @@ def events_service(session: Session) -> Callable[[list[Tiki.Event]], ResultE[dic
             TikiDataRepo.get_order(session)(TikiDataRepo.extract_order(e))
             for e in events
         ]
-        persisted_orders = [_handle_order(order) for order in orders]
+        persisted_orders = [order.bind(_handle_order) for order in orders]
         [
             TelegramService.send_new_order("Tiki", order.unwrap(), id)
             for order, id in zip(orders, persisted_orders)
