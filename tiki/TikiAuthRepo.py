@@ -1,13 +1,11 @@
-from typing import Callable
 import os
-import base64
 
 from requests.auth import HTTPBasicAuth
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 from google.cloud import firestore
 
-from returns.io import impure_safe
+from returns.result import safe
 
 from firestore.FirestoreRepo import FIRESTORE, get_latest, persist
 
@@ -20,7 +18,7 @@ USER_AGENT = {
 }
 
 
-@impure_safe
+@safe
 def get_new_access_token(*args) -> str:
     token = OAuth2Session(
         client=BackendApplicationClient(client_id=os.getenv("TIKI_CLIENT_ID"))

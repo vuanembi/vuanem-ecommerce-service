@@ -5,7 +5,7 @@ from google.cloud.firestore import (
     CollectionReference as ColRef,
     DocumentReference as DocRef,
 )
-from returns.io import IOResultE, impure_safe
+from returns.result import ResultE, safe
 
 FIRESTORE = firestore.Client()
 
@@ -13,8 +13,8 @@ FIRESTORE = firestore.Client()
 def persist(
     collection: ColRef,
     factory: Callable[[Any], tuple[Optional[str], dict]],
-) -> Callable[[Any], IOResultE[DocRef]]:
-    @impure_safe
+) -> Callable[[Any], ResultE[DocRef]]:
+    @safe
     def _persist(input_: Any) -> DocRef:
         id, data = factory(input_)
         doc_ref = collection.document(str(id)) if id else collection.document()
@@ -24,16 +24,16 @@ def persist(
     return _persist
 
 
-def get_one(col: ColRef) -> Callable[[str], IOResultE[DocRef]]:
-    @impure_safe
+def get_one(col: ColRef) -> Callable[[str], ResultE[DocRef]]:
+    @safe
     def get(id: str) -> DocRef:
         return col.document(str(id)).get()
 
     return get
 
 
-def get_latest(col: ColRef, ts_key: str) -> Callable[[], IOResultE[DocRef]]:
-    @impure_safe
+def get_latest(col: ColRef, ts_key: str) -> Callable[[], ResultE[DocRef]]:
+    @safe
     def get(*args) -> DocRef:
         return [
             i

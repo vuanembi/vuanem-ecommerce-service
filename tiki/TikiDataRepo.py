@@ -3,10 +3,11 @@ import os
 
 from requests import Session
 
-from returns.io import IOResultE, impure_safe
+from returns.result import ResultE, safe
+from google.cloud import firestore
 
 from tiki.Tiki import Event, Order, EventRes
-from firestore.FirestoreRepo import FIRESTORE
+from firestore.FirestoreRepo import FIRESTORE, get_latest, persist
 
 BASE_URL = "https://api.tiki.vn/integration"
 QUEUE_CODE = (
@@ -21,7 +22,7 @@ collection = FIRESTORE.collection(
 
 
 def get_seller_info(session):
-    @impure_safe
+    @safe
     def _get(headers: dict):
         with session.get(f"{BASE_URL}/v2/sellers/me", headers=headers) as r:
             r.raise_for_status()
@@ -30,16 +31,11 @@ def get_seller_info(session):
     return _get
 
 
-def get_events(
-    session: Session,
-    headers: dict,
-) -> Callable[[Optional[str]], IOResultE[EventRes]]:
-    @impure_safe
+def get_events(session: Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
+    @safe
     def _get(ack_id: Optional[str] = None) -> EventRes:
         with session.post(
-            f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull",
-            json={"ack_id": ack_id},
-            headers=headers,
+            f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull", json={"ack_id": ack_id}
         ) as r:
             data = r.json()
         return data["ack_id"], data["events"]
@@ -47,17 +43,16 @@ def get_events(
     return _get
 
 
-def parse_event(event: Event) -> str:
+def extract_order(event: Event) -> str:
     return event["payload"]["order_code"]
 
 
-def get_order(session: Session, headers: dict) -> Callable[[str], IOResultE[Order]]:
-    @impure_safe
+def get_order(session: Session) -> Callable[[str], ResultE[Order]]:
+    @safe
     def _get(order_id: str) -> Order:
         with session.get(
             f"{BASE_URL}/v2/orders/{order_id}",
             params={"include": "items.fees"},
-            headers=headers,
         ) as r:
             data = r.json()
         return {
@@ -88,3 +83,15 @@ def get_order(session: Session, headers: dict) -> Callable[[str], IOResultE[Orde
         }
 
     return _get
+
+
+get_latest_ack_id = get_latest(collection, "created_at")
+persist_ack_id: Callable[[str], ResultE[firestore.DocumentReference]] = persist(
+    collection,
+    lambda ack_id: (
+        str(ack_id),
+        {
+            "created_at": firestore.SERVER_TIMESTAMP,
+        },
+    ),
+)
