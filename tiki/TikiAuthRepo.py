@@ -9,11 +9,8 @@ from returns.result import safe
 
 from firestore.FirestoreRepo import FIRESTORE, get_latest, persist
 
-# collection = FIRESTORE.collection(
-#     "TikiAccessToken" if os.getenv("PYTHON_ENV") == "prod" else "TikiAccessToken-dev"
-# )
 collection = FIRESTORE.collection(
-    "TikiAccessToken" if os.getenv("PYTHON_ENV") == "prod" else "TikiAccessTokean-dev"
+    "TikiAccessToken" if os.getenv("PYTHON_ENV") == "prod" else "TikiAccessToken-dev"
 )
 
 USER_AGENT = {
@@ -22,14 +19,14 @@ USER_AGENT = {
 
 
 @safe
-def get_new_access_token(*args) -> str:
+def get_new_access_token() -> str:
     token = OAuth2Session(
         client=BackendApplicationClient(client_id=os.getenv("TIKI_CLIENT_ID"))
     ).fetch_token(
         token_url="https://api.tiki.vn/sc/oauth2/token",
-        # token_url="https://api.tiki.vsn/sc/oauth2/token",
         auth=HTTPBasicAuth(
-            os.getenv("TIKI_CLIENT_ID"), os.getenv("TIKI_CLIENT_SECRET")
+            os.getenv("TIKI_CLIENT_ID"),
+            os.getenv("TIKI_CLIENT_SECRET"),
         ),
         headers={**USER_AGENT},
     )
