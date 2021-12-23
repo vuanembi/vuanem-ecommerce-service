@@ -2,7 +2,7 @@ from typing import Callable
 
 from requests import Session
 from returns.result import ResultE, Success, safe
-from returns.pointfree import bind, lash
+from returns.pointfree import bind
 from returns.pipeline import flow
 
 from tiki import Tiki, TikiAuthRepo, TikiDataRepo
@@ -12,24 +12,22 @@ from telegram import TelegramService
 
 
 def _persist_new_access_token(*args) -> Success[dict]:
-    return flow(
-        None,
-        TikiAuthRepo.get_new_access_token,
-        bind(TikiAuthRepo.persist_access_token),
-        bind(lambda doc: Success(doc.get().to_dict()["access_token"])),
-        bind(lambda x: Success(TikiAuthRepo.build_headers(x))),
+    return (
+        TikiAuthRepo.get_new_access_token()
+        .bind(TikiAuthRepo.persist_access_token)
+        .bind(lambda doc: Success(doc.get().to_dict()["access_token"]))
+        .bind(lambda x: Success(TikiAuthRepo.build_headers(x)))
     )
 
 
-def authenticate(session: Session) -> dict:
-    return flow(  # type: ignore
-        None,
-        TikiAuthRepo.get_latest_access_token,
-        bind(lambda doc: Success(doc.to_dict()["access_token"])),
-        bind(lambda x: Success(TikiAuthRepo.build_headers(x))),
-        bind(TikiDataRepo.get_seller_info(session)),
-        lash(_persist_new_access_token),
-    ).unwrap()
+def auth_service(session: Session) -> ResultE[dict]:
+    return (
+        TikiAuthRepo.get_latest_access_token()
+        .bind(lambda doc: Success(doc.to_dict()["access_token"]))
+        .bind(lambda x: Success(TikiAuthRepo.build_headers(x)))
+        .bind(TikiDataRepo.get_seller_info(session))
+        .lash(_persist_new_access_token)
+    )
 
 
 def _add_customer(order: Tiki.Order) -> NetSuite.PreparedCustomer:
@@ -87,13 +85,12 @@ def _handle_order(order: Tiki.Order) -> str:
     ).unwrap()
 
 
-def get_events(session: Session) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
+def pull_service(session: Session) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
     return (
         TikiDataRepo.get_latest_ack_id()
         .bind(lambda x: Success(x.id))
         .bind(TikiDataRepo.get_events(session))
         .bind(lambda x: (Success(x[0]), Success(x[1])))
-        # .bind(lambda x: (Success(x[0]), Success(x[1][:2])))
     )
 
 

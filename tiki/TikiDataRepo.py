@@ -1,7 +1,7 @@
 from typing import Optional, Callable
 import os
 
-from requests_oauthlib import OAuth2Session
+from requests import Session
 
 from returns.result import ResultE, safe
 from google.cloud import firestore
@@ -21,7 +21,7 @@ collection = FIRESTORE.collection(
 )
 
 
-def get_seller_info(session: OAuth2Session) -> Callable[[dict], ResultE[dict]]:
+def get_seller_info(session: Session) -> Callable[[dict], ResultE[dict]]:
     @safe
     def _get(headers: dict) -> dict:
         with session.get(f"{BASE_URL}/v2/sellers/me", headers=headers) as r:
@@ -31,7 +31,7 @@ def get_seller_info(session: OAuth2Session) -> Callable[[dict], ResultE[dict]]:
     return _get
 
 
-def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
+def get_events(session: Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
     @safe
     def _get(ack_id: Optional[str] = None) -> EventRes:
         with session.post(
@@ -47,7 +47,7 @@ def extract_order(event: Event) -> str:
     return event["payload"]["order_code"]
 
 
-def get_order(session: OAuth2Session) -> Callable[[str], ResultE[Order]]:
+def get_order(session: Session) -> Callable[[str], ResultE[Order]]:
     @safe
     def _get(order_id: str) -> Order:
         with session.get(

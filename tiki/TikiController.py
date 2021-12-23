@@ -1,19 +1,22 @@
 import requests
-from returns.pipeline import flow
-from returns.pointfree import bind
+from returns.result import Success
+from returns.functions import raise_exception
 
-from tiki.TikiService import authenticate, get_events, events_service, ack_service
+from tiki.TikiService import auth_service, pull_service, events_service, ack_service
 
 
 def tiki_controller(request_data: dict) -> dict:
     with requests.Session() as session:
-        session.headers.update(authenticate(session))
-        ack_id, events = get_events(session)
+        (
+            auth_service(session)
+            .bind(lambda x: Success(session.headers.update(x)))
+            .lash(raise_exception)
+        )
+        ack_id, events = pull_service(session)
         return {
             "controller": "tiki",
-            "results": flow(  # type: ignore
-                events,
-                bind(events_service(session)),
-                bind(ack_service(ack_id)),
-            ).unwrap(),
+            "results": events.bind(events_service(session))
+            .bind(ack_service(ack_id))
+            .lash(raise_exception)
+            .unwrap(),
         }
