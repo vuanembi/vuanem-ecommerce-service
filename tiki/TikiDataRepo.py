@@ -7,7 +7,7 @@ from returns.result import ResultE, safe
 from google.cloud import firestore
 
 from tiki.Tiki import Event, Order, EventRes
-from firestore.FirestoreRepo import FIRESTORE, get_latest, persist
+from db.firestore import FIRESTORE, get_latest, persist
 
 BASE_URL = "https://api.tiki.vn/integration"
 QUEUE_CODE = (

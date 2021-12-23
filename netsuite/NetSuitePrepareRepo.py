@@ -2,7 +2,6 @@ import os
 
 from typing import Callable, Optional, Any
 from datetime import date
-from google.cloud.firestore_v1.document import DocumentReference
 
 from requests_oauthlib import OAuth1Session
 from returns.result import ResultE, Success
@@ -10,7 +9,7 @@ from google.cloud import firestore  # type: ignore
 
 
 from netsuite import NetSuite, Restlet, RestletRepo
-from firestore.FirestoreRepo import FIRESTORE, persist
+from db.firestore import FIRESTORE, persist
 
 collection = FIRESTORE.collection(
     "PreparedOrders" if os.getenv("PYTHON_ENV") == "prod" else "PreparedOrders-dev"
@@ -78,7 +77,7 @@ def build_prepared_order(
 
 persist_prepared_order: Callable[
     [NetSuite.PreparedOrder],
-    ResultE[DocumentReference],
+    ResultE[firestore.DocumentReference],
 ] = persist(
     collection,
     lambda order: (

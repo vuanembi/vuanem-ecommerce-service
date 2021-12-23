@@ -7,7 +7,7 @@ from google.cloud import firestore
 
 from returns.result import safe
 
-from firestore.FirestoreRepo import FIRESTORE, get_latest, persist
+from db.firestore import FIRESTORE, get_latest, persist
 
 collection = FIRESTORE.collection(
     "TikiAccessToken" if os.getenv("PYTHON_ENV") == "prod" else "TikiAccessToken-dev"
