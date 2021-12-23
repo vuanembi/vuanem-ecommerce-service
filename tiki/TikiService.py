@@ -6,8 +6,7 @@ from returns.pointfree import bind
 from returns.pipeline import flow
 
 from tiki import Tiki, TikiAuthRepo, TikiDataRepo
-from restlet import RestletRepo
-from netsuite import NetSuite, NetSuitePrepareRepo
+from netsuite import NetSuite, NetSuitePrepareRepo, RestletRepo
 from telegram import TelegramService
 
 
@@ -48,7 +47,7 @@ def _add_items(order: Tiki.Order) -> NetSuite.Items:
                         [
                             NetSuitePrepareRepo.map_sku_to_item_id(
                                 session, i["product"]["seller_product_code"]
-                            )
+                            ).unwrap()
                             for i in order["items"]
                         ],
                         [i["seller_income_detail"]["item_qty"] for i in order["items"]],
