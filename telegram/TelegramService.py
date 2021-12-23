@@ -17,7 +17,7 @@ def send_new_order(ecom: str, order: dict, id: str) -> dict:
     return send(
         compose(
             build_send_payload(add_new_order, ecom, order),
-            build_send_payload(add_new_order_callback, id),
+            # build_send_payload(add_new_order_callback, id),
         )
     )
 
