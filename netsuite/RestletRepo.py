@@ -1,7 +1,7 @@
-from typing import Callable, Optional
+from typing import Optional
 import os
 
-import oauthlib.oauth1
+from oauthlib.oauth1 import SIGNATURE_HMAC_SHA256
 from requests_oauthlib import OAuth1Session
 from returns.result import ResultE, safe
 
@@ -18,7 +18,7 @@ def netsuite_session() -> OAuth1Session:
         resource_owner_key=os.getenv("ACCESS_TOKEN"),
         resource_owner_secret=os.getenv("TOKEN_SECRET"),
         realm=os.getenv("ACCOUNT_ID"),
-        signature_method=oauthlib.oauth1.SIGNATURE_HMAC_SHA256,
+        signature_method=SIGNATURE_HMAC_SHA256,
     )
 
 
