@@ -39,15 +39,8 @@ class TestAuth:
 
 class TestData:
     @pytest.fixture()
-    def headers(self, session):
-        return TikiService.auth_service(session).unwrap()
-
-    @pytest.fixture()
-    def auth_session(self, session):
-        TikiService.auth_service(session).bind(
-            lambda x: Success(session.headers.update(x))
-        )
-        return session
+    def auth_session(self):
+        return TikiService.auth_service()
 
     @pytest.fixture()
     def events(self):

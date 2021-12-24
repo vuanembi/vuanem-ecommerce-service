@@ -1,17 +1,10 @@
-import requests
-from returns.result import Success
 from returns.functions import raise_exception
 
 from tiki.TikiService import auth_service, pull_service, events_service, ack_service
 
 
 def tiki_controller(request_data: dict) -> dict:
-    with requests.Session() as session:
-        (
-            auth_service(session)
-            .bind(lambda x: Success(session.headers.update(x)))
-            .lash(raise_exception)
-        )
+    with auth_service() as session:
         ack_id, events = pull_service(session)
         return {
             "controller": "tiki",
