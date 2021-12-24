@@ -45,11 +45,11 @@ def get_latest(col: ColRef, ts_key: str) -> Callable[[], ResultE[DocRef]]:
     return get
 
 
-def update(col: ColRef, update_func: Callable[..., dict]) -> Callable[[str], str]:
+def update(col: ColRef, fn: Callable[..., dict]) -> Callable[[str], str]:
     def _update(id: str) -> str:
         doc_ref = col.document(id)
-        doc_ref.update(update_func(id))
-        return doc_ref.id
+        doc_ref.update(fn(id))
+        return doc_ref
 
     return _update
 

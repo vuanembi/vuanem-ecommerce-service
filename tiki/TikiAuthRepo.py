@@ -1,53 +1,41 @@
 import os
 
-from requests.auth import HTTPBasicAuth
-from oauthlib.oauth2 import BackendApplicationClient
-from requests_oauthlib import OAuth2Session
-from google.cloud import firestore
+from authlib.integrations.requests_client import OAuth2Session
+from returns.result import Success, safe
 
-from returns.result import safe
-
-from db.firestore import FIRESTORE, get_latest, persist
-
-collection = FIRESTORE.collection(
-    "TikiAccessToken" if os.getenv("PYTHON_ENV") == "prod" else "TikiAccessToken-dev"
-)
+from auth.AccessTokenRepo import ACCESS_TOKEN
 
 USER_AGENT = {
     "User-Agent": "PostmanRuntime/7.28.4",
 }
+TIKI_ACCESS_TOKEN = ACCESS_TOKEN.document("tiki")
 
 
 @safe
-def get_new_access_token() -> str:
-    token = OAuth2Session(
-        client=BackendApplicationClient(client_id=os.getenv("TIKI_CLIENT_ID"))
-    ).fetch_token(
-        token_url="https://api.tiki.vn/sc/oauth2/token",
-        auth=HTTPBasicAuth(
-            os.getenv("TIKI_CLIENT_ID"),
-            os.getenv("TIKI_CLIENT_SECRET"),
-        ),
-        headers={**USER_AGENT},
+def get_access_token() -> dict:
+    return TIKI_ACCESS_TOKEN.get().to_dict()
+
+
+@safe
+def update_access_token(token: dict) -> None:
+    TIKI_ACCESS_TOKEN.update(token)
+
+
+def get_auth_session(token: dict) -> OAuth2Session:
+    session = OAuth2Session(
+        os.getenv("TIKI_CLIENT_ID"),
+        os.getenv("TIKI_CLIENT_SECRET"),
+        token=token,
+        token_endpoint_auth_method="client_secret_basic",
+        token_endpoint="https://api.tiki.vn/sc/oauth2/token",
+        grant_type="client_credentials",
     )
-    return token["access_token"]
-
-
-get_latest_access_token = get_latest(collection, "created_at")
-persist_access_token = persist(
-    collection,
-    lambda access_token: (
-        None,
-        {
-            "access_token": access_token,
-            "created_at": firestore.SERVER_TIMESTAMP,
-        },
-    ),
-)
-
-
-def build_headers(token: str) -> dict:
-    return {
-        "Authorization": f"Bearer {token}",
-        **USER_AGENT,
-    }
+    if session.token.is_expired():
+        safe(session.fetch_token)(
+            headers={
+                **USER_AGENT,
+                "content-type": "application/x-www-form-urlencoded",
+            }
+        ).bind(lambda x: Success(dict(x))).bind(update_access_token)
+    session.headers.update(USER_AGENT)
+    return session

@@ -1,6 +1,6 @@
 from typing import Callable
 
-from requests import Session
+from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE, Success, safe
 from returns.pointfree import bind
 from returns.pipeline import flow
@@ -10,23 +10,8 @@ from netsuite import NetSuite, NetSuitePrepareRepo, RestletRepo
 from telegram import TelegramService
 
 
-def _persist_new_access_token(*args) -> Success[dict]:
-    return (
-        TikiAuthRepo.get_new_access_token()
-        .bind(TikiAuthRepo.persist_access_token)
-        .bind(lambda doc: Success(doc.get().to_dict()["access_token"]))
-        .bind(lambda x: Success(TikiAuthRepo.build_headers(x)))
-    )
-
-
-def auth_service(session: Session) -> ResultE[dict]:
-    return (
-        TikiAuthRepo.get_latest_access_token()
-        .bind(lambda doc: Success(doc.to_dict()["access_token"]))
-        .bind(lambda x: Success(TikiAuthRepo.build_headers(x)))
-        .bind(TikiDataRepo.get_seller_info(session))
-        .lash(_persist_new_access_token)
-    )
+def auth_service() -> OAuth2Session:
+    return TikiAuthRepo.get_access_token().bind(TikiAuthRepo.get_auth_session)
 
 
 def _add_customer(order: Tiki.Order) -> NetSuite.PreparedCustomer:
@@ -84,7 +69,9 @@ def _handle_order(order: Tiki.Order) -> str:
     ).unwrap()
 
 
-def pull_service(session: Session) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
+def pull_service(
+    session: OAuth2Session,
+) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
     return (
         TikiDataRepo.get_latest_ack_id()
         .bind(lambda x: Success(x.id))
@@ -93,7 +80,9 @@ def pull_service(session: Session) -> tuple[ResultE[str], ResultE[list[Tiki.Even
     )
 
 
-def events_service(session: Session) -> Callable[[list[Tiki.Event]], ResultE[dict]]:
+def events_service(
+    session: OAuth2Session,
+) -> Callable[[list[Tiki.Event]], ResultE[dict]]:
     @safe
     def _svc(events: list[Tiki.Event]) -> dict:
         orders = [
