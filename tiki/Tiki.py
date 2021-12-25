@@ -1,4 +1,14 @@
-from typing import TypedDict
+from typing import TypedDict, Optional
+
+# ----------------------------------- Auth ----------------------------------- #
+
+
+class Auth(TypedDict):
+    access_token: str
+    expires_in: int
+
+
+# ----------------------------------- Event ---------------------------------- #
 
 
 class Payload(TypedDict):
@@ -13,19 +23,25 @@ class Event(TypedDict):
     payload: Payload
 
 
+EventRes = tuple[str, Optional[list[Event]]]
+
+
+# ----------------------------------- Order ---------------------------------- #
+
+
 class Product(TypedDict):
     name: str
     seller_product_code: str
 
 
-class Invoice(TypedDict):
-    row_total: int
+class SellerIncomeDetail(TypedDict):
+    item_qty: int
+    sub_total: int
 
 
 class Item(TypedDict):
     product: Product
-    qty: int
-    invoice: Invoice
+    seller_income_detail: SellerIncomeDetail
 
 
 class Address(TypedDict):

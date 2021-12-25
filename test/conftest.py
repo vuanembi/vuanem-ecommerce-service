@@ -1,10 +1,13 @@
+from typing import Optional
 from collections import OrderedDict
+from unittest.mock import Mock
+
 import requests
 import pytest
 import random
 
-from libs.restlet import netsuite_session
-from models.netsuite import order
+from netsuite import NetSuite, RestletRepo
+from main import main
 
 
 @pytest.fixture()
@@ -14,11 +17,15 @@ def session():
 
 @pytest.fixture()
 def oauth_session():
-    return netsuite_session()
+    return RestletRepo.netsuite_session()
+
+
+def run(path: str, data: Optional[dict] = None) -> dict:
+    return main(Mock(get_json=Mock(return_value=data), path=path, args=data))
 
 
 @pytest.fixture()
-def prepared_order() -> order.PreparedOrder:
+def prepared_order() -> NetSuite.PreparedOrder:
     return OrderedDict(
         {
             "trandate": "2021-10-26",

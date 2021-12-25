@@ -50,4 +50,4 @@ jobs:
           --runtime=python39
           --trigger-http
           --service-account=${{ env.GCP_SA }}
-          --set-env-vars=PYTHON_ENV=${{ env.PYTHON_ENV }},GCP_SA=${{ env.GCP_SA }},CONSUMER_KEY=${{ secrets.CONSUMER_KEY }},CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }},ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }},TOKEN_SECRET=${{ secrets.TOKEN_SECRET }},ACCOUNT_ID=${{ secrets.ACCOUNT_ID }},TIKI_ACCESS_TOKEN=${{ secrets.TIKI_ACCESS_TOKEN }},TELEGRAM_TOKEN=${{ env.TELEGRAM_TOKEN }}
+          --set-env-vars=PYTHON_ENV=${{ env.PYTHON_ENV }},GCP_SA=${{ env.GCP_SA }},CONSUMER_KEY=${{ secrets.CONSUMER_KEY }},CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }},ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }},TOKEN_SECRET=${{ secrets.TOKEN_SECRET }},ACCOUNT_ID=${{ secrets.ACCOUNT_ID }},TIKI_CLIENT_ID=${{ secrets.TIKI_CLIENT_ID }},TIKI_CLIENT_SECRET=${{ secrets.TIKI_CLIENT_SECRET }},TELEGRAM_TOKEN=${{ env.TELEGRAM_TOKEN }}
