@@ -4,22 +4,21 @@ from authlib.integrations.requests_client import OAuth2Session
 from returns.result import safe
 from returns.functions import raise_exception
 
-from auth.AccessTokenRepo import ACCESS_TOKEN
+from db.firestore import DB
 
 USER_AGENT = {
     "User-Agent": "PostmanRuntime/7.28.4",
 }
-TIKI_ACCESS_TOKEN = ACCESS_TOKEN.document("tiki")
-
+_access_token = DB.document("Tiki").collection("AccessToken")
+ACCESS_TOKEN_DOC = _access_token.document("access_token")
 
 @safe
 def get_access_token() -> dict:
-    return TIKI_ACCESS_TOKEN.get().to_dict()
+    return ACCESS_TOKEN_DOC.get().to_dict()
 
 
-@safe
 def update_access_token(token: dict) -> None:
-    TIKI_ACCESS_TOKEN.update(token)
+    ACCESS_TOKEN_DOC.update(token)
 
 
 def get_auth_session(token: dict) -> OAuth2Session:
@@ -31,7 +30,7 @@ def get_auth_session(token: dict) -> OAuth2Session:
         token_endpoint="https://api.tiki.vn/sc/oauth2/token",
         grant_type="client_credentials",
     )
-    if session.token.is_expired():
+    if not token or session.token.is_expired():
         (
             safe(session.fetch_token)(
                 headers={

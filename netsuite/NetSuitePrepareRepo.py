@@ -1,19 +1,15 @@
-import os
-
 from typing import Callable, Optional, Any
 from datetime import date
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE, Success
+from returns.result import ResultE, Success, safe
 from google.cloud import firestore  # type: ignore
 
 
 from netsuite import NetSuite, Restlet, RestletRepo
-from db.firestore import DB, persist
+from db.firestore import DB
 
-collection = DB.collection(
-    "PreparedOrders" if os.getenv("PYTHON_ENV") == "prod" else "PreparedOrders-dev"
-)
+PREPARED_ORDER = DB.document("NetSuite").collection("PreparedOrder")
 
 
 def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
@@ -75,18 +71,17 @@ def build_prepared_order(
     return build
 
 
-persist_prepared_order: Callable[
-    [NetSuite.PreparedOrder],
-    ResultE[firestore.DocumentReference],
-] = persist(
-    collection,
-    lambda order: (
-        None,
+@safe
+def persist_prepared_order(
+    order: NetSuite.PreparedOrder,
+) -> firestore.DocumentReference:
+    doc_ref = PREPARED_ORDER.document()
+    doc_ref.create(
         {
             "order": order,
             "status": "pending",
             "created_at": firestore.SERVER_TIMESTAMP,
             "updated_at": firestore.SERVER_TIMESTAMP,
         },
-    ),
-)
+    )
+    return doc_ref

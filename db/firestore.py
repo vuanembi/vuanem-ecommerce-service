@@ -1,4 +1,5 @@
 from typing import Callable, Optional, Any
+import os
 
 from google.cloud import firestore
 from google.cloud.firestore import (
@@ -7,7 +8,10 @@ from google.cloud.firestore import (
 )
 from returns.result import ResultE, safe
 
-DB = firestore.Client()
+db = firestore.Client()
+DB = db.collection(
+    f"EcommerceService-{'dev' if os.getenv('PYTHON_ENV', 'dev') else ''}"
+)
 
 
 def persist(

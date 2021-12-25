@@ -5,7 +5,6 @@ import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
 
-from auth.AccessTokenRepo import ACCESS_TOKEN
 from tiki import TikiController, TikiService, TikiAuthRepo, TikiDataRepo
 
 from test.conftest import run
@@ -20,8 +19,8 @@ class TestAuth:
     @pytest.mark.parametrize(
         "token",
         [
-            ACCESS_TOKEN.document("tiki").get().to_dict(),
-            ACCESS_TOKEN.document("tiki-expired").get().to_dict(),
+            TikiAuthRepo._access_token.document("access_token").get().to_dict(),
+            TikiAuthRepo._access_token.document("access_token_expired").get().to_dict(),
         ],
         ids=[
             "live",

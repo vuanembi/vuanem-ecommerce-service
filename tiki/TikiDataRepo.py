@@ -16,13 +16,8 @@ QUEUE_CODE = (
     if os.getenv("PYTHON_ENV") == "prod"
     else "f0c586e1-fb27-4d73-90bb-bcfe31464dba"
 )
-TIKI_ACK_ID = DB.collection(
-    "TikiAcks" if os.getenv("PYTHON_ENV") == "prod" else "TikiAcks-dev"
-).document("tiki-ack-id")
-TIKI_ORDERS = DB.collection(
-    "TikiOrders" if os.getenv("PYTHON_ENV") == "prod" else "TikiOrders-dev"
-)
-
+ACK_DOC = DB.document("Tiki").collection("Ack").document("ack")
+ORDER = DB.document("Tiki").collection("Order")
 
 
 def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
@@ -36,9 +31,10 @@ def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[Even
 
     return _get
 
+
 def get_ack_id() -> ResultE[Optional[str]]:
     return (
-        safe(TIKI_ACK_ID.get)()
+        safe(ACK_DOC.get)()
         .bind(lambda x: Success(x.to_dict()))
         .bind(safe(lambda x: x["ack_id"]))
         .lash(lambda _: Success(None))
@@ -47,7 +43,7 @@ def get_ack_id() -> ResultE[Optional[str]]:
 
 @safe
 def update_ack_id(ack_id: str) -> str:
-    TIKI_ACK_ID.update(
+    ACK_DOC.update(
         {
             "ack_id": ack_id,
             "updated_at": firestore.SERVER_TIMESTAMP,
@@ -97,11 +93,9 @@ def get_order(session: Session) -> Callable[[str], ResultE[Order]]:
 
     return _get
 
+
 @safe
 def persist_tiki_order(order: Order) -> Order:
-    doc_ref = TIKI_ORDERS.document()
-    doc_ref.create({
-        "order": order,
-        "updated_at": firestore.SERVER_TIMESTAMP
-    })
+    doc_ref = ORDER.document()
+    doc_ref.create({"order": order, "updated_at": firestore.SERVER_TIMESTAMP})
     return order
