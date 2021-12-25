@@ -10,7 +10,7 @@ from returns.result import ResultE, safe
 
 db = firestore.Client()
 DB = db.collection(
-    f"EcommerceService-{'dev' if os.getenv('PYTHON_ENV', 'dev') else ''}"
+    f"EcommerceService{'-dev' if os.getenv('PYTHON_ENV', 'dev') == 'dev' else ''}"
 )
 
 

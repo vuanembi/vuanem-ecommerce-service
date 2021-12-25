@@ -43,7 +43,7 @@ def get_ack_id() -> ResultE[Optional[str]]:
 
 @safe
 def update_ack_id(ack_id: str) -> str:
-    ACK_DOC.update(
+    ACK_DOC.set(
         {
             "ack_id": ack_id,
             "updated_at": firestore.SERVER_TIMESTAMP,

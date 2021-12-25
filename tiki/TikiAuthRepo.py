@@ -12,13 +12,14 @@ USER_AGENT = {
 _access_token = DB.document("Tiki").collection("AccessToken")
 ACCESS_TOKEN_DOC = _access_token.document("access_token")
 
+
 @safe
 def get_access_token() -> dict:
     return ACCESS_TOKEN_DOC.get().to_dict()
 
 
 def update_access_token(token: dict) -> None:
-    ACCESS_TOKEN_DOC.update(token)
+    ACCESS_TOKEN_DOC.set(token)
 
 
 def get_auth_session(token: dict) -> OAuth2Session:
