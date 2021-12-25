@@ -63,6 +63,14 @@ class TestData:
     def order(self, auth_session, order_id):
         return Success(order_id).bind(TikiDataRepo.get_order(auth_session))
 
+    def test_get_ack_id(self):
+        res = TikiDataRepo.get_ack_id()
+        assert is_successful(res)
+
+    def test_update_ack_id(self):
+        res = TikiDataRepo.update_ack_id("6b405afc-25d6-4634-a2f1-a20e80bcf5bf")
+        assert is_successful(res)
+
     def test_pull_service(self, auth_session):
         ack_id, events = TikiService.pull_service(auth_session)
         assert is_successful(ack_id)

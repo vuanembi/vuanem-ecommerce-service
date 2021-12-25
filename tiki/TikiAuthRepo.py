@@ -1,7 +1,7 @@
 import os
 
 from authlib.integrations.requests_client import OAuth2Session
-from returns.result import Success, safe
+from returns.result import safe
 from returns.functions import raise_exception
 
 from auth.AccessTokenRepo import ACCESS_TOKEN
@@ -32,13 +32,16 @@ def get_auth_session(token: dict) -> OAuth2Session:
         grant_type="client_credentials",
     )
     if session.token.is_expired():
-        safe(session.fetch_token)(
-            headers={
-                **USER_AGENT,
-                "content-type": "application/x-www-form-urlencoded",
-            }
-        ).bind(lambda x: Success(dict(x))).bind(update_access_token).lash(
-            raise_exception
+        (
+            safe(session.fetch_token)(
+                headers={
+                    **USER_AGENT,
+                    "content-type": "application/x-www-form-urlencoded",
+                }
+            )
+            .bind(safe(dict))
+            .map(update_access_token)
+            .lash(raise_exception)
         )
     session.headers.update(USER_AGENT)
     return session

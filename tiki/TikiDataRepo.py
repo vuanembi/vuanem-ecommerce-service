@@ -2,12 +2,13 @@ from typing import Optional, Callable
 import os
 
 from requests import Session
+from authlib.integrations.requests_client import OAuth2Session
 
-from returns.result import ResultE, safe
+from returns.result import ResultE, Success, safe
 from google.cloud import firestore
 
 from tiki.Tiki import Event, Order, EventRes
-from db.firestore import FIRESTORE, get_latest, persist
+from db.firestore import DB
 
 BASE_URL = "https://api.tiki.vn/integration"
 QUEUE_CODE = (
@@ -15,23 +16,16 @@ QUEUE_CODE = (
     if os.getenv("PYTHON_ENV") == "prod"
     else "f0c586e1-fb27-4d73-90bb-bcfe31464dba"
 )
-
-collection = FIRESTORE.collection(
+TIKI_ACK_ID = DB.collection(
     "TikiAcks" if os.getenv("PYTHON_ENV") == "prod" else "TikiAcks-dev"
+).document("tiki-ack-id")
+TIKI_ORDERS = DB.collection(
+    "TikiOrders" if os.getenv("PYTHON_ENV") == "prod" else "TikiOrders-dev"
 )
 
 
-def get_seller_info(session: Session) -> Callable[[dict], ResultE[dict]]:
-    @safe
-    def _get(headers: dict) -> dict:
-        with session.get(f"{BASE_URL}/v2/sellers/me", headers=headers) as r:
-            r.raise_for_status()
-            return headers
 
-    return _get
-
-
-def get_events(session: Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
+def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
     @safe
     def _get(ack_id: Optional[str] = None) -> EventRes:
         with session.post(
@@ -41,6 +35,25 @@ def get_events(session: Session) -> Callable[[Optional[str]], ResultE[EventRes]]
         return data["ack_id"], data["events"]
 
     return _get
+
+def get_ack_id() -> ResultE[Optional[str]]:
+    return (
+        safe(TIKI_ACK_ID.get)()
+        .bind(lambda x: Success(x.to_dict()))
+        .bind(safe(lambda x: x["ack_id"]))
+        .lash(lambda _: Success(None))
+    )
+
+
+@safe
+def update_ack_id(ack_id: str) -> str:
+    TIKI_ACK_ID.update(
+        {
+            "ack_id": ack_id,
+            "updated_at": firestore.SERVER_TIMESTAMP,
+        }
+    )
+    return ack_id
 
 
 def extract_order(event: Event) -> str:
@@ -84,14 +97,11 @@ def get_order(session: Session) -> Callable[[str], ResultE[Order]]:
 
     return _get
 
-
-get_latest_ack_id = get_latest(collection, "created_at")
-persist_ack_id: Callable[[str], ResultE[firestore.DocumentReference]] = persist(
-    collection,
-    lambda ack_id: (
-        str(ack_id),
-        {
-            "created_at": firestore.SERVER_TIMESTAMP,
-        },
-    ),
-)
+@safe
+def persist_tiki_order(order: Order) -> Order:
+    doc_ref = TIKI_ORDERS.document()
+    doc_ref.create({
+        "order": order,
+        "updated_at": firestore.SERVER_TIMESTAMP
+    })
+    return order

@@ -7,7 +7,7 @@ from google.cloud.firestore import (
 )
 from returns.result import ResultE, safe
 
-FIRESTORE = firestore.Client()
+DB = firestore.Client()
 
 
 def persist(

@@ -1,9 +1,10 @@
-from typing import Callable
+from typing import Callable, Optional
 
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE, Success, safe
 from returns.pointfree import bind
 from returns.pipeline import flow
+from returns.functions import raise_exception
 
 from tiki import Tiki, TikiAuthRepo, TikiDataRepo
 from netsuite import NetSuite, NetSuitePrepareRepo, RestletRepo
@@ -60,22 +61,23 @@ def _build_order(order: Tiki.Order) -> NetSuite.PreparedOrder:
     )
 
 
-def _handle_order(order: Tiki.Order) -> str:
+def _handle_order(order: Tiki.Order) -> ResultE[str]:
     return flow(  # type: ignore
         order,
-        _build_order,
+        TikiDataRepo.persist_tiki_order,
+        bind(_build_order),
         NetSuitePrepareRepo.persist_prepared_order,
         bind(lambda x: Success(x.id)),
-    ).unwrap()
+    )
 
 
 def pull_service(
     session: OAuth2Session,
 ) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
     return (
-        TikiDataRepo.get_latest_ack_id()
-        .bind(lambda x: Success(x.id))
+        TikiDataRepo.get_ack_id()
         .bind(TikiDataRepo.get_events(session))
+        .lash(raise_exception)
         .bind(lambda x: (Success(x[0]), Success(x[1])))
     )
 
@@ -89,7 +91,7 @@ def events_service(
             TikiDataRepo.get_order(session)(TikiDataRepo.extract_order(e))
             for e in events
         ]
-        persisted_orders = [order.bind(_handle_order) for order in orders]
+        persisted_orders = [order.bind(_handle_order).unwrap() for order in orders]
         [
             TelegramService.send_new_order("Tiki", order.unwrap(), id)
             for order, id in zip(orders, persisted_orders)
@@ -101,14 +103,12 @@ def events_service(
     return _svc
 
 
-def ack_service(ack_id: Success[str]) -> Callable[[str], ResultE[dict]]:
+def ack_service(ack_id: Success[Optional[str]]) -> Callable[[str], ResultE[dict]]:
     @safe
     def _svc(res: dict = {}) -> dict:
         return {
             **res,
-            "ack": ack_id.bind(TikiDataRepo.persist_ack_id)
-            .bind(lambda x: Success(x.id))
-            .unwrap(),
+            "ack": ack_id.bind(TikiDataRepo.update_ack_id).unwrap(),
         }
 
     return _svc

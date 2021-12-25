@@ -9,9 +9,9 @@ from google.cloud import firestore  # type: ignore
 
 
 from netsuite import NetSuite, Restlet, RestletRepo
-from db.firestore import FIRESTORE, persist
+from db.firestore import DB, persist
 
-collection = FIRESTORE.collection(
+collection = DB.collection(
     "PreparedOrders" if os.getenv("PYTHON_ENV") == "prod" else "PreparedOrders-dev"
 )
 

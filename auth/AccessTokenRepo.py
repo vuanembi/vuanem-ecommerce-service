@@ -1,6 +1,6 @@
 import os
-from db.firestore import FIRESTORE as db
+from db.firestore import DB
 
-ACCESS_TOKEN = db.collection(
+ACCESS_TOKEN = DB.collection(
     "AccessToken" if os.getenv("PYTHON_ENV") == "prod" else "AccessToken-dev"
 )
