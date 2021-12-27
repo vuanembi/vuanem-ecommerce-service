@@ -8,7 +8,7 @@ from returns.functions import raise_exception
 
 from tiki import tiki, auth_repo, data_repo
 from netsuite import netsuite, prepare_repo, restlet_repo
-from telegram import TelegramService
+from telegram import telegram_service
 
 
 def auth_service() -> OAuth2Session:
@@ -77,6 +77,7 @@ def pull_service(
     return (
         data_repo.get_ack_id()
         .bind(data_repo.get_events(session))
+        .lash(raise_exception)
         .bind(lambda x: (Success(x[0]), Success(x[1])))
     )
 
@@ -91,7 +92,7 @@ def events_service(
         ]
         persisted_orders = [order.bind(_handle_order).unwrap() for order in orders]
         [
-            TelegramService.send_new_order("Tiki", order.unwrap(), id)
+            telegram_service.send_new_order("Tiki", order.unwrap(), id)
             for order, id in zip(orders, persisted_orders)
         ]
         return {

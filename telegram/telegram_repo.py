@@ -4,14 +4,14 @@ import time
 
 import requests
 
-from telegram.Telegram import Payload, PayloadBuilder
+from telegram import telegram
 
 BASE_URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
 CHAT_ID = "-1001685563275" if os.getenv("PYTHON_ENV") == "prod" else "-645664226"
 
 
-def build_send_payload(builder: Callable, *args) -> PayloadBuilder:
-    def build(payload: Payload) -> Payload:
+def build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
+    def build(payload: telegram.Payload) -> telegram.Payload:
         return {
             **payload,
             **builder(*args),
@@ -20,7 +20,7 @@ def build_send_payload(builder: Callable, *args) -> PayloadBuilder:
     return build
 
 
-def send(payload_builder: PayloadBuilder) -> dict:
+def send(payload_builder: telegram.PayloadBuilder) -> dict:
     with requests.post(
         f"{BASE_URL}/sendMessage",
         json=payload_builder({"chat_id": CHAT_ID, "parse_mode": "MarkdownV2"}),

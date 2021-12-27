@@ -1,6 +1,6 @@
 import pytest
 
-from telegram import TelegramService
+from telegram import telegram_service
 
 
 @pytest.fixture()
@@ -12,13 +12,14 @@ def order():
 def ecommerce(request):
     return request.param
 
+
 @pytest.fixture()
 def id():
     return "11111"
 
 
 def test_send_new_order(ecommerce, order, id):
-    res = TelegramService.send_new_order(ecommerce, order, id)
+    res = telegram_service.send_new_order(ecommerce, order, id)
     assert res
 
 
