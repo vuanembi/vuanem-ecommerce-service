@@ -2,7 +2,7 @@ from typing import Callable, Optional, Any
 from datetime import date
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE, Success, safe
+from returns.result import Result, ResultE, Success, Failure, safe
 from google.cloud import firestore
 
 
@@ -84,3 +84,22 @@ def persist_prepared_order(
         },
     )
     return doc_ref
+
+
+def get_prepared_order(id: str) -> Result[firestore.DocumentReference, str]:
+    doc_ref = PREPARED_ORDER.document(id).get()
+    if doc_ref.exists:
+        return Success(doc_ref)
+    else:
+        return Failure("{id} does not exist")
+
+
+def validate_prepared_order(status: str):
+    def _validate(order: dict) -> Result[netsuite.PreparedOrder, str]:
+        return (
+            Success(order["order"])
+            if order["status"] == status
+            else Failure(f"Wrong status, expected {status}, got {order['status']}")
+        )
+
+    return _validate
