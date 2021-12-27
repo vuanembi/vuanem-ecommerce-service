@@ -2,36 +2,36 @@ from typing import Callable, Optional
 
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE, Success, safe
-from returns.pointfree import bind
+from returns.pointfree import bind, map_
 from returns.pipeline import flow
 from returns.functions import raise_exception
 
-from tiki import Tiki, TikiAuthRepo, TikiDataRepo
-from netsuite import NetSuite, NetSuitePrepareRepo, RestletRepo
+from tiki import tiki, auth_repo, data_repo
+from netsuite import netsuite, prepare_repo, restlet_repo
 from telegram import TelegramService
 
 
 def auth_service() -> OAuth2Session:
-    return TikiAuthRepo.get_access_token().bind(TikiAuthRepo.get_auth_session)
+    return auth_repo.get_access_token().bind(auth_repo.get_auth_session)
 
 
-def _add_customer(order: Tiki.Order) -> NetSuite.PreparedCustomer:
-    return NetSuitePrepareRepo.build_prepared_customer(
+def _add_customer(order: tiki.Order) -> netsuite.PreparedCustomer:
+    return prepare_repo.build_prepared_customer(
         order["shipping"]["address"]["phone"],
         order["shipping"]["address"]["full_name"],
     )
 
 
-def _add_items(order: Tiki.Order) -> NetSuite.Items:
-    with RestletRepo.netsuite_session() as session:
+def _add_items(order: tiki.Order) -> netsuite.Items:
+    with restlet_repo.netsuite_session() as session:
         return {
             "item": [
                 i
                 for i in [
-                    NetSuitePrepareRepo.build_item(item, quantity, amount)
+                    prepare_repo.build_item(item, quantity, amount)
                     for item, quantity, amount in zip(
                         [
-                            NetSuitePrepareRepo.map_sku_to_item_id(
+                            prepare_repo.map_sku_to_item_id(
                                 session, i["product"]["seller_product_code"]
                             ).unwrap()
                             for i in order["items"]
@@ -48,48 +48,46 @@ def _add_items(order: Tiki.Order) -> NetSuite.Items:
         }
 
 
-def _build_order(order: Tiki.Order) -> NetSuite.PreparedOrder:
+def _build_order(order: tiki.Order) -> netsuite.PreparedOrder:
     return flow(
         {},
-        NetSuitePrepareRepo.build_prepared_order(_add_items, order),
-        NetSuitePrepareRepo.build_prepared_order(_add_customer, order),
-        NetSuitePrepareRepo.build_prepared_order(
-            NetSuitePrepareRepo.build_prepared_order_meta,
+        prepare_repo.build_prepared_order(_add_items, order),
+        prepare_repo.build_prepared_order(_add_customer, order),
+        prepare_repo.build_prepared_order(
+            prepare_repo.build_prepared_order_meta,
             f"tiki - {order['code']}",
         ),
-        NetSuitePrepareRepo.build_prepared_order(lambda _: NetSuite.TikiEcommerce),
+        prepare_repo.build_prepared_order(lambda _: netsuite.TikiEcommerce),
     )
 
 
-def _handle_order(order: Tiki.Order) -> ResultE[str]:
-    return flow(  # type: ignore
+def _handle_order(order: tiki.Order) -> ResultE[str]:
+    return flow(
         order,
-        TikiDataRepo.persist_tiki_order,
-        bind(_build_order),
-        NetSuitePrepareRepo.persist_prepared_order,
-        bind(lambda x: Success(x.id)),
+        data_repo.persist_tiki_order,
+        map_(_build_order),
+        bind(prepare_repo.persist_prepared_order),
+        map_(lambda x: x.id),
     )
 
 
 def pull_service(
     session: OAuth2Session,
-) -> tuple[ResultE[str], ResultE[list[Tiki.Event]]]:
+) -> tuple[ResultE[str], ResultE[list[tiki.Event]]]:
     return (
-        TikiDataRepo.get_ack_id()
-        .bind(TikiDataRepo.get_events(session))
-        .lash(raise_exception)
+        data_repo.get_ack_id()
+        .bind(data_repo.get_events(session))
         .bind(lambda x: (Success(x[0]), Success(x[1])))
     )
 
 
 def events_service(
     session: OAuth2Session,
-) -> Callable[[list[Tiki.Event]], ResultE[dict]]:
+) -> Callable[[list[tiki.Event]], ResultE[dict]]:
     @safe
-    def _svc(events: list[Tiki.Event]) -> dict:
+    def _svc(events: list[tiki.Event]) -> dict:
         orders = [
-            TikiDataRepo.get_order(session)(TikiDataRepo.extract_order(e))
-            for e in events
+            data_repo.get_order(session)(data_repo.extract_order(e)) for e in events
         ]
         persisted_orders = [order.bind(_handle_order).unwrap() for order in orders]
         [
@@ -108,7 +106,7 @@ def ack_service(ack_id: Success[Optional[str]]) -> Callable[[str], ResultE[dict]
     def _svc(res: dict = {}) -> dict:
         return {
             **res,
-            "ack": ack_id.bind(TikiDataRepo.update_ack_id).unwrap(),
+            "ack": data_repo.update_ack_id(ack_id).unwrap(),
         }
 
     return _svc

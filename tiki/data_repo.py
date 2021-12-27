@@ -7,7 +7,7 @@ from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE, Success, safe
 from google.cloud import firestore
 
-from tiki.Tiki import Event, Order, EventRes
+from tiki import tiki
 from db.firestore import DB
 
 BASE_URL = "https://api.tiki.vn/integration"
@@ -20,9 +20,9 @@ ACK_DOC = DB.document("Tiki").collection("Ack").document("ack")
 ORDER = DB.document("Tiki").collection("Order")
 
 
-def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[EventRes]]:
+def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[tiki.EventRes]]:
     @safe
-    def _get(ack_id: Optional[str] = None) -> EventRes:
+    def _get(ack_id: Optional[str] = None) -> tiki.EventRes:
         with session.post(
             f"{BASE_URL}/v1/queues/{QUEUE_CODE}/events/pull", json={"ack_id": ack_id}
         ) as r:
@@ -52,13 +52,13 @@ def update_ack_id(ack_id: str) -> str:
     return ack_id
 
 
-def extract_order(event: Event) -> str:
+def extract_order(event: tiki.Event) -> str:
     return event["payload"]["order_code"]
 
 
-def get_order(session: Session) -> Callable[[str], ResultE[Order]]:
+def get_order(session: Session) -> Callable[[str], ResultE[tiki.Order]]:
     @safe
-    def _get(order_id: str) -> Order:
+    def _get(order_id: str) -> tiki.Order:
         with session.get(
             f"{BASE_URL}/v2/orders/{order_id}",
             params={"include": "items.fees"},
@@ -95,7 +95,7 @@ def get_order(session: Session) -> Callable[[str], ResultE[Order]]:
 
 
 @safe
-def persist_tiki_order(order: Order) -> Order:
+def persist_tiki_order(order: tiki.Order) -> tiki.Order:
     doc_ref = ORDER.document()
     doc_ref.create({"order": order, "updated_at": firestore.SERVER_TIMESTAMP})
     return order
