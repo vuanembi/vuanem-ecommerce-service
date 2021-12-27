@@ -2,7 +2,7 @@ import json
 
 import yaml
 
-from netsuite.NetSuiteRepo import get_sales_order_url
+from netsuite.netsuite_repo import get_sales_order_url
 from telegram.Telegram import Payload, CalbackData
 
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="

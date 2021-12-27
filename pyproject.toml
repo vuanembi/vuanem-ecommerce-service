@@ -38,6 +38,7 @@ testpaths = [
     "test",
 ]
 
-[mypy]
-python_version = 3.7
-plugins = ["returns.contrib.mypy.returns_plugin"]
+[tool.mypy]
+python_version = 3.9
+namespace_packages = true
+plugins = "returns.contrib.mypy.returns_plugin"
