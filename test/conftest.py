@@ -1,6 +1,6 @@
 from typing import Optional
-from collections import OrderedDict
 from unittest.mock import Mock
+import json
 
 import requests
 import pytest
@@ -16,7 +16,7 @@ def session():
 
 
 @pytest.fixture()
-def oauth_session():
+def netsuite_session():
     return restlet_repo.netsuite_session()
 
 
@@ -42,7 +42,7 @@ def prepared_order() -> netsuite.PreparedOrder:
         "partner": 916906,
         "custbody_onl_rep": 942960,
         "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
-        "memo": "đơn test"
+        "memo": "đơn test",
     }
 
 
@@ -55,9 +55,14 @@ def netsuite_order(prepared_order):
 
 
 @pytest.fixture()
-def update():
+def callback_data():
+    return {"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}
+
+
+@pytest.fixture()
+def telegram_update(callback_data):
     return {
-        "update_id": random.randint(100000, 900000),
+        "update_id": 123456,
         "callback_query": {
             "id": "3662730095478523210",
             "from": {
@@ -103,7 +108,7 @@ def update():
                 },
             },
             "chat_instance": "8890303927539922236",
-            "data": '{"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}',
+            "data": json.dumps(callback_data),
         },
     }
 
@@ -111,8 +116,3 @@ def update():
 @pytest.fixture()
 def prepared_order_id():
     return "dcKwUknGf8eY2vePOJVA"
-
-
-@pytest.fixture()
-def callback_data():
-    return {"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}

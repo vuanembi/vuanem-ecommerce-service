@@ -33,11 +33,12 @@ def send(payload_builder: telegram.PayloadBuilder) -> dict:
             return r.json()
 
 
-def answer_callback(callback_query_id: str) -> None:
+def answer_callback(update: telegram.Update) -> telegram.Update:
     requests.post(
         f"{BASE_URL}/answerCallbackQuery",
         json={
-            "callback_query_id": callback_query_id,
+            "callback_query_id": update["callback_query"]["id"],
             "text": "Đợi xíu...",
         },
     )
+    return update

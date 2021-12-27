@@ -1,6 +1,6 @@
 import pytest
 
-from telegram import telegram_service
+from telegram import message_service
 
 
 @pytest.fixture()
@@ -19,7 +19,7 @@ def id():
 
 
 def test_send_new_order(ecommerce, order, id):
-    res = telegram_service.send_new_order(ecommerce, order, id)
+    res = message_service.send_new_order(ecommerce, order, id)
     assert res
 
 
