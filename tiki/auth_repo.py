@@ -1,25 +1,23 @@
+from typing import Optional
 import os
 
 from authlib.integrations.requests_client import OAuth2Session
-from returns.result import safe
+from returns.result import ResultE, safe
 from returns.functions import raise_exception
 
-from db.firestore import DB
+from tiki.tiki_repo import TIKI
 
 USER_AGENT = {
     "User-Agent": "PostmanRuntime/7.28.4",
 }
-_access_token = DB.document("Tiki").collection("AccessToken")
-ACCESS_TOKEN_DOC = _access_token.document("access_token")
 
 
-@safe
-def get_access_token() -> dict:
-    return ACCESS_TOKEN_DOC.get().to_dict()
+def get_access_token() -> ResultE[Optional[dict]]:
+    return safe(lambda x: x["state"]["access_token"])(TIKI.get().to_dict())
 
 
 def update_access_token(token: dict) -> None:
-    ACCESS_TOKEN_DOC.set(token)
+    TIKI.set({"state": {"access_token": token}}, merge=True)
 
 
 def get_auth_session(token: dict) -> OAuth2Session:

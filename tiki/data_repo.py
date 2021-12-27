@@ -4,11 +4,11 @@ import os
 from requests import Session
 from authlib.integrations.requests_client import OAuth2Session
 
-from returns.result import ResultE, Success, safe
+from returns.result import ResultE, safe
 from google.cloud import firestore
 
 from tiki import tiki
-from db.firestore import DB
+from tiki.tiki_repo import TIKI
 
 BASE_URL = "https://api.tiki.vn/integration"
 QUEUE_CODE = (
@@ -16,11 +16,12 @@ QUEUE_CODE = (
     if os.getenv("PYTHON_ENV") == "prod"
     else "f0c586e1-fb27-4d73-90bb-bcfe31464dba"
 )
-ACK_DOC = DB.document("Tiki").collection("Ack").document("ack")
-ORDER = DB.document("Tiki").collection("Order")
+ORDER = TIKI.collection("Order")
 
 
-def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[tiki.EventRes]]:
+def get_events(
+    session: OAuth2Session,
+) -> Callable[[Optional[str]], ResultE[tiki.EventRes]]:
     @safe
     def _get(ack_id: Optional[str] = None) -> tiki.EventRes:
         with session.post(
@@ -33,21 +34,21 @@ def get_events(session: OAuth2Session) -> Callable[[Optional[str]], ResultE[tiki
 
 
 def get_ack_id() -> ResultE[Optional[str]]:
-    return (
-        safe(ACK_DOC.get)()
-        .bind(lambda x: Success(x.to_dict()))
-        .bind(safe(lambda x: x["ack_id"]))
-        .lash(lambda _: Success(None))
-    )
+    return safe(lambda x: x["state"]["ack"]["ack_id"])(TIKI.get().to_dict())
 
 
 @safe
 def update_ack_id(ack_id: str) -> str:
-    ACK_DOC.set(
+    TIKI.set(
         {
-            "ack_id": ack_id,
-            "updated_at": firestore.SERVER_TIMESTAMP,
-        }
+            "state": {
+                "ack": {
+                    "ack_id": ack_id,
+                    "updated_at": firestore.SERVER_TIMESTAMP,
+                }
+            }
+        },
+        merge=True,
     )
     return ack_id
 

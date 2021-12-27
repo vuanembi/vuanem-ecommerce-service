@@ -20,7 +20,7 @@ def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
             "GET",
             params={"itemid": sku},
         )
-        .bind(lambda x: Success(x["id"]))  # type: ignore
+        .bind(lambda x: Success(x["id"]))
         .lash(lambda _: Success(None))
     )
 
@@ -59,12 +59,11 @@ def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
         "memo": memo,
     }
 
-def build_prepared_order(
-    builder, data = None
-):
+
+def build_prepared_order(builder, data=None):
     def build(prepared_order: dict = {}):
         return {
-            **prepared_order,  # type: ignore
+            **prepared_order,
             **builder(data),
         }
 

@@ -5,7 +5,7 @@ import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
 
-from tiki import tiki_controller, tiki_service, auth_repo, data_repo
+from tiki import tiki_controller, tiki_service, auth_repo, data_repo, tiki_repo
 
 from test.conftest import run
 
@@ -15,20 +15,21 @@ def fail_api_key():
     os.environ["TIKI_CLIENT_ID"] = uuid.uuid4()
 
 
+@pytest.fixture()
+def state():
+    return tiki_repo.TIKI
+
+
 class TestAuth:
     @pytest.mark.parametrize(
         "token",
         [
-            auth_repo._access_token.document("access_token").get().to_dict(),
-            auth_repo._access_token.document("access_token_expired").get().to_dict(),
-        ],
-        ids=[
-            "live",
-            "expired",
+            "access_token",
+            "access_token_expired",
         ],
     )
-    def test_get_auth_session(self, token):
-        res = auth_repo.get_auth_session(token)
+    def test_get_auth_session(self, state, token):
+        res = auth_repo.get_auth_session(state.get().to_dict()["state"][token])
         assert res.token.is_expired() == False
 
     def test_auth_service(self):
