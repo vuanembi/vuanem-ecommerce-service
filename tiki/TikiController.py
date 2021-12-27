@@ -1,6 +1,6 @@
 from returns.functions import raise_exception
 
-from tiki.tiki_service import auth_service, pull_service, events_service, ack_service
+from tiki.TikiService import auth_service, pull_service, events_service, ack_service
 
 
 def tiki_controller(request_data: dict) -> dict:
@@ -9,7 +9,7 @@ def tiki_controller(request_data: dict) -> dict:
         return {
             "controller": "tiki",
             "results": events.bind(events_service(session))
-            .bind(ack_id.bind(ack_service))
+            .bind(ack_service(ack_id))
             .lash(raise_exception)
             .unwrap(),
         }

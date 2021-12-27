@@ -6,7 +6,7 @@ from returns.pipeline import flow
 from returns.pointfree import bind, lash
 from returns.converters import result_to_maybe
 
-from netsuite import netsuite, restlet, restlet_repo
+from netsuite import NetSuite, Restlet, RestletRepo
 
 # from restlet.RestletRepo import sales_order, inventory_item, customer
 # from netsuite.NetSuite import (
@@ -19,9 +19,9 @@ from netsuite import netsuite, restlet, restlet_repo
 
 def get_customer(session, customer_req):
     def _get():
-        return restlet_repo.request(
+        return RestletRepo.request(
             session,
-            restlet.Customer,
+            Restlet.Customer,
             "GET",
             params={
                 "phone": customer_req["phone"],
@@ -33,12 +33,12 @@ def get_customer(session, customer_req):
 
 def create_customer(session, customer_req):
     def _create():
-        return restlet_repo.request(
+        return RestletRepo.request(
             session,
-            restlet.Customer,
+            Restlet.Customer,
             "POST",
             body={
-                "leadsource": netsuite.LEAD_SOURCE,
+                "leadsource": NetSuite.LEAD_SOURCE,
                 "firstname": customer_req["firstname"],
                 "lastname": customer_req["lastname"],
                 "phone": customer_req["phone"],
@@ -50,16 +50,16 @@ def create_customer(session, customer_req):
 
 def get_customer_if_not_exist(
     session: OAuth1Session,
-    customer_req: netsuite.CustomerReq,
+    customer_req: NetSuite.CustomerReq,
 ) -> str:
     return get_customer(session, customer_req).lash(
         create_customer(session, customer_req)
     )
 
 
-def build_customer_request(name: str, phone: str) -> netsuite.CustomerReq:
+def build_customer_request(name: str, phone: str) -> NetSuite.CustomerReq:
     return {
-        "leadsource": netsuite.LEAD_SOURCE,
+        "leadsource": NetSuite.LEAD_SOURCE,
         "firstname": "Anh Chị",
         "lastname": name,
         "phone": phone,
@@ -75,8 +75,8 @@ def get_sales_order_url(id: str) -> str:
 
 def build_sales_order_from_prepared(
     session: OAuth1Session,
-    order: netsuite.PreparedOrder,
-) -> netsuite.Order:
+    order: NetSuite.PreparedOrder,
+) -> NetSuite.Order:
     return {
         "entity": int(
             get_customer_if_not_exist(
@@ -109,9 +109,8 @@ def build_sales_order_from_prepared(
             }
             for i in order["item"]
         ],
-        "memo": order["memo"],
     }
 
 
-def create_sales_order(session: OAuth1Session, order: netsuite.Order) -> str:
-    return restlet_repo.request(session, restlet.SalesOrder, "POST", body=order)["id"]
+def create_sales_order(session: OAuth1Session, order: NetSuite.Order) -> str:
+    return RestletRepo.request(session, Restlet.SalesOrder, "POST", body=order)["id"]

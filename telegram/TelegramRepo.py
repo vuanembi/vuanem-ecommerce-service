@@ -25,12 +25,9 @@ def send(payload_builder: PayloadBuilder) -> dict:
         f"{BASE_URL}/sendMessage",
         json=payload_builder({"chat_id": CHAT_ID, "parse_mode": "MarkdownV2"}),
     ) as r:
-        if r.status_code == 429:
-            time.sleep(3)
-            return send(payload_builder)
-        else:
-            r.raise_for_status()
-            return r.json()
+        time.sleep(1)
+        r.raise_for_status()
+        return r.json()
 
 
 def answer_callback(callback_query_id: str) -> None:

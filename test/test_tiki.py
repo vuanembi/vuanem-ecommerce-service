@@ -5,7 +5,7 @@ import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
 
-from tiki import tiki_controller, tiki_service, auth_repo, data_repo
+from tiki import TikiController, TikiService, TikiAuthRepo, TikiDataRepo
 
 from test.conftest import run
 
@@ -19,8 +19,8 @@ class TestAuth:
     @pytest.mark.parametrize(
         "token",
         [
-            auth_repo._access_token.document("access_token").get().to_dict(),
-            auth_repo._access_token.document("access_token_expired").get().to_dict(),
+            TikiAuthRepo._access_token.document("access_token").get().to_dict(),
+            TikiAuthRepo._access_token.document("access_token_expired").get().to_dict(),
         ],
         ids=[
             "live",
@@ -28,18 +28,18 @@ class TestAuth:
         ],
     )
     def test_get_auth_session(self, token):
-        res = auth_repo.get_auth_session(token)
+        res = TikiAuthRepo.get_auth_session(token)
         assert res.token.is_expired() == False
 
     def test_auth_service(self):
-        res = tiki_service.auth_service()
+        res = TikiService.auth_service()
         assert res.token.is_expired() == False
 
 
 class TestData:
     @pytest.fixture()
     def auth_session(self):
-        return tiki_service.auth_service()
+        return TikiService.auth_service()
 
     @pytest.fixture()
     def events(self):
@@ -60,18 +60,18 @@ class TestData:
 
     @pytest.fixture()
     def order(self, auth_session, order_id):
-        return Success(order_id).bind(data_repo.get_order(auth_session))
+        return Success(order_id).bind(TikiDataRepo.get_order(auth_session))
 
     def test_get_ack_id(self):
-        res = data_repo.get_ack_id()
+        res = TikiDataRepo.get_ack_id()
         assert is_successful(res)
 
     def test_update_ack_id(self):
-        res = data_repo.update_ack_id("6b405afc-25d6-4634-a2f1-a20e80bcf5bf")
+        res = TikiDataRepo.update_ack_id("6b405afc-25d6-4634-a2f1-a20e80bcf5bf")
         assert is_successful(res)
 
     def test_pull_service(self, auth_session):
-        ack_id, events = tiki_service.pull_service(auth_session)
+        ack_id, events = TikiService.pull_service(auth_session)
         assert is_successful(ack_id)
         assert is_successful(events)
 
@@ -80,17 +80,17 @@ class TestData:
         assert is_successful(res)
 
     def test_get_orders(self, auth_session):
-        _, events = tiki_service.pull_service(auth_session)
+        _, events = TikiService.pull_service(auth_session)
         res = events.bind(
             lambda events: [
-                data_repo.get_order(auth_session)(data_repo.extract_order(e))
+                TikiDataRepo.get_order(auth_session)(TikiDataRepo.extract_order(e))
                 for e in events
             ]
         )
         assert res
 
     def test_add_item(self, order):
-        res = order.bind(tiki_service._add_items)
+        res = order.bind(TikiService._add_items)
         assert res == {
             "item": [
                 {
@@ -103,7 +103,7 @@ class TestData:
         }
 
     def test_add_customer(self, order):
-        res = order.bind(tiki_service._add_customer)
+        res = order.bind(TikiService._add_customer)
         assert res == {
             "custbody_customer_phone": "0938169869",
             "custbody_recipient_phone": "0938169869",
@@ -112,26 +112,26 @@ class TestData:
         }
 
     def test_build_order(self, order):
-        res = order.bind(tiki_service._build_order)
+        res = order.bind(TikiService._build_order)
         assert res
 
     def test_handle_order(self, order):
-        res = order.bind(tiki_service._handle_order)
+        res = order.bind(TikiService._handle_order)
         assert res
 
     def test_events_service(self, auth_session, events):
-        res = tiki_service.events_service(auth_session)(events)
+        res = TikiService.events_service(auth_session)(events)
         res
 
 
 class TestIntegration:
     def test_controller_success(self):
-        res = tiki_controller.tiki_controller({})
+        res = TikiController.tiki_controller({})
         assert res
 
     def test_controller_fail(self):
         with pytest.raises(Exception) as e:
-            res = tiki_controller.tiki_controller({})
+            res = TikiController.tiki_controller({})
             assert res
 
     def test_tiki(self):

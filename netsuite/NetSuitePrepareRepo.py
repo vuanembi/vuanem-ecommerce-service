@@ -3,10 +3,10 @@ from datetime import date
 
 from requests_oauthlib import OAuth1Session
 from returns.result import ResultE, Success, safe
-from google.cloud import firestore
+from google.cloud import firestore  # type: ignore
 
 
-from netsuite import netsuite, restlet, restlet_repo
+from netsuite import NetSuite, Restlet, RestletRepo
 from db.firestore import DB
 
 PREPARED_ORDER = DB.document("NetSuite").collection("PreparedOrder")
@@ -14,18 +14,18 @@ PREPARED_ORDER = DB.document("NetSuite").collection("PreparedOrder")
 
 def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
     return (
-        restlet_repo.request(
+        RestletRepo.request(
             session,
-            restlet.InventoryItem,
+            Restlet.InventoryItem,
             "GET",
             params={"itemid": sku},
         )
-        .bind(lambda x: Success(x["id"]))  # type: ignore
+        .bind(lambda x: Success(x["id"]))
         .lash(lambda _: Success(None))
     )
 
 
-def build_prepared_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
+def build_prepared_customer(phone: str, name: str) -> NetSuite.PreparedCustomer:
     return {
         "custbody_customer_phone": phone,
         "custbody_recipient_phone": phone,
@@ -36,9 +36,7 @@ def build_prepared_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
     }
 
 
-def build_item(
-    item: Optional[str], quantity: int, amount: int
-) -> Optional[netsuite.Item]:
+def build_item(item: Optional[str], quantity: int, amount: int) -> NetSuite.Item:
     return (
         {
             "item": int(item),
@@ -47,24 +45,26 @@ def build_item(
             "amount": int(amount / 1.1),
         }
         if item
-        else None
+        else {}
     )
 
 
-def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
+def build_prepared_order_meta(memo: str) -> NetSuite.OrderMeta:
     return {
-        "leadsource": netsuite.LEAD_SOURCE,
-        "custbody_expecteddeliverytime": netsuite.EXPECTED_DELIVERY_TIME,
+        "leadsource": NetSuite.LEAD_SOURCE,
+        "custbody_expecteddeliverytime": NetSuite.EXPECTED_DELIVERY_TIME,
         "trandate": date.today().isoformat(),
         "memo": memo,
     }
 
+
 def build_prepared_order(
-    builder, data = None
-):
-    def build(prepared_order: dict = {}):
+    builder: Callable[[Any], dict],
+    data: Optional[Any] = None,
+) -> Callable[[dict], NetSuite.PreparedOrder]:
+    def build(prepared_order: dict = {}) -> NetSuite.PreparedOrder:
         return {
-            **prepared_order,  # type: ignore
+            **prepared_order,
             **builder(data),
         }
 
@@ -73,7 +73,7 @@ def build_prepared_order(
 
 @safe
 def persist_prepared_order(
-    order: netsuite.PreparedOrder,
+    order: NetSuite.PreparedOrder,
 ) -> firestore.DocumentReference:
     doc_ref = PREPARED_ORDER.document()
     doc_ref.create(
