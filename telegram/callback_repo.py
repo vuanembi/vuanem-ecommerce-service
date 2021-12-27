@@ -3,6 +3,7 @@ import json
 
 from google.cloud import firestore
 from returns.pipeline import pipe
+from returns.pointfree import bind
 from returns.result import Result, Success, Failure, safe
 
 from google.cloud import firestore
@@ -38,4 +39,15 @@ def _validate_unique(
 
 validate_update = _validate_unique(UPDATE, lambda x: x["update_id"])
 validate_callback = _validate_unique(CALLBACK, lambda x: x["callback_query"]["data"])
-validate_data = pipe(lambda x: x["callback_query"]["data"], safe(json.loads))
+
+validate_data: Callable[[telegram.Update], Result[telegram.CalbackData, str]] = pipe(
+    lambda x: x["callback_query"]["data"],
+    safe(json.loads),
+    bind(
+        lambda data: (
+            Success(data)
+            if "a" in data and "o" in data and "v" in data
+            else Failure("Invalid data")
+        )
+    ),
+)
