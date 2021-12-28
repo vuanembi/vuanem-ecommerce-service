@@ -1,7 +1,7 @@
 import os
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE
+from returns.result import ResultE, Failure
 from returns.pipeline import flow
 from returns.pointfree import lash, map_
 
@@ -86,6 +86,7 @@ def _get_or_create_customer(session: OAuth1Session):
         return flow(
             customer_req,
             _get_customer(session),
+            lash(lambda _: Failure(customer_req)),
             lash(_create_customer(session)),
             map_(lambda x: x["id"]),
             map_(int),

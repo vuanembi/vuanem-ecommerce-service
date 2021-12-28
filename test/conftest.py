@@ -4,7 +4,6 @@ import json
 
 import requests
 import pytest
-import random
 
 from netsuite import netsuite, restlet_repo
 from main import main
