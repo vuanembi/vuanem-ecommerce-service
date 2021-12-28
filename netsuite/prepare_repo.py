@@ -21,11 +21,29 @@ def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
             params={"itemid": sku},
         )
         .bind(lambda x: Success(x["id"]))
-        .lash(lambda _: Success(None))
+        .lash(lambda _: Failure(None))
     )
 
 
-def build_prepared_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
+def build_item(
+    session: OAuth1Session,
+    sku: str,
+    qty: int,
+    amt: int,
+) -> ResultE[netsuite.Items]:
+    return map_sku_to_item_id(session, sku).bind(
+        lambda x: Success(
+            {
+                "item": int(x),
+                "quantity": qty,
+                "price": -1,
+                "amount": int(amt / 1.1),
+            }
+        )
+    )
+
+
+def build_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
     return {
         "custbody_customer_phone": phone,
         "custbody_recipient_phone": phone,
@@ -34,22 +52,6 @@ def build_prepared_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
             "addressee": name,
         },
     }
-
-
-def build_item(
-    item: Optional[str], quantity: int, amount: int
-) -> Optional[netsuite.Item]:
-    return (
-        {
-            "item": int(item),
-            "quantity": quantity,
-            "price": -1,
-            "amount": int(amount / 1.1),
-        }
-        if item
-        else None
-    )
-
 
 def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
     return {
