@@ -114,4 +114,4 @@ def telegram_update(callback_data):
 
 @pytest.fixture()
 def prepared_order_id():
-    return "dcKwUknGf8eY2vePOJVA"
+    return "0nlAVZ8W7s2rMGSk0qHV"

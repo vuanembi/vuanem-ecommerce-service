@@ -15,12 +15,3 @@ def validation_service(update: telegram.Update) -> ResultE[telegram.CalbackData]
         bind(callback_repo.validate_callback),
         bind(callback_repo.validate_data),
     )
-
-
-def match_service(data: telegram.CalbackData):
-    if data["t"] == "O":
-        if data["a"] == 1:
-            pass
-        elif data["a"] == -1:
-            pass
-    return Failure(f"Operation not supported {json.dumps(data)}")
