@@ -24,10 +24,12 @@ def add_ack_callback() -> telegram.Payload:
             "keyboard": [
                 [
                     {
-                        "text": "Đã Nhận thông tin",
+                        "text": "Đã nhận thông tin",
                     },
                 ],
-            ]
+            ],
+            "resize_keyboard": True,
+            "one_time_keyboard": True,
         }
     }
 
@@ -57,7 +59,7 @@ def add_new_order_callback(id: str) -> telegram.Payload:
                     },
                 ]
             ],
-        }
+        },
     }
 
 

@@ -30,6 +30,7 @@ def send(payload_builder: telegram.PayloadBuilder) -> None:
             return send(payload_builder)
         else:
             r.raise_for_status()
+            r
 
 
 def answer_callback(update: telegram.Update) -> None:

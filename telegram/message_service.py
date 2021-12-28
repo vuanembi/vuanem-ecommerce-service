@@ -9,7 +9,7 @@ def send_new_order(ecom: str, order: dict, id: str) -> dict:
     return telegram_repo.send(
         compose(
             telegram_repo.build_send_payload(payload_repo.add_new_order, ecom, order),
-            # build_send_payload(add_new_order_callback, id),
+            telegram_repo.build_send_payload(payload_repo.add_new_order_callback, id),
         )
     )
 
