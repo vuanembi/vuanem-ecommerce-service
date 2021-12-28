@@ -29,7 +29,7 @@ def request(
     method: str,
     params: dict = {},
     body: Optional[dict] = None,
-) -> ResultE[dict]:
+) -> dict:
     with session.request(
         method,
         BASE_URL,

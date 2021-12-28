@@ -1,10 +1,8 @@
-from typing import Callable, Optional, Any
 from datetime import date
 
 from requests_oauthlib import OAuth1Session
 from returns.result import Result, ResultE, Success, Failure, safe
 from google.cloud import firestore
-
 
 from netsuite import netsuite, restlet, restlet_repo
 from db.firestore import DB
@@ -20,8 +18,8 @@ def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
             "GET",
             params={"itemid": sku},
         )
-        .bind(lambda x: Success(x["id"]))
-        .lash(lambda _: Failure(None))
+        .map(lambda x: x["id"])  # type: ignore
+        .lash(lambda _: Failure(Exception()))
     )
 
 
@@ -30,16 +28,14 @@ def build_item(
     sku: str,
     qty: int,
     amt: int,
-) -> ResultE[netsuite.Items]:
-    return map_sku_to_item_id(session, sku).bind(
-        lambda x: Success(
-            {
-                "item": int(x),
-                "quantity": qty,
-                "price": -1,
-                "amount": int(amt / 1.1),
-            }
-        )
+) -> ResultE[netsuite.Item]:
+    return map_sku_to_item_id(session, sku).map(
+        lambda x: {
+            "item": int(x),
+            "quantity": qty,
+            "price": -1,
+            "amount": int(amt / 1.1),
+        }
     )
 
 
@@ -53,6 +49,7 @@ def build_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
         },
     }
 
+
 def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
     return {
         "leadsource": netsuite.LEAD_SOURCE,
@@ -60,16 +57,6 @@ def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
         "trandate": date.today().isoformat(),
         "memo": memo,
     }
-
-
-def build_prepared_order(builder, data=None):
-    def build(prepared_order: dict = {}):
-        return {
-            **prepared_order,
-            **builder(data),
-        }
-
-    return build
 
 
 @safe
@@ -89,8 +76,8 @@ def persist_prepared_order(
 
 
 def get_prepared_order(id: str) -> Result[firestore.DocumentReference, str]:
-    doc_ref = PREPARED_ORDER.document(id).get()
-    if doc_ref.exists:
+    doc_ref = PREPARED_ORDER.document(id)
+    if doc_ref.get().exists:
         return Success(doc_ref)
     else:
         return Failure("{id} does not exist")
@@ -105,3 +92,16 @@ def validate_prepared_order(status: str):
         )
 
     return _validate
+
+
+def update_prepared_order_status(doc_ref: firestore.DocumentReference, status: str):
+    def _update(id: str) -> None:
+        doc_ref.reference.set(
+            {
+                "status": status,
+                "transactionId": id,
+            },
+            merge=True,
+        )
+
+    return _update

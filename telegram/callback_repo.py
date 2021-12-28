@@ -40,13 +40,13 @@ def _validate_unique(
 validate_update = _validate_unique(UPDATE, lambda x: x["update_id"])
 validate_callback = _validate_unique(CALLBACK, lambda x: x["callback_query"]["data"])
 
-validate_data: Callable[[telegram.Update], Result[telegram.CalbackData, str]] = pipe(
+validate_data: Callable[[telegram.Update], Result[telegram.CalbackData, str]] = pipe(  # type: ignore
     lambda x: x["callback_query"]["data"],
     safe(json.loads),
     bind(
         lambda data: (
             Success(data)
-            if "a" in data and "o" in data and "v" in data
+            if set(data.keys()) == set(["a", "v", "t"])
             else Failure("Invalid data")
         )
     ),

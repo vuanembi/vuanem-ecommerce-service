@@ -2,21 +2,22 @@ from typing import Callable, Optional
 from returns.pipeline import flow
 from returns.result import ResultE, Success, Failure
 from returns.iterables import Fold
-from returns.pointfree import bind, lash
+from returns.pointfree import bind, lash, map_
 from returns.functions import tap
 
+from google.cloud import firestore
 from netsuite import netsuite, netsuite_repo, prepare_repo, restlet_repo
 from telegram import message_service
 
 
 def build_prepared_order_service(
     items_fn: Callable[[dict], list[dict]],
-    item_sku_fn: Callable[[dict], dict],
-    item_qty_fn: Callable[[dict], dict],
-    item_amt_fn: Callable[[dict], dict],
+    item_sku_fn: Callable[[dict], str],
+    item_qty_fn: Callable[[dict], int],
+    item_amt_fn: Callable[[dict], int],
     memo_builder: Callable[[dict], str],
     ecom: netsuite.Ecommerce,
-    customer_builder: Optional[Callable[[dict], dict]] = None,
+    customer_builder: Optional[Callable[[dict], netsuite.PreparedCustomer]] = None,
     default_customer: Optional[netsuite.Customer] = None,
 ):
     def _build(order: dict) -> ResultE[netsuite.PreparedOrder]:
@@ -36,7 +37,7 @@ def build_prepared_order_service(
                 lambda x: {
                     "item": list(x),
                     **(
-                        customer_builder(order)
+                        customer_builder(order) # type: ignore
                         if customer_builder
                         else default_customer
                     ),
@@ -47,18 +48,36 @@ def build_prepared_order_service(
 
     return _build
 
-def create_order_service(prepared_id: str) -> ResultE[Optional[str]]:
+
+def _create_order_from_prepared(
+    prepared_order_doc_ref: firestore.DocumentReference,
+) -> ResultE[Optional[str]]:
     with restlet_repo.netsuite_session() as session:
-        return flow(
-            prepared_id,
-            prepare_repo.get_prepared_order,
-            bind(lambda x: Success(x.to_dict())),
-            bind(prepare_repo.validate_prepared_order("pending")),
+        return flow( # type: ignore
+            prepared_order_doc_ref,
+            lambda x: x.to_dict(),
+            prepare_repo.validate_prepared_order("pending"),
             bind(netsuite_repo.build_sales_order_from_prepared(session)),
-            bind(netsuite_repo.create_sales_order(session)),
-            # bind(lambda _: Failure(Exception('aaa'))),
-            # bind(lambda _: Success("1")),
-            tap(bind(message_service.send_create_order_success)),
-            tap(lash(message_service.send_create_order_error)),
-            lash(lambda _: Success(None))
+            # bind(netsuite_repo.create_sales_order(session)),
+            # map_(lambda x: x['id']),
+            # bind(lambda _: Failure(Exception("aaa"))),
+            bind(lambda _: Success(1)), # type: ignore
+            tap(
+                bind(
+                    prepare_repo.update_prepared_order_status(
+                        prepared_order_doc_ref, "created"
+                    )
+                )
+            ),
+            tap(bind(message_service.send_create_order_success)), # type: ignore
+            tap(lash(message_service.send_create_order_error)), # type: ignore
+            lash(lambda _: Success(None)), # type: ignore
         )
+
+
+def create_order_service(prepared_id: str) -> ResultE[Optional[str]]:
+    return flow( # type: ignore
+        prepared_id,
+        prepare_repo.get_prepared_order,
+        bind(_create_order_from_prepared),
+    )

@@ -9,7 +9,7 @@ def tiki_controller(request_data: dict) -> dict:
         return {
             "controller": "tiki",
             "results": events.bind(events_service(session))
-            .bind(ack_id.bind(ack_service))
+            .bind(ack_id.bind(ack_service)) # type: ignore
             .lash(raise_exception)
             .unwrap(),
         }

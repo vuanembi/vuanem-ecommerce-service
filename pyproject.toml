@@ -41,4 +41,4 @@ testpaths = [
 [tool.mypy]
 python_version = 3.9
 namespace_packages = true
-plugins = "returns.contrib.mypy.returns_plugin"
+plugins = ["returns.contrib.mypy.returns_plugin"]

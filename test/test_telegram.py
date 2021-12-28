@@ -14,7 +14,7 @@ def ecommerce(request):
 
 
 @pytest.fixture()
-def prepared_order_id():
+def id():
     return "11111"
 
 
