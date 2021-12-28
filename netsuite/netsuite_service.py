@@ -1,10 +1,12 @@
 from typing import Callable, Optional
 from returns.pipeline import flow
-from returns.result import ResultE, Success
+from returns.result import ResultE, Success, Failure
 from returns.iterables import Fold
-from returns.pointfree import bind
+from returns.pointfree import bind, lash
+from returns.functions import tap
 
 from netsuite import netsuite, netsuite_repo, prepare_repo, restlet_repo
+from telegram import message_service
 
 
 def build_prepared_order_service(
@@ -45,8 +47,7 @@ def build_prepared_order_service(
 
     return _build
 
-
-def create_order_service(prepared_id):
+def create_order_service(prepared_id: str) -> ResultE[Optional[str]]:
     with restlet_repo.netsuite_session() as session:
         return flow(
             prepared_id,
@@ -55,4 +56,9 @@ def create_order_service(prepared_id):
             bind(prepare_repo.validate_prepared_order("pending")),
             bind(netsuite_repo.build_sales_order_from_prepared(session)),
             bind(netsuite_repo.create_sales_order(session)),
+            # bind(lambda _: Failure(Exception('aaa'))),
+            # bind(lambda _: Success("1")),
+            tap(bind(message_service.send_create_order_success)),
+            tap(lash(message_service.send_create_order_error)),
+            lash(lambda _: Success(None))
         )

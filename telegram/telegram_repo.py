@@ -20,7 +20,7 @@ def build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
     return build
 
 
-def send(payload_builder: telegram.PayloadBuilder) -> dict:
+def send(payload_builder: telegram.PayloadBuilder) -> None:
     with requests.post(
         f"{BASE_URL}/sendMessage",
         json=payload_builder({"chat_id": CHAT_ID, "parse_mode": "MarkdownV2"}),
@@ -30,10 +30,9 @@ def send(payload_builder: telegram.PayloadBuilder) -> dict:
             return send(payload_builder)
         else:
             r.raise_for_status()
-            return r.json()
 
 
-def answer_callback(update: telegram.Update) -> telegram.Update:
+def answer_callback(update: telegram.Update) -> None:
     requests.post(
         f"{BASE_URL}/answerCallbackQuery",
         json={
@@ -41,4 +40,3 @@ def answer_callback(update: telegram.Update) -> telegram.Update:
             "text": "Đợi xíu...",
         },
     )
-    return update
