@@ -63,6 +63,40 @@ class TestData:
     def order(self, auth_session, order_id):
         return Success(order_id).bind(data_repo.get_order(auth_session))
 
+    @pytest.fixture()
+    def static_order(self):
+        return Success(
+            {
+                "id": 131999047,
+                "code": "678789503",
+                "items": [
+                    {
+                        "product": {
+                            "name": "Giường ngủ gỗ cao su Amando Cherry vững chắc, phong cách hiện đại, nâng đỡ tốt - 160x200",
+                            "seller_product_code": "",
+                        },
+                        "seller_income_detail": {"item_qty": 1, "sub_total": 6334000},
+                    },
+                    {
+                        "product": {
+                            "name": "Giường ngủ gỗ cao su Amando Cherry vững chắc, phong cách hiện đại, nâng đỡ tốt - 160x200",
+                            "seller_product_code": "",
+                        },
+                        "seller_income_detail": {"item_qty": 1, "sub_total": 6334000},
+                    },
+                ],
+                "shipping": {
+                    "address": {
+                        "full_name": "Nguyễn Vũ Ngọc Giang",
+                        "street": "36A Cù Lao Trung",
+                        "ward": "Phường Vĩnh Thọ",
+                        "district": "Thành phố Nha Trang",
+                        "phone": "0938169869",
+                    }
+                },
+            }
+        )
+
     def test_get_ack_id(self):
         res = data_repo.get_ack_id()
         assert is_successful(res)
@@ -90,31 +124,10 @@ class TestData:
         )
         assert res
 
-    def test_add_item(self, order):
-        res = order.bind(tiki_service._add_items)
-        assert res == {
-            "item": [
-                {
-                    "item": 196870,
-                    "quantity": 1,
-                    "price": -1,
-                    "amount": 5726363,
-                },
-            ],
-        }
-
-    def test_add_customer(self, order):
-        res = order.bind(tiki_service._add_customer)
-        assert res == {
-            "custbody_customer_phone": "0938169869",
-            "custbody_recipient_phone": "0938169869",
-            "custbody_recipient": "Nguyễn Vũ Ngọc Giang",
-            "shippingaddress": {"addressee": "Nguyễn Vũ Ngọc Giang"},
-        }
-
-    def test_build_order(self, order):
-        res = order.bind(tiki_service._build_order)
-        assert res
+    def test_build_order(self, order, static_order):
+        res1 = order.bind(tiki_service._build_prepared_order)
+        res2 = static_order.bind(tiki_service._build_prepared_order)
+        assert res1, res2
 
     def test_handle_order(self, order):
         res = order.bind(tiki_service._handle_order)

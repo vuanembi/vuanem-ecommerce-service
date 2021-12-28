@@ -24,10 +24,12 @@ def send_create_order_success(id: str) -> dict:
     )
 
 
-def send_create_order_error(error: Exception, id: str) -> dict:
+def send_create_order_error(error: Exception) -> dict:
     return telegram_repo.send(
         compose(
-            telegram_repo.build_send_payload(payload_repo.add_create_order_error, error, id),
+            telegram_repo.build_send_payload(
+                payload_repo.add_create_order_error, error
+            ),
             telegram_repo.build_send_payload(payload_repo.add_ack_callback),
         )
     )

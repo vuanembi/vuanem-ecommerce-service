@@ -1,9 +1,9 @@
 from tiki.tiki_controller import tiki_controller
-# from controller.callback import callback_controller
+from telegram.callback_controller import callback_controller
 
 controllers = {
     "/tiki": tiki_controller,
-    # "/callback": callback_controller,
+    "/callback": callback_controller,
 }
 
 

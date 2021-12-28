@@ -7,65 +7,33 @@ from returns.pipeline import flow
 from returns.functions import raise_exception
 
 from tiki import tiki, auth_repo, data_repo
-from netsuite import netsuite, prepare_repo, restlet_repo
-from telegram import telegram_service
+from netsuite import netsuite, netsuite_service, prepare_repo
+from telegram import message_service
 
 
 def auth_service() -> OAuth2Session:
     return auth_repo.get_access_token().bind(auth_repo.get_auth_session)
 
 
-def _add_customer(order: tiki.Order) -> netsuite.PreparedCustomer:
-    return prepare_repo.build_prepared_customer(
-        order["shipping"]["address"]["phone"],
-        order["shipping"]["address"]["full_name"],
-    )
-
-
-def _add_items(order: tiki.Order) -> netsuite.Items:
-    with restlet_repo.netsuite_session() as session:
-        return {
-            "item": [
-                i
-                for i in [
-                    prepare_repo.build_item(item, quantity, amount)
-                    for item, quantity, amount in zip(
-                        [
-                            prepare_repo.map_sku_to_item_id(
-                                session, i["product"]["seller_product_code"]
-                            ).unwrap()
-                            for i in order["items"]
-                        ],
-                        [i["seller_income_detail"]["item_qty"] for i in order["items"]],
-                        [
-                            i["seller_income_detail"]["sub_total"]
-                            for i in order["items"]
-                        ],
-                    )
-                ]
-                if i
-            ]
-        }
-
-
-def _build_order(order: tiki.Order) -> netsuite.PreparedOrder:
-    return flow(
-        {},
-        prepare_repo.build_prepared_order(_add_items, order),
-        prepare_repo.build_prepared_order(_add_customer, order),
-        prepare_repo.build_prepared_order(
-            prepare_repo.build_prepared_order_meta,
-            f"tiki - {order['code']}",
-        ),
-        prepare_repo.build_prepared_order(lambda _: netsuite.TikiEcommerce),
-    )
+_build_prepared_order = netsuite_service.build_prepared_order_service(
+    items_fn=lambda x: x["items"],
+    item_sku_fn=lambda x: x["product"]["seller_product_code"],
+    item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
+    item_amt_fn=lambda x: x["seller_income_detail"]["sub_total"],
+    ecom=netsuite.TikiEcommerce,
+    memo_builder=lambda x: f"tiki - {x['code']}",
+    customer_builder=lambda x: prepare_repo.build_customer(
+        x["shipping"]["address"]["phone"],
+        x["shipping"]["address"]["full_name"],
+    ),
+)
 
 
 def _handle_order(order: tiki.Order) -> ResultE[str]:
     return flow(
         order,
         data_repo.persist_tiki_order,
-        map_(_build_order),
+        bind(_build_prepared_order),
         bind(prepare_repo.persist_prepared_order),
         map_(lambda x: x.id),
     )
@@ -92,7 +60,7 @@ def events_service(
         ]
         persisted_orders = [order.bind(_handle_order).unwrap() for order in orders]
         [
-            telegram_service.send_new_order("Tiki", order.unwrap(), id)
+            message_service.send_new_order("Tiki", order.unwrap(), id)
             for order, id in zip(orders, persisted_orders)
         ]
         return {

@@ -73,11 +73,11 @@ def add_create_order_success(id: str) -> telegram.Payload:
     }
 
 
-def add_create_order_error(error: Exception, id: str) -> telegram.Payload:
+def add_create_order_error(error: Exception) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
-                f"Tạo đơn hàng `{id}` thất bại X\.X",
+                f"Tạo đơn hàng thất bại X\.X",
                 DIVIDER,
                 "```",
                 repr(error),
