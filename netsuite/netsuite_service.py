@@ -34,7 +34,7 @@ def build_prepared_order_service(
                 Success(()),
             ).map(
                 lambda x: {
-                    "items": list(x),
+                    "item": list(x),
                     **(
                         customer_builder(order)
                         if customer_builder
