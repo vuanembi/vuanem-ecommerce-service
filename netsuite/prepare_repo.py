@@ -95,7 +95,7 @@ def validate_prepared_order(status: str):
 
 
 def update_prepared_order_status(doc_ref: firestore.DocumentReference, status: str):
-    def _update(id: str) -> None:
+    def _update(id: int) -> None:
         doc_ref.reference.set(
             {
                 "status": status,

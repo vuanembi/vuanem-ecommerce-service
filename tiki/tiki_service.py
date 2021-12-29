@@ -12,7 +12,7 @@ from telegram import message_service
 
 
 def auth_service() -> OAuth2Session:
-    return auth_repo.get_access_token().map(auth_repo.get_auth_session)
+    return auth_repo.get_access_token().map(auth_repo.get_auth_session).unwrap()
 
 
 _build_prepared_order = netsuite_service.build_prepared_order_service(

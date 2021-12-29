@@ -2,8 +2,6 @@ from typing import Optional, Union
 import json
 
 from returns.result import Result, Success, Failure
-from returns.pipeline import flow
-from returns.pointfree import bind, lash, map_
 
 from telegram import telegram, callback_service
 from netsuite import netsuite_service
@@ -19,15 +17,15 @@ def service_factory(
 
 
 def callback_controller(request_data: telegram.Update) -> dict:
-    return flow(
-        request_data,
-        callback_service.validation_service,
-        bind(service_factory),
-        lash(lambda x: Success(x)),  # type: ignore
-        map_(  # type: ignore
+    return (
+        callback_service.validation_service(request_data)
+        .bind(service_factory)  # type: ignore
+        .lash(lambda x: Success(x))
+        .map(
             lambda x: {
                 "controller": "callback",
                 "detail": x,
             }
-        ).unwrap(),
+        )
+        .unwrap()
     )

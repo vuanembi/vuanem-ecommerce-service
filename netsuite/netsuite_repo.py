@@ -9,7 +9,7 @@ from netsuite import netsuite, restlet, restlet_repo
 
 
 def _get_customer(session: OAuth1Session):
-    def _get(customer_req: netsuite.CustomerReq):
+    def _get(customer_req: netsuite.CustomerReq) -> ResultE[dict[str, str]]:
         return restlet_repo.request(
             session,
             restlet.Customer,
@@ -23,7 +23,7 @@ def _get_customer(session: OAuth1Session):
 
 
 def _create_customer(session: OAuth1Session):
-    def _create(customer_req: netsuite.CustomerReq):
+    def _create(customer_req: netsuite.CustomerReq) -> ResultE[dict[str, str]]:
         return restlet_repo.request(
             session,
             restlet.Customer,
@@ -88,7 +88,7 @@ def _get_or_create_customer(session: OAuth1Session):
             _get_customer(session),
             lash(lambda _: Failure(customer_req)),  # type: ignore
             lash(_create_customer(session)),
-            map_(lambda x: x["id"]),  # type: ignore
+            map_(lambda x: x["id"]), # type: ignore
             map_(int),
         )
 
