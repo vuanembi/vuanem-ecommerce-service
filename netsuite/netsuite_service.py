@@ -1,9 +1,8 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 from returns.pipeline import flow
-from returns.result import Result, ResultE, Success, Failure
+from returns.result import Result, ResultE, Success, safe
 from returns.iterables import Fold
-from returns.pointfree import bind, lash, map_
-from returns.functions import tap
+from returns.pointfree import bind, lash, map_, alt
 
 from google.cloud import firestore
 from netsuite import netsuite, netsuite_repo, prepare_repo, restlet_repo
@@ -51,31 +50,28 @@ def build_prepared_order_service(
 
 def _create_order_from_prepared(
     prepared_order_doc_ref: firestore.DocumentReference,
-) -> Success[Optional[str]]:
+) -> Result[str, Any]:
     with restlet_repo.netsuite_session() as session:
-        return flow(  # type: ignore
+        return flow(
             prepared_order_doc_ref,
             lambda x: x.get().to_dict(),
             prepare_repo.validate_prepared_order("pending"),
             bind(netsuite_repo.build_sales_order_from_prepared(session)),
-            # bind(netsuite_repo.create_sales_order(session)),
-            # map_(lambda x: int(x['id'])),
-            # bind(lambda _: Failure(Exception("aaa"))),
-            bind(lambda _: Success(1)),  # type: ignore
-            tap(
-                bind(
-                    prepare_repo.update_prepared_order_status(
-                        prepared_order_doc_ref, "created"
-                    )
+            bind(netsuite_repo.create_sales_order(session)),
+            map_(lambda x: int(x["id"])),  # type: ignore
+            map_(
+                prepare_repo.update_prepared_order_status(
+                    prepared_order_doc_ref,
+                    "created",
                 )
             ),
-            tap(bind(message_service.send_create_order_success)),  # type: ignore
-            tap(lash(message_service.send_create_order_error)),  # type: ignore
-            lash(lambda x: Success(str(x))),  # type: ignore
+            map_(message_service.send_create_order_success),
+            alt(message_service.send_create_order_error),
+            lash(safe(str)),
         )
 
 
-def create_order_service(prepared_id: str) -> Result[Optional[str], Optional[str]]:
+def create_order_service(prepared_id: str) -> Result[str, Any]:
     return flow(
         prepared_id,
         prepare_repo.get_prepared_order,

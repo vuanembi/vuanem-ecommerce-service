@@ -10,8 +10,7 @@ def validation_service(update: telegram.Update) -> Result[telegram.CalbackData, 
     return flow(
         update,
         tap(telegram_repo.answer_callback),
-        # callback_repo.validate_update,
-        # bind(callback_repo.validate_callback),
-        # bind(callback_repo.validate_data),
-        callback_repo.validate_data,
+        callback_repo.validate_update,
+        bind(callback_repo.validate_callback),
+        bind(callback_repo.validate_data),
     )

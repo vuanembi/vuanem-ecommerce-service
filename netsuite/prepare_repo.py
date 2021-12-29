@@ -95,13 +95,14 @@ def validate_prepared_order(status: str):
 
 
 def update_prepared_order_status(doc_ref: firestore.DocumentReference, status: str):
-    def _update(id: int) -> None:
-        doc_ref.reference.set(
+    def _update(id: int) -> int:
+        doc_ref.set(
             {
                 "status": status,
                 "transactionId": id,
             },
             merge=True,
         )
+        return id
 
     return _update

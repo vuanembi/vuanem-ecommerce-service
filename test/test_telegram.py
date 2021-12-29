@@ -15,11 +15,11 @@ def ecommerce(request):
 
 @pytest.fixture()
 def id():
-    return "11111"
+    return "test"
 
 
 def test_send_new_order(ecommerce, order, id):
-    message_service.send_new_order(ecommerce, order, id)
+    message_service.send_new_order(ecommerce)(order)(id)
 
 
 def test_send_create_order_success(id):

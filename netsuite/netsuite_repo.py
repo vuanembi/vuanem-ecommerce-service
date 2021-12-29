@@ -88,7 +88,7 @@ def _get_or_create_customer(session: OAuth1Session):
             _get_customer(session),
             lash(lambda _: Failure(customer_req)),  # type: ignore
             lash(_create_customer(session)),
-            map_(lambda x: x["id"]), # type: ignore
+            map_(lambda x: x["id"]),  # type: ignore
             map_(int),
         )
 

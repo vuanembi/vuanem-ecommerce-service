@@ -14,7 +14,7 @@ USER_AGENT = {
 
 @safe
 def get_access_token() -> dict:
-    return TIKI.get(['state.access_token']).get('state.access_token')
+    return TIKI.get(["state.access_token"]).get("state.access_token")
 
 
 def update_access_token(token: dict) -> None:

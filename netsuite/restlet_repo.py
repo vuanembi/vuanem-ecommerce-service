@@ -3,7 +3,7 @@ import os
 
 from oauthlib.oauth1 import SIGNATURE_HMAC_SHA256
 from requests_oauthlib import OAuth1Session
-from returns.result import  safe
+from returns.result import safe
 
 from netsuite import restlet
 

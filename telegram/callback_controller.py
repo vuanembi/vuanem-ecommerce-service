@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 import json
 
 from returns.result import Result, Success, Failure
@@ -9,7 +9,7 @@ from netsuite import netsuite_service
 
 def service_factory(
     data: telegram.CalbackData,
-) -> Result[Optional[str], Union[str, Exception]]:
+) -> Result[Optional[str], str]:
     if data["t"] == "O":
         if data["a"] == 1:
             return netsuite_service.create_order_service(data["v"])
@@ -19,7 +19,7 @@ def service_factory(
 def callback_controller(request_data: telegram.Update) -> dict:
     return (
         callback_service.validation_service(request_data)
-        .bind(service_factory)  # type: ignore
+        .bind(service_factory)
         .lash(lambda x: Success(x))
         .map(
             lambda x: {
