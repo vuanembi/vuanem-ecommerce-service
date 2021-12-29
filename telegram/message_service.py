@@ -1,17 +1,27 @@
-from common.utils import compose
+from returns.curry import curry
 
+from common.utils import compose
 from telegram import telegram_repo, payload_repo
 
 # ----------------------------------- Send ----------------------------------- #
 
 
-def send_new_order(ecom: str, order: dict, id: str) -> None:
-    telegram_repo.send(
-        compose(
-            telegram_repo.build_send_payload(payload_repo.add_new_order, ecom, order),
-            telegram_repo.build_send_payload(payload_repo.add_new_order_callback, id),
+def send_new_order(ecom: str):
+    @curry
+    def _send(order: dict, id: str):
+        telegram_repo.send(
+            compose(
+                telegram_repo.build_send_payload(
+                    payload_repo.add_new_order, ecom, order
+                ),
+                telegram_repo.build_send_payload(
+                    payload_repo.add_new_order_callback, id
+                ),
+            )
         )
-    )
+        return order, id
+
+    return _send
 
 
 def send_create_order_success(id: str) -> None:

@@ -133,8 +133,12 @@ class TestData:
         res = order.bind(tiki_service._handle_order)
         assert res
 
+    def test_order_service(self, auth_session, events):
+        res = tiki_service.order_service(auth_session)(events)
+        res
+
     def test_events_service(self, auth_session, events):
-        res = tiki_service.events_service(auth_session)(events)
+        res = tiki_service.events_service(auth_session)(("1111", events))
         res
 
 
