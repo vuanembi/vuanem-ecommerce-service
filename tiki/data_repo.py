@@ -33,8 +33,9 @@ def get_events(
     return _get
 
 
-def get_ack_id() -> ResultE[Optional[str]]:
-    return safe(lambda x: x["state"]["ack"]["ack_id"])(TIKI.get().to_dict())
+@safe
+def get_ack_id() -> str:
+    return TIKI.get(["state.ack.ack_id"]).get("state.ack.ack_id")
 
 
 @safe

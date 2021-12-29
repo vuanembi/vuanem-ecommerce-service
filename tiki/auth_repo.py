@@ -2,7 +2,7 @@ from typing import Optional
 import os
 
 from authlib.integrations.requests_client import OAuth2Session
-from returns.result import ResultE, safe
+from returns.result import safe
 from returns.functions import raise_exception
 
 from tiki.tiki_repo import TIKI
@@ -12,8 +12,9 @@ USER_AGENT = {
 }
 
 
-def get_access_token() -> ResultE[Optional[dict]]:
-    return safe(lambda x: x["state"]["access_token"])(TIKI.get().to_dict())
+@safe
+def get_access_token() -> dict:
+    return TIKI.get(['state.access_token']).get('state.access_token')
 
 
 def update_access_token(token: dict) -> None:
