@@ -3,9 +3,9 @@ import os
 
 from oauthlib.oauth1 import SIGNATURE_HMAC_SHA256
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE, safe
+from returns.result import safe
 
-from netsuite import Restlet
+from netsuite import restlet
 
 
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
@@ -25,11 +25,11 @@ def netsuite_session() -> OAuth1Session:
 @safe
 def request(
     session: OAuth1Session,
-    restlet: Restlet.Restlet,
+    restlet: restlet.Restlet,
     method: str,
     params: dict = {},
     body: Optional[dict] = None,
-) -> ResultE[dict]:
+) -> dict[str, str]:
     with session.request(
         method,
         BASE_URL,

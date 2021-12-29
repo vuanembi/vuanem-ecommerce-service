@@ -1,9 +1,11 @@
-from tiki.TikiController import tiki_controller
-# from controller.callback import callback_controller
+from typing import Callable, Any
 
-controllers = {
+from tiki.tiki_controller import tiki_controller
+from telegram.callback_controller import callback_controller
+
+controllers: dict[str, Callable[[Any], dict]] = {
     "/tiki": tiki_controller,
-    # "/callback": callback_controller,
+    "/callback": callback_controller,
 }
 
 

@@ -1,12 +1,11 @@
 from typing import Optional
-from collections import OrderedDict
 from unittest.mock import Mock
+import json
 
 import requests
 import pytest
-import random
 
-from netsuite import NetSuite, RestletRepo
+from netsuite import netsuite, restlet_repo
 from main import main
 
 
@@ -16,8 +15,8 @@ def session():
 
 
 @pytest.fixture()
-def oauth_session():
-    return RestletRepo.netsuite_session()
+def netsuite_session():
+    return restlet_repo.netsuite_session()
 
 
 def run(path: str, data: Optional[dict] = None) -> dict:
@@ -25,42 +24,44 @@ def run(path: str, data: Optional[dict] = None) -> dict:
 
 
 @pytest.fixture()
-def prepared_order() -> NetSuite.PreparedOrder:
-    return OrderedDict(
-        {
-            "trandate": "2021-10-26",
-            "subsidiary": 1,
-            "location": 788,
-            "department": 1044,
-            "custbody_customer_phone": "0773314403",
-            "custbody_expecteddeliverytime": 4,
-            "custbody_recipient": "Hieu",
-            "custbody_recipient_phone": "0773314403",
-            "shippingaddress": {"addressee": "anh Hiếu", "country": "VN"},
-            "custbody_order_payment_method": 22,
-            "salesrep": 1666,
-            "leadsource": 144506,
-            "partner": 916906,
-            "custbody_onl_rep": 942960,
-            "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
-        }
-    )
+def prepared_order() -> netsuite.PreparedOrder:
+    return {
+        "trandate": "2021-10-26",
+        "subsidiary": 1,
+        "location": 788,
+        "department": 1044,
+        "custbody_customer_phone": "0773314403",
+        "custbody_expecteddeliverytime": 4,
+        "custbody_recipient": "Hieu",
+        "custbody_recipient_phone": "0773314403",
+        "shippingaddress": {"addressee": "anh Hiếu"},
+        "custbody_order_payment_method": 22,
+        "salesrep": 1666,
+        "leadsource": 144506,
+        "partner": 916906,
+        "custbody_onl_rep": 942960,
+        "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
+        "memo": "đơn test",
+    }
 
 
 @pytest.fixture()
 def netsuite_order(prepared_order):
-    return OrderedDict(
-        {
-            "entity": 599656,
-            **prepared_order,
-        }
-    )
+    return {
+        "entity": 599656,
+        **prepared_order,
+    }
 
 
 @pytest.fixture()
-def update():
+def callback_data():
+    return {"t": "O", "a": 1, "v": "46EeM7aq0nXAZyhPIGV5"}
+
+
+@pytest.fixture()
+def telegram_update(callback_data):
     return {
-        "update_id": random.randint(100000, 900000),
+        "update_id": 123456,
         "callback_query": {
             "id": "3662730095478523210",
             "from": {
@@ -97,25 +98,16 @@ def update():
                                 "text": "Tạo đơn (+)",
                                 "callback_data": '{"t": "O", "a": 1, "v": "pI9Jog6n1fFkNsVk4x7Y"}',
                             },
-                            {
-                                "text": "Huỷ đơn (-)",
-                                "callback_data": '{"t": "O", "a": -1, "v": "pI9Jog6n1fFkNsVk4x7Y"}',
-                            },
                         ]
                     ]
                 },
             },
             "chat_instance": "8890303927539922236",
-            "data": '{"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}',
+            "data": json.dumps(callback_data),
         },
     }
 
 
 @pytest.fixture()
 def prepared_order_id():
-    return "dcKwUknGf8eY2vePOJVA"
-
-
-@pytest.fixture()
-def callback_data():
-    return {"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}
+    return "46EeM7aq0nXAZyhPIGV5"

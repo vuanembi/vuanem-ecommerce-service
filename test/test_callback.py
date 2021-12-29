@@ -1,10 +1,11 @@
-import pytest
-
-# from controller.callback import handle_create_order, callback_controller
-
-# def test_handle_create_order():
+from telegram import callback_controller, callback_service
 
 
-# def test_callback(update):
-#     res = callback_controller(update)
-#     res
+def test_validation_service(telegram_update):
+    res = callback_service.validation_service(telegram_update)
+    res
+
+
+def test_controller(telegram_update):
+    res = callback_controller.callback_controller(telegram_update)
+    res
