@@ -55,7 +55,7 @@ def netsuite_order(prepared_order):
 
 @pytest.fixture()
 def callback_data():
-    return {"t": "O", "a": 1, "v": "dcKwUknGf8eY2vePOJVA"}
+    return {"t": "O", "a": 1, "v": "46EeM7aq0nXAZyhPIGV5"}
 
 
 @pytest.fixture()
@@ -98,10 +98,6 @@ def telegram_update(callback_data):
                                 "text": "Tạo đơn (+)",
                                 "callback_data": '{"t": "O", "a": 1, "v": "pI9Jog6n1fFkNsVk4x7Y"}',
                             },
-                            {
-                                "text": "Huỷ đơn (-)",
-                                "callback_data": '{"t": "O", "a": -1, "v": "pI9Jog6n1fFkNsVk4x7Y"}',
-                            },
                         ]
                     ]
                 },
@@ -114,4 +110,4 @@ def telegram_update(callback_data):
 
 @pytest.fixture()
 def prepared_order_id():
-    return "0nlAVZ8W7s2rMGSk0qHV"
+    return "46EeM7aq0nXAZyhPIGV5"

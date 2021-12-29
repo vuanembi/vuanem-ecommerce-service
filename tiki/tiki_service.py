@@ -12,7 +12,7 @@ from telegram import message_service
 
 
 def auth_service() -> OAuth2Session:
-    return auth_repo.get_access_token().bind(auth_repo.get_auth_session)
+    return auth_repo.get_access_token().map(auth_repo.get_auth_session).unwrap()
 
 
 _build_prepared_order = netsuite_service.build_prepared_order_service(
@@ -35,7 +35,7 @@ def _handle_order(order: tiki.Order) -> ResultE[str]:
         data_repo.persist_tiki_order,
         bind(_build_prepared_order),
         bind(prepare_repo.persist_prepared_order),
-        map_(lambda x: x.id),
+        map_(lambda x: x.id), # type: ignore
     )
 
 
@@ -46,7 +46,7 @@ def pull_service(
         data_repo.get_ack_id()
         .bind(data_repo.get_events(session))
         .lash(raise_exception)
-        .bind(lambda x: (Success(x[0]), Success(x[1])))
+        .bind(lambda x: (Success(x[0]), Success(x[1]))) # type: ignore
     )
 
 
@@ -60,7 +60,7 @@ def events_service(
         ]
         persisted_orders = [order.bind(_handle_order).unwrap() for order in orders]
         [
-            message_service.send_new_order("Tiki", order.unwrap(), id)
+            message_service.send_new_order("Tiki", order.unwrap(), id) # type: ignore
             for order, id in zip(orders, persisted_orders)
         ]
         return {
@@ -70,7 +70,7 @@ def events_service(
     return _svc
 
 
-def ack_service(ack_id: Success[Optional[str]]) -> Callable[[str], ResultE[dict]]:
+def ack_service(ack_id: str) -> Callable[[dict], ResultE[dict]]:
     @safe
     def _svc(res: dict = {}) -> dict:
         return {

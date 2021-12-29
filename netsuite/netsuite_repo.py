@@ -9,7 +9,7 @@ from netsuite import netsuite, restlet, restlet_repo
 
 
 def _get_customer(session: OAuth1Session):
-    def _get(customer_req: netsuite.CustomerReq):
+    def _get(customer_req: netsuite.CustomerReq) -> ResultE[dict[str, str]]:
         return restlet_repo.request(
             session,
             restlet.Customer,
@@ -23,7 +23,7 @@ def _get_customer(session: OAuth1Session):
 
 
 def _create_customer(session: OAuth1Session):
-    def _create(customer_req: netsuite.CustomerReq):
+    def _create(customer_req: netsuite.CustomerReq) -> ResultE[dict[str, str]]:
         return restlet_repo.request(
             session,
             restlet.Customer,
@@ -86,9 +86,9 @@ def _get_or_create_customer(session: OAuth1Session):
         return flow(
             customer_req,
             _get_customer(session),
-            lash(lambda _: Failure(customer_req)),
+            lash(lambda _: Failure(customer_req)),  # type: ignore
             lash(_create_customer(session)),
-            map_(lambda x: x["id"]),
+            map_(lambda x: x["id"]), # type: ignore
             map_(int),
         )
 
@@ -110,13 +110,8 @@ def build_sales_order_from_prepared(session: OAuth1Session):
 
 
 def create_sales_order(session: OAuth1Session):
-    def _create(order: netsuite.Order) -> str:
-        return restlet_repo.request(
-            session,
-            restlet.SalesOrder,
-            "POST",
-            body=order,
-        ).bind(lambda x: x["id"])
+    def _create(order: netsuite.Order) -> ResultE[dict]:
+        return restlet_repo.request(session, restlet.SalesOrder, "POST", body={**order})
 
     return _create
 

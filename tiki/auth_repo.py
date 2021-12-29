@@ -20,7 +20,7 @@ def update_access_token(token: dict) -> None:
     TIKI.set({"state": {"access_token": token}}, merge=True)
 
 
-def get_auth_session(token: dict) -> OAuth2Session:
+def get_auth_session(token: Optional[dict]) -> OAuth2Session:
     session = OAuth2Session(
         os.getenv("TIKI_CLIENT_ID"),
         os.getenv("TIKI_CLIENT_SECRET"),
