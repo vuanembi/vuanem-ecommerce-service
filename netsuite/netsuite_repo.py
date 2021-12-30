@@ -67,6 +67,7 @@ def _add_order_meta(order: netsuite.PreparedOrder):
                 }
                 for i in order["item"]
             ],
+            "custbody_print_form": order["custbody_print_form"],
             "memo": order["memo"],
         }
 

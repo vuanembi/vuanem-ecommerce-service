@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 # ---------------------------------- Default --------------------------------- #
 
@@ -101,6 +101,7 @@ class OrderMeta(TypedDict):
     leadsource: int
     custbody_expecteddeliverytime: int
     trandate: str
+    custbody_print_form: Literal["T"]
     memo: str
 
 

@@ -64,6 +64,7 @@ def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
         "leadsource": netsuite.LEAD_SOURCE,
         "custbody_expecteddeliverytime": netsuite.EXPECTED_DELIVERY_TIME,
         "trandate": date.today().isoformat(),
+        "custbody_print_form": "T",
         "memo": memo,
     }
 
