@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from datetime import date
 
 from requests_oauthlib import OAuth1Session
@@ -93,7 +93,9 @@ def get_prepared_order(id: str) -> Result[firestore.DocumentReference, str]:
 
 
 def validate_prepared_order(status: str):
-    def _validate(order: dict) -> Result[netsuite.PreparedOrder, str]:
+    def _validate(
+        order: dict,
+    ) -> Result[Union[netsuite.PreparedOrder, netsuite.Order], str]:
         return (
             Success(order["order"])
             if order["status"] == status
