@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import date
 
 from requests_oauthlib import OAuth1Session
@@ -39,15 +40,23 @@ def build_item(
     )
 
 
-def build_customer(phone: str, name: str) -> netsuite.PreparedCustomer:
-    return {
-        "custbody_customer_phone": phone,
-        "custbody_recipient_phone": phone,
-        "custbody_recipient": name,
-        "shippingaddress": {
-            "addressee": name,
-        },
-    }
+def build_customer(
+    default: netsuite.PreparedCustomer,
+    phone: Optional[str] = None,
+    name: Optional[str] = None,
+) -> netsuite.PreparedCustomer:
+    return (
+        {
+            "custbody_customer_phone": phone,
+            "custbody_recipient_phone": phone,
+            "custbody_recipient": name,
+            "shippingaddress": {
+                "addressee": name,
+            },
+        }
+        if phone and name
+        else default
+    )
 
 
 def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:

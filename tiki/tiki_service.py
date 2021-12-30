@@ -1,7 +1,7 @@
-from typing import Callable, Optional
+from typing import Callable
 
 from authlib.integrations.requests_client import OAuth2Session
-from returns.result import ResultE, Success, safe
+from returns.result import ResultE, Success
 from returns.pointfree import bind, map_
 from returns.pipeline import flow
 from returns.iterables import Fold
@@ -21,9 +21,10 @@ _build_prepared_order = netsuite_service.build_prepared_order_service(
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
     item_amt_fn=lambda x: x["seller_income_detail"]["sub_total"],
-    ecom=netsuite.TikiEcommerce,
+    ecom=netsuite.TIKI_ECOMMERCE,
     memo_builder=lambda x: f"tiki - {x['code']}",
     customer_builder=lambda x: prepare_repo.build_customer(
+        netsuite.TIKI_CUSTOMER,
         x["shipping"]["address"]["phone"],
         x["shipping"]["address"]["full_name"],
     ),
@@ -46,7 +47,7 @@ def pull_service(session: OAuth2Session) -> ResultE[tiki.EventRes]:
     )
 
 
-def order_service(session, events) -> ResultE[dict]:
+def order_service(session: OAuth2Session, events: list[tiki.Event]) -> ResultE[dict]:
     return Fold.collect_all(
         [
             x[1].apply(x[0].apply(Success(message_service.send_new_order("Tiki"))))

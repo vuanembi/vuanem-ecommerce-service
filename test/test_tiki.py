@@ -1,6 +1,3 @@
-import os
-import uuid
-
 import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
@@ -8,11 +5,6 @@ from returns.pipeline import is_successful
 from tiki import tiki_controller, tiki_service, auth_repo, data_repo, tiki_repo
 
 from test.conftest import run
-
-
-@pytest.fixture()
-def fail_api_key():
-    os.environ["TIKI_CLIENT_ID"] = uuid.uuid4()
 
 
 @pytest.fixture()
@@ -91,7 +83,8 @@ class TestData:
                         "street": "36A Cù Lao Trung",
                         "ward": "Phường Vĩnh Thọ",
                         "district": "Thành phố Nha Trang",
-                        "phone": "0938169869",
+                        # "phone": "0938169869",
+                        "phone": "",
                     }
                 },
             }
@@ -106,9 +99,9 @@ class TestData:
         assert is_successful(res)
 
     def test_pull_service(self, auth_session):
-        ack_id, events = tiki_service.pull_service(auth_session)
-        assert is_successful(ack_id)
-        assert is_successful(events)
+        ack_id, events = tiki_service.pull_service(auth_session).unwrap()
+        assert ack_id
+        assert events
 
     def test_get_order(self, order):
         res = order
@@ -143,14 +136,9 @@ class TestData:
 
 
 class TestIntegration:
-    def test_controller_success(self):
+    def test_controller(self):
         res = tiki_controller.tiki_controller({})
         assert res
-
-    def test_controller_fail(self):
-        with pytest.raises(Exception) as e:
-            res = tiki_controller.tiki_controller({})
-            assert res
 
     def test_tiki(self):
         res = run("/tiki")
