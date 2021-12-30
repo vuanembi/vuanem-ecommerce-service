@@ -23,7 +23,7 @@ class Event(TypedDict):
     payload: Payload
 
 
-EventRes = tuple[str, Optional[list[Event]]]
+EventRes = tuple[str, list[Event]]
 
 
 # ----------------------------------- Order ---------------------------------- #

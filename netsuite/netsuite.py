@@ -30,13 +30,23 @@ class CustomerReq(TypedDict):
     lastname: str
 
 
-ShopeeCustomer: Customer = {
+SHOPEE_CUSTOMER: Customer = {
     "entity": 966287,
     "custbody_customer_phone": "1998103101",
     "custbody_recipient_phone": "1998103101",
     "custbody_recipient": "TEMP Shopee",
     "shippingaddress": {
         "addressee": "TEMP Shopee",
+    },
+}
+
+TIKI_CUSTOMER: Customer = {
+    "entity": 979199,
+    "custbody_customer_phone": "1998103102",
+    "custbody_recipient_phone": "1998103102",
+    "custbody_recipient": "TEMP Tiki",
+    "shippingaddress": {
+        "addressee": "TEMP Tiki",
     },
 }
 
@@ -53,7 +63,7 @@ class Ecommerce(TypedDict):
     custbody_onl_rep: int
 
 
-TikiEcommerce: Ecommerce = {
+TIKI_ECOMMERCE: Ecommerce = {
     "subsidiary": 1,
     "department": 1044,
     "location": 788,
@@ -63,7 +73,7 @@ TikiEcommerce: Ecommerce = {
     "custbody_onl_rep": 942960,
 }
 
-Shopee: Ecommerce = {
+SHOPEE_COMMERCE: Ecommerce = {
     "subsidiary": 1,
     "department": 1041,
     "location": 787,

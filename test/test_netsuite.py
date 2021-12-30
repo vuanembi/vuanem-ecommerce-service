@@ -1,5 +1,3 @@
-import pytest
-
 from returns.pipeline import is_successful
 from returns.result import Success
 from netsuite import netsuite_service, netsuite_repo, prepare_repo
@@ -30,9 +28,13 @@ class TestNetSuite:
         prepared_order,
         netsuite_order,
     ):
-        res = netsuite_repo.build_sales_order_from_prepared(netsuite_session)(
+        res_prepared = netsuite_repo.build_sales_order_from_prepared(netsuite_session)(
             prepared_order
         )
+        res = netsuite_repo.build_sales_order_from_prepared(netsuite_session)(
+            netsuite_order
+        )
+        assert res_prepared.unwrap() == netsuite_order
         assert res.unwrap() == netsuite_order
 
     def test_create_order_service(self, prepared_order_id):

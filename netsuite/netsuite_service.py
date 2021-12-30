@@ -1,10 +1,11 @@
-from typing import Callable, Optional, Any
+from typing import Callable, Union, Any
+
 from returns.pipeline import flow
 from returns.result import Result, ResultE, Success, safe
 from returns.iterables import Fold
 from returns.pointfree import bind, lash, map_, alt
-
 from google.cloud import firestore
+
 from netsuite import netsuite, netsuite_repo, prepare_repo, restlet_repo
 from telegram import message_service
 
@@ -16,10 +17,12 @@ def build_prepared_order_service(
     item_amt_fn: Callable[[dict], int],
     memo_builder: Callable[[dict], str],
     ecom: netsuite.Ecommerce,
-    customer_builder: Optional[Callable[[dict], netsuite.PreparedCustomer]] = None,
-    default_customer: Optional[netsuite.Customer] = None,
+    customer_builder: Callable[
+        [dict],
+        Union[netsuite.PreparedCustomer, netsuite.Customer],
+    ],
 ):
-    def _build(order: dict) -> ResultE[netsuite.PreparedOrder]:
+    def _build(order: dict) -> ResultE[Union[netsuite.PreparedOrder, netsuite.Order]]:
         with restlet_repo.netsuite_session() as session:
             return Fold.collect_all(
                 [
@@ -35,11 +38,7 @@ def build_prepared_order_service(
             ).map(
                 lambda x: {
                     "item": list(x),
-                    **(
-                        customer_builder(order)  # type: ignore
-                        if customer_builder
-                        else default_customer
-                    ),
+                    **customer_builder(order),  # type: ignore
                     **ecom,
                     **prepare_repo.build_prepared_order_meta(memo_builder(order)),
                 }

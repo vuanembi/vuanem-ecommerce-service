@@ -1,7 +1,8 @@
+from typing import Union
 import os
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE, Failure
+from returns.result import ResultE, Success, Failure
 from returns.pipeline import flow
 from returns.pointfree import lash, map_
 
@@ -82,7 +83,11 @@ def _build_customer_request(name: str, phone: str) -> netsuite.CustomerReq:
 
 
 def _get_or_create_customer(session: OAuth1Session):
-    def _get(customer_req: netsuite.CustomerReq) -> ResultE[netsuite.Customer]:
+    def _get(order: netsuite.PreparedOrder) -> ResultE[int]:
+        customer_req = _build_customer_request(
+            order["custbody_recipient"],
+            order["custbody_customer_phone"],
+        )
         return flow(
             customer_req,
             _get_customer(session),
@@ -96,13 +101,13 @@ def _get_or_create_customer(session: OAuth1Session):
 
 
 def build_sales_order_from_prepared(session: OAuth1Session):
-    def _build(order: netsuite.PreparedOrder) -> ResultE[netsuite.Order]:
+    def _build(
+        order: Union[netsuite.PreparedOrder, netsuite.Order]
+    ) -> ResultE[netsuite.Order]:
         return flow(
-            _build_customer_request(
-                order["custbody_recipient"],
-                order["custbody_customer_phone"],
-            ),
-            _get_or_create_customer(session),
+            order,
+            lambda x: Success(x["entity"]) if "entity" in x else Failure(order),
+            lash(_get_or_create_customer(session)),
             map_(_add_order_meta(order)),
         )
 
