@@ -15,6 +15,7 @@ def build_prepared_order_service(
     item_sku_fn: Callable[[dict], str],
     item_qty_fn: Callable[[dict], int],
     item_amt_fn: Callable[[dict], int],
+    item_location: int,
     memo_builder: Callable[[dict], str],
     ecom: netsuite.Ecommerce,
     customer_builder: Callable[
@@ -31,6 +32,7 @@ def build_prepared_order_service(
                         item_sku_fn(item),
                         item_qty_fn(item),
                         item_amt_fn(item),
+                        item_location,
                     )
                     for item in items_fn(order)
                 ],

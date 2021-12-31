@@ -29,6 +29,7 @@ def build_item(
     sku: str,
     qty: int,
     amt: int,
+    location: int,
 ) -> ResultE[netsuite.Item]:
     return map_sku_to_item_id(session, sku).map(
         lambda x: {
@@ -36,6 +37,10 @@ def build_item(
             "quantity": qty,
             "price": -1,
             "amount": int(amt / 1.1),
+            "commitinventory": netsuite.COMMIT_INVENTORY,
+            "location": location,
+            # ! hardcoded
+            "custcol_deliver_location": netsuite.CUSTCOL_DELIVER_LOCATION,
         }
     )
 
@@ -64,6 +69,8 @@ def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
         "leadsource": netsuite.LEAD_SOURCE,
         "custbody_expecteddeliverytime": netsuite.EXPECTED_DELIVERY_TIME,
         "trandate": date.today().isoformat(),
+        "custbody_expected_shipping_method": netsuite.CUSTBODY_EXPECTED_SHIPPING_METHOD,
+        "custbody_print_form": netsuite.CUSTBODY_PRINT_FORM,
         "memo": memo,
     }
 
