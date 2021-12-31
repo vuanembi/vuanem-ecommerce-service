@@ -54,6 +54,11 @@ def _add_order_meta(order: netsuite.PreparedOrder):
             "custbody_recipient_phone": order["custbody_recipient_phone"],
             "shippingaddress": order["shippingaddress"],
             "custbody_order_payment_method": order["custbody_order_payment_method"],
+            "custbody_expected_shipping_method": order[
+                "custbody_expected_shipping_method"
+            ],
+            "custbody_print_form": order["custbody_print_form"],
+            "memo": order["memo"],
             "salesrep": order["salesrep"],
             "leadsource": order["leadsource"],
             "partner": order["partner"],
@@ -64,11 +69,12 @@ def _add_order_meta(order: netsuite.PreparedOrder):
                     "quantity": i["quantity"],
                     "price": i["price"],
                     "amount": i["amount"],
+                    "commitinventory": i["commitinventory"],
+                    "location": i["location"],
+                    "custcol_deliver_location": i["custcol_deliver_location"],
                 }
                 for i in order["item"]
             ],
-            "custbody_print_form": order["custbody_print_form"],
-            "memo": order["memo"],
         }
 
     return _add
