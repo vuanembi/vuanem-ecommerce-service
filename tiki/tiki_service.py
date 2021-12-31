@@ -21,6 +21,7 @@ _build_prepared_order = netsuite_service.build_prepared_order_service(
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
     item_amt_fn=lambda x: x["seller_income_detail"]["sub_total"],
+    item_location=netsuite.TIKI_ECOMMERCE["location"],
     ecom=netsuite.TIKI_ECOMMERCE,
     memo_builder=lambda x: f"tiki - {x['code']}",
     customer_builder=lambda x: prepare_repo.build_customer(

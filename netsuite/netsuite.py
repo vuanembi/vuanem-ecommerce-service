@@ -4,6 +4,10 @@ from typing import TypedDict
 
 LEAD_SOURCE = 144506
 EXPECTED_DELIVERY_TIME = 4
+CUSTBODY_EXPECTED_SHIPPING_METHOD = 4
+CUSTBODY_PRINT_FORM = True
+CUSTCOL_DELIVER_LOCATION = 50
+COMMIT_INVENTORY = 3
 
 # --------------------------------- Customer --------------------------------- #
 
@@ -91,6 +95,9 @@ class Item(TypedDict):
     quantity: int
     price: int
     amount: int
+    commitinventory: int
+    location: int
+    custcol_deliver_location: int
 
 
 class Items(TypedDict):
@@ -100,7 +107,9 @@ class Items(TypedDict):
 class OrderMeta(TypedDict):
     leadsource: int
     custbody_expecteddeliverytime: int
+    custbody_expected_shipping_method: int
     trandate: str
+    custbody_print_form: bool
     memo: str
 
 
