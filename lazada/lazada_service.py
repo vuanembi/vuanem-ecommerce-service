@@ -1,35 +1,36 @@
+from typing import Any
 from datetime import datetime
 
 import requests
-from returns.result import ResultE, Success, safe
+from returns.result import Result, ResultE, Success, safe
 from returns.functions import raise_exception
 from returns.iterables import Fold
 from returns.pipeline import flow
-from returns.pointfree import bind
+from returns.pointfree import bind, map_
+from returns.curry import curry
+from returns.converters import flatten
 
 from common import utils
 from lazada import lazada, auth_repo, data_repo
 
 
-def _update_new_token(session: requests.Session):
-    def _update(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
+def token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
+    with requests.Session() as session:
         return (
             auth_repo.refresh_token(session, token)
             .bind(auth_repo.update_access_token)
             .lash(raise_exception)
         )
 
-    return _update
-
 
 def auth_service() -> ResultE[lazada.AuthBuilder]:
-    with requests.Session() as session:
-        return (
-            auth_repo.get_access_token()
-            .bind(utils.check_expired)  # type: ignore
-            .lash(_update_new_token(session))
-            .map(data_repo.get_auth_builder)  # type: ignore
-        )
+    return (
+        auth_repo.get_access_token()
+        .lash(raise_exception)
+        .bind(utils.check_expired)  # type: ignore
+        .lash(token_refresh_service)  # type: ignore
+        .map(data_repo.get_auth_builder)  # type: ignore
+    )
 
 
 def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
@@ -53,11 +54,8 @@ def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
     return _get
 
 
-@safe
-def get_order_details(
-    auth_builder: lazada.AuthBuilder,
-    created_after: datetime = datetime(2022, 1, 3),
-):
+@curry
+def _get_orders(auth_builder: lazada.AuthBuilder, created_after: datetime):
     with requests.Session() as session:
         return flow(
             created_after,
@@ -69,5 +67,16 @@ def get_order_details(
                     Success(()),
                 )
             ),
-            bind(data_repo.persist_max_created_at),
+            map_(list)
+            # bind(data_repo.persist_max_created_at),
         )
+
+
+def get_order_service() -> ResultE[list[lazada.OrderItems]]:
+    return flatten(
+        flow(  # type: ignore
+            Success(_get_orders),
+            auth_service().apply,
+            data_repo.get_max_created_at().apply,
+        )
+    )

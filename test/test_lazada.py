@@ -3,7 +3,7 @@ from returns.pipeline import is_successful
 
 import pytest
 
-from lazada import lazada_service, auth_repo, data_repo
+from lazada import lazada_controller, lazada_service, auth_repo, data_repo
 
 
 class TestAuth:
@@ -82,4 +82,9 @@ class TestData:
 
     def test_get_max_created_at(self):
         res = data_repo.get_max_created_at()
+        res
+
+class TestIntegration:
+    def test_controller(self):
+        res = lazada_controller.lazada_controller({})
         res
