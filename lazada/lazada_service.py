@@ -1,8 +1,7 @@
-from typing import Any
 from datetime import datetime
 
 import requests
-from returns.result import ResultE, Success, safe
+from returns.result import ResultE, Success
 from returns.functions import raise_exception
 from returns.iterables import Fold
 from returns.pipeline import flow
@@ -23,7 +22,7 @@ _build_prepared_order = netsuite_service.build_prepared_order_service(
     item_location=netsuite.LAZADA_ECOMMERCE["location"],
     ecom=netsuite.LAZADA_ECOMMERCE,
     memo_builder=lambda x: f"lazada - {x['order_id']}",
-    customer_builder=lambda x: prepare_repo.build_customer(netsuite.LAZADA_CUSTOMER),
+    customer_builder=lambda _: prepare_repo.build_customer(netsuite.LAZADA_CUSTOMER),
 )
 
 
@@ -68,13 +67,16 @@ def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
 
 
 @curry
-def _get_orders(auth_builder: lazada.AuthBuilder, created_after: datetime):
+def _get_orders(
+    auth_builder: lazada.AuthBuilder,
+    created_after: datetime,
+) -> ResultE[list[lazada.OrderItems]]:
     with requests.Session() as session:
         return flow(
             created_after,
             data_repo.get_orders(session, auth_builder),
             bind(_get_items(session, auth_builder)),
-            # bind(data_repo.persist_max_created_at),
+            bind(data_repo.persist_max_created_at),
         )
 
 
@@ -88,7 +90,7 @@ def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
     )
 
 
-def _handle_order(order: lazada.OrderItems):
+def _handle_order(order: lazada.OrderItems) -> ResultE[str]:
     return flow(
         order,
         data_repo.persist_order,
@@ -99,7 +101,6 @@ def _handle_order(order: lazada.OrderItems):
 
 
 def order_service(orders: list[lazada.OrderItems]) -> ResultE[dict]:
-    orders = orders[:2]
     return Fold.collect_all(
         [
             prepared_id.apply(

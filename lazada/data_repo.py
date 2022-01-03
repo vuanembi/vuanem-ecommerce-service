@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import datetime, tzinfo
+from datetime import datetime
 
 import dateparser
 import pytz
@@ -33,7 +33,8 @@ def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
                 auth_builder(
                     "/orders/get",
                     {
-                        "created_after": created_after.isoformat(timespec="seconds"),
+                        "created_after": created_after.isoformat(timespec="seconds")
+                        + "Z",
                         "limit": PAGE_LIMIT,
                         "offset": offset,
                     },

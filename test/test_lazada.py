@@ -84,6 +84,7 @@ class TestData:
         res = data_repo.get_max_created_at()
         res
 
+
 class TestIntegration:
     def test_controller(self):
         res = lazada_controller.lazada_controller({})
