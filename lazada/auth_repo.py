@@ -1,8 +1,7 @@
-from typing import Callable
 import time
 
 import requests
-from returns.result import ResultE, safe
+from returns.result import safe
 
 from db.firestore import DB
 from lazada import lazada, lazada_repo

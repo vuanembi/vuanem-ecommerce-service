@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 import os
 import time
 import hashlib
@@ -7,6 +7,7 @@ import hmac
 import requests
 
 from db.firestore import DB
+from lazada import lazada
 
 
 LAZADA = DB.document("Lazada")
@@ -14,7 +15,7 @@ LAZADA = DB.document("Lazada")
 
 def build_lazada_request(
     base_url: str,
-    access_token: dict = {},
+    access_token: Optional[lazada.AccessToken] = None,
 ) -> Callable[[str, dict[str, Any]], requests.PreparedRequest]:
     def _build(uri: str, params: dict[str, Any]) -> requests.PreparedRequest:
         return requests.Request(
