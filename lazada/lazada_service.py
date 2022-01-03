@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 from returns.result import ResultE, Success, safe
 from returns.functions import raise_exception
@@ -20,13 +22,14 @@ def _update_new_token(session: requests.Session):
     return _update
 
 
-def auth_service(session: requests.Session) -> ResultE[lazada.AuthBuilder]:
-    return (
-        auth_repo.get_access_token()
-        .bind(utils.check_expired)  # type: ignore
-        .lash(_update_new_token(session))
-        .map(data_repo.get_auth_builder)  # type: ignore
-    )
+def auth_service() -> ResultE[lazada.AuthBuilder]:
+    with requests.Session() as session:
+        return (
+            auth_repo.get_access_token()
+            .bind(utils.check_expired)  # type: ignore
+            .lash(_update_new_token(session))
+            .map(data_repo.get_auth_builder)  # type: ignore
+        )
 
 
 def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
@@ -50,20 +53,21 @@ def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
     return _get
 
 
+@safe
 def get_order_details(
-    session: requests.Session,
     auth_builder: lazada.AuthBuilder,
-    created_after: str = "2022-01-01T00:00:00",
+    created_after: datetime = datetime(2022, 1, 3),
 ):
-    return flow(
-        created_after,
-        data_repo.get_orders(session, auth_builder),
-        bind(_get_items(session, auth_builder)),
-        bind(
-            lambda orders: Fold.collect_all(  # type: ignore
-                [data_repo.persist_order(order) for order in orders], # type: ignore
-                Success(()),
-            )
-        ),
-        bind(data_repo.persist_max_created_at),
-    )
+    with requests.Session() as session:
+        return flow(
+            created_after,
+            data_repo.get_orders(session, auth_builder),
+            bind(_get_items(session, auth_builder)),
+            bind(
+                lambda orders: Fold.collect_all(  # type: ignore
+                    [data_repo.persist_order(order) for order in orders],  # type: ignore
+                    Success(()),
+                )
+            ),
+            bind(data_repo.persist_max_created_at),
+        )

@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, tzinfo
 
 import dateparser
 import pytz
@@ -27,13 +27,13 @@ def get_auth_builder(token: lazada.AccessToken) -> lazada.AuthBuilder:
 
 def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
     @safe
-    def _get(created_after: str):
+    def _get(created_after: datetime):
         def __get(offset: int = 0):
             with session.send(
                 auth_builder(
                     "/orders/get",
                     {
-                        "created_after": created_after,
+                        "created_after": created_after.isoformat(timespec="seconds"),
                         "limit": PAGE_LIMIT,
                         "offset": offset,
                     },
@@ -86,8 +86,12 @@ def persist_order(order):
 
 
 @safe
-def get_max_created_at() -> lazada.AccessToken:
-    return LAZADA.get(["state.max_created_at"]).get("state.max_created_at")
+def get_max_created_at() -> datetime:
+    return (
+        LAZADA.get(["state.max_created_at"])
+        .get("state.max_created_at")
+        .replace(tzinfo=None)
+    )
 
 
 @safe
