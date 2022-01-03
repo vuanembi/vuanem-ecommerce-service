@@ -45,6 +45,7 @@ def _add_order_meta(order: netsuite.PreparedOrder):
         return {
             "entity": customer,
             "trandate": order["trandate"],
+            "shipdate": order["shipdate"],
             "subsidiary": order["subsidiary"],
             "location": order["location"],
             "department": order["department"],

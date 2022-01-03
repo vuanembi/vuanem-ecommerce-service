@@ -109,6 +109,7 @@ class OrderMeta(TypedDict):
     custbody_expecteddeliverytime: int
     custbody_expected_shipping_method: int
     trandate: str
+    shipdate: str
     custbody_print_form: bool
     memo: str
 

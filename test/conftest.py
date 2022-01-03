@@ -27,6 +27,7 @@ def run(path: str, data: Optional[dict] = None) -> dict:
 def prepared_order() -> netsuite.PreparedOrder:
     return {
         "trandate": "2021-10-26",
+        "shipdate": "2021-10-29",
         "subsidiary": 1,
         "location": 788,
         "department": 1044,
@@ -35,13 +36,25 @@ def prepared_order() -> netsuite.PreparedOrder:
         "custbody_recipient": "Hieu",
         "custbody_recipient_phone": "0773314403",
         "shippingaddress": {"addressee": "anh Hiếu"},
-        "custbody_order_payment_method": 22,
+        "custbody_order_payment_method": 23,
+        "custbody_expected_shipping_method": 4,
+        "custbody_print_form": True,
+        "memo": "Đơn test",
         "salesrep": 1666,
         "leadsource": 144506,
         "partner": 916906,
         "custbody_onl_rep": 942960,
-        "item": [{"item": 5057, "quantity": 2, "price": -1, "amount": 100000}],
-        "memo": "đơn test",
+        "item": [
+            {
+                "item": 5057,
+                "quantity": 2,
+                "price": -1,
+                "amount": 100000,
+                "commitinventory": 3,
+                "location": 788,
+                "custcol_deliver_location": 50,
+            }
+        ],
     }
 
 
