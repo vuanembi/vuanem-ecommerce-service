@@ -68,7 +68,7 @@ def netsuite_order(prepared_order):
 
 @pytest.fixture()
 def callback_data():
-    return {"t": "O", "a": 1, "v": "46EeM7aq0nXAZyhPIGV5"}
+    return {"t": "O", "a": 1, "v": "oWP9OBsJ3Ugnj3lRErO4"}
 
 
 @pytest.fixture()

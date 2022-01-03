@@ -34,6 +34,26 @@ class CustomerReq(TypedDict):
     lastname: str
 
 
+TIKI_CUSTOMER: Customer = {
+    "entity": 979199,
+    "custbody_customer_phone": "1998103102",
+    "custbody_recipient_phone": "1998103102",
+    "custbody_recipient": "TEMP Tiki",
+    "shippingaddress": {
+        "addressee": "TEMP Tiki",
+    },
+}
+
+LAZADA_CUSTOMER: Customer = {
+    "entity": 985867,
+    "custbody_customer_phone": "1998103103",
+    "custbody_recipient_phone": "1998103103",
+    "custbody_recipient": "TEMP Lazada",
+    "shippingaddress": {
+        "addressee": "TEMP Lazada",
+    },
+}
+
 SHOPEE_CUSTOMER: Customer = {
     "entity": 966287,
     "custbody_customer_phone": "1998103101",
@@ -44,15 +64,6 @@ SHOPEE_CUSTOMER: Customer = {
     },
 }
 
-TIKI_CUSTOMER: Customer = {
-    "entity": 979199,
-    "custbody_customer_phone": "1998103102",
-    "custbody_recipient_phone": "1998103102",
-    "custbody_recipient": "TEMP Tiki",
-    "shippingaddress": {
-        "addressee": "TEMP Tiki",
-    },
-}
 
 # --------------------------------- Ecommerce -------------------------------- #
 
@@ -77,11 +88,21 @@ TIKI_ECOMMERCE: Ecommerce = {
     "custbody_onl_rep": 942960,
 }
 
+LAZADA_ECOMMERCE: Ecommerce = {
+    "subsidiary": 1,
+    "department": 1044,
+    "location": 789,
+    "custbody_order_payment_method": 44,
+    "salesrep": 1664,
+    "partner": 923414,
+    "custbody_onl_rep": 722312,
+}
+
 SHOPEE_COMMERCE: Ecommerce = {
     "subsidiary": 1,
     "department": 1041,
     "location": 787,
-    "custbody_order_payment_method": 23,
+    "custbody_order_payment_method": 41,
     "salesrep": 1664,
     "partner": 915574,
     "custbody_onl_rep": 933725,

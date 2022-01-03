@@ -1,12 +1,10 @@
-from datetime import datetime
+from lazada import lazada_service
 
-from returns.result import Result, Success
-from returns.maybe import Some
-from returns.pipeline import flow
-from returns.pointfree import apply
 
-from lazada import lazada_service, data_repo
-
-def lazada_controller(request_data: dict):
-    x = lazada_service.get_order_service()
-    x
+def lazada_controller(request_data: dict) -> dict:
+    return (
+        lazada_service.get_orders_service()
+        .bind(lazada_service.order_service)
+        .map(lambda x: {"controller": "lazada", "results": x})
+        .unwrap()
+    )
