@@ -1,11 +1,8 @@
-from typing import Any
-import os
-from datetime import datetime
-import hashlib
-import hmac
+from typing import Callable
+import time
 
 import requests
-from returns.result import safe
+from returns.result import ResultE, safe
 
 from db.firestore import DB
 from lazada import lazada, lazada_repo
@@ -16,12 +13,14 @@ auth_request = lazada_repo.build_lazada_request("https://api.lazada.com/rest")
 
 
 @safe
-def get_access_token() -> dict:
+def get_access_token() -> lazada.AccessToken:
     return LAZADA.get(["state.access_token"]).get("state.access_token")
 
 
-def update_access_token(token: lazada.AccessToken) -> None:
+@safe
+def update_access_token(token: lazada.AccessToken) -> lazada.AccessToken:
     LAZADA.set({"state": {"access_token": token}}, merge=True)
+    return token
 
 
 @safe
@@ -35,4 +34,8 @@ def refresh_token(
             {"refresh_token": token["refresh_token"]},
         )
     ) as r:
-        return r.json()
+        res = r.json()
+    return {
+        **res,  # type: ignore
+        "expires_at": int(time.time()) + int(res["expires_in"]),
+    }

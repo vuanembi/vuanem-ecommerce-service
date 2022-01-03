@@ -1,6 +1,9 @@
+from returns.result import Failure
+from returns.pipeline import is_successful
+
 import pytest
 
-from lazada import auth_repo
+from lazada import lazada_service, auth_repo
 
 
 class TestAuth:
@@ -24,7 +27,8 @@ class TestAuth:
             "account": "duong.nguyen3@vuanem.com.vn",
             "code": "0",
             "request_id": "214100f016411257621594163",
-            "expires_at": 1640970000 + 2592000,
+            # "expires_at": 1640970000 + 2592000,
+            "expires_at": 1640970000 - 2592000,
         }
 
     def test_get_access_token(self, access_token):
@@ -39,3 +43,11 @@ class TestAuth:
     def test_refresh_token(self, access_token, session):
         res = auth_repo.refresh_token(session, access_token)
         res
+
+    def test_expired_token(self, access_token, session):
+        res = Failure(access_token).lash(lazada_service._update_new_token(session))
+        res
+
+    def test_auth_service(self, session):
+        res = lazada_service.auth_service(session)
+        assert is_successful(res)
