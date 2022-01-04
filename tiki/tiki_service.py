@@ -9,7 +9,7 @@ from returns.functions import raise_exception
 
 from tiki import tiki, auth_repo, data_repo
 from netsuite import netsuite, netsuite_service, prepare_repo
-from telegram import message_service
+from telegram import telegram, message_service
 
 
 def auth_service() -> OAuth2Session:
@@ -52,7 +52,7 @@ def order_service(session: OAuth2Session, events: list[tiki.Event]) -> ResultE[d
     return Fold.collect_all(
         [
             flow(
-                Success(message_service.send_new_order("Tiki")),
+                Success(message_service.send_new_order(telegram.TIKI_CHANNEL)),
                 order.apply,
                 prepared_id.apply,
             )
