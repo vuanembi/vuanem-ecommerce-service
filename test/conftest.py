@@ -93,7 +93,8 @@ def telegram_update(callback_data):
                     "username": "vuanembi_ecommercebot",
                 },
                 "chat": {
-                    "id": -645664226,
+                    # "id": -645664226,
+                    "id": -661578343,
                     "title": "HM & Bot Bắn Đơn",
                     "type": "group",
                     "all_members_are_administrators": True,

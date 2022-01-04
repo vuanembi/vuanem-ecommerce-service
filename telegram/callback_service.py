@@ -6,7 +6,9 @@ from returns.functions import tap
 from telegram import telegram, telegram_repo, callback_repo
 
 
-def validation_service(update: telegram.Update) -> Result[telegram.CalbackData, str]:
+def validation_service(
+    update: telegram.Update,
+) -> Result[tuple[str, telegram.CalbackData], str]:
     return flow(
         update,
         tap(telegram_repo.answer_callback),

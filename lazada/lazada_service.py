@@ -12,7 +12,7 @@ from returns.converters import flatten
 from common import utils
 from lazada import lazada, auth_repo, data_repo
 from netsuite import netsuite, netsuite_service, prepare_repo
-from telegram import message_service
+from telegram import telegram, message_service
 
 _build_prepared_order = netsuite_service.build_prepared_order_service(
     items_fn=lambda x: x["items"],
@@ -103,7 +103,7 @@ def order_service(orders: list[lazada.OrderItems]) -> ResultE[dict]:
     return Fold.collect_all(
         [
             flow(
-                Success(message_service.send_new_order("Lazada")),
+                Success(message_service.send_new_order(telegram.LAZADA_CHANNEL)),
                 order.apply,
                 prepared_id.apply,
             )

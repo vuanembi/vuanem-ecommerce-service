@@ -1,6 +1,10 @@
 import pytest
 
-from telegram import message_service
+from telegram import telegram, message_service
+
+channels = [
+    telegram.TIKI_CHANNEL,
+]
 
 
 @pytest.fixture()
@@ -8,8 +12,11 @@ def order():
     return {"key": "value"}
 
 
-@pytest.fixture(params=["Tiki"])
-def ecommerce(request):
+@pytest.fixture(
+    params=channels,
+    ids=[i.ecom for i in channels],
+)
+def channel(request):
     return request.param
 
 
@@ -18,8 +25,8 @@ def id():
     return "test"
 
 
-def test_send_new_order(ecommerce, order, id):
-    message_service.send_new_order(ecommerce)(order)(id)
+def test_send_new_order(channel, order, id):
+    message_service.send_new_order(channel)(order)(id)
 
 
 def test_send_create_order_success(id):
