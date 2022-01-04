@@ -69,7 +69,7 @@ def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
         "leadsource": netsuite.LEAD_SOURCE,
         "custbody_expecteddeliverytime": netsuite.EXPECTED_DELIVERY_TIME,
         "trandate": date.today().isoformat(),
-        "shipdate": (date.today() - timedelta(days=3)).isoformat(),
+        "shipdate": (date.today() + timedelta(days=3)).isoformat(),
         "custbody_expected_shipping_method": netsuite.CUSTBODY_EXPECTED_SHIPPING_METHOD,
         "custbody_print_form": netsuite.CUSTBODY_PRINT_FORM,
         "memo": memo,
