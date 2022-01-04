@@ -39,7 +39,7 @@ prepared_order_builder = netsuite_service.build_prepared_order_service(
     item_amt_fn=lambda x: x["paid_price"] + x["voucher_platform"],
     item_location=netsuite.LAZADA_ECOMMERCE["location"],
     ecom=netsuite.LAZADA_ECOMMERCE,
-    memo_builder=lambda x: f"lazada - {x['order_id']}",
+    memo_builder=lambda x: f"{x['order_id']} - lazada",
     customer_builder=lambda _: prepare_repo.build_customer(netsuite.LAZADA_CUSTOMER),
 )
 
