@@ -51,8 +51,12 @@ def pull_service(session: OAuth2Session) -> ResultE[tiki.EventRes]:
 def order_service(session: OAuth2Session, events: list[tiki.Event]) -> ResultE[dict]:
     return Fold.collect_all(
         [
-            x[1].apply(x[0].apply(Success(message_service.send_new_order("Tiki"))))
-            for x in [
+            flow(
+                Success(message_service.send_new_order("Tiki")),
+                order.apply,
+                prepared_id.apply,
+            )
+            for order, prepared_id in [
                 (order, order.bind(_handle_order))
                 for order in [
                     data_repo.get_order(session)(data_repo.extract_order(e))
