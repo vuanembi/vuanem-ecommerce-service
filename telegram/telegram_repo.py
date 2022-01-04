@@ -7,7 +7,6 @@ import requests
 from telegram import telegram
 
 BASE_URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
-CHAT_ID = "-1001685563275" if os.getenv("PYTHON_ENV") == "prod" else "-645664226"
 
 
 def build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
@@ -20,17 +19,16 @@ def build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
     return build
 
 
-def send(payload_builder: telegram.PayloadBuilder) -> None:
+def send(channel: telegram.Channel, payload_builder: telegram.PayloadBuilder) -> None:
     with requests.post(
         f"{BASE_URL}/sendMessage",
-        json=payload_builder({"chat_id": CHAT_ID, "parse_mode": "MarkdownV2"}),
+        json=payload_builder({"chat_id": channel.chat_id, "parse_mode": "MarkdownV2"}),
     ) as r:
         if r.status_code == 429:
             time.sleep(3)
-            return send(payload_builder)
+            return send(channel, payload_builder)
         else:
             r.raise_for_status()
-            r
 
 
 def answer_callback(update: telegram.Update) -> None:
