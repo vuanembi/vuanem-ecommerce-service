@@ -1,5 +1,5 @@
 from typing import Optional, Union
-from datetime import date
+from datetime import date, timedelta
 
 from requests_oauthlib import OAuth1Session
 from returns.result import Result, ResultE, Success, Failure, safe
@@ -69,6 +69,7 @@ def build_prepared_order_meta(memo: str) -> netsuite.OrderMeta:
         "leadsource": netsuite.LEAD_SOURCE,
         "custbody_expecteddeliverytime": netsuite.EXPECTED_DELIVERY_TIME,
         "trandate": date.today().isoformat(),
+        "shipdate": (date.today() - timedelta(days=3)).isoformat(),
         "custbody_expected_shipping_method": netsuite.CUSTBODY_EXPECTED_SHIPPING_METHOD,
         "custbody_print_form": netsuite.CUSTBODY_PRINT_FORM,
         "memo": memo,
