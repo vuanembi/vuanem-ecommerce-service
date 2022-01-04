@@ -8,11 +8,12 @@ from netsuite import netsuite_service
 
 
 def service_factory(
-    data: telegram.CalbackData,
+    validated_update: tuple[str, telegram.CalbackData],
 ) -> Result[Optional[str], str]:
+    chat_id, data = validated_update
     if data["t"] == "O":
         if data["a"] == 1:
-            return netsuite_service.create_order_service(data["v"])
+            return netsuite_service.create_order_service(chat_id, data["v"])
     return Failure(f"Operation not supported {json.dumps(data)}")
 
 

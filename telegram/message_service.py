@@ -13,10 +13,13 @@ def send_new_order(channel: telegram.Channel):
             channel,
             compose(
                 telegram_repo.build_send_payload(
-                    payload_repo.add_new_order, channel.ecom, order
+                    payload_repo.add_new_order,
+                    channel.ecom,
+                    order,
                 ),
                 telegram_repo.build_send_payload(
-                    payload_repo.add_new_order_callback, id
+                    payload_repo.add_new_order_callback,
+                    id,
                 ),
             ),
         )
@@ -25,33 +28,52 @@ def send_new_order(channel: telegram.Channel):
     return _send
 
 
-def send_create_order_success(channel: telegram.Channel, id: str) -> str:
-    telegram_repo.send(
-        channel,
-        compose(
-            telegram_repo.build_send_payload(payload_repo.add_create_order_success, id),
-            telegram_repo.build_send_payload(payload_repo.add_ack_callback),
-        ),
-    )
-    return id
+def send_create_order_success(chat_id: str):
+    def _send(id: str) -> str:
+        telegram_repo.send(
+            telegram.Channel("", chat_id),
+            compose(
+                telegram_repo.build_send_payload(
+                    payload_repo.add_create_order_success,
+                    id,
+                ),
+                telegram_repo.build_send_payload(payload_repo.add_ack_callback),
+            ),
+        )
+        return id
+
+    return _send
 
 
-def send_create_order_error(channel: telegram.Channel, err: str) -> str:
-    telegram_repo.send(
-        channel,
-        compose(
-            telegram_repo.build_send_payload(payload_repo.add_create_order_error, err),
-            telegram_repo.build_send_payload(payload_repo.add_ack_callback),
-        ),
-    )
-    return err
+def send_create_order_error(chat_id: str):
+    def _send(err: str) -> str:
+        telegram_repo.send(
+            telegram.Channel("", chat_id),
+            compose(
+                telegram_repo.build_send_payload(
+                    payload_repo.add_create_order_error,
+                    err,
+                ),
+                telegram_repo.build_send_payload(payload_repo.add_ack_callback),
+            ),
+        )
+        return err
+
+    return _send
 
 
-def send_close_order(channel: telegram.Channel, id: str) -> None:
-    telegram_repo.send(
-        channel,
-        compose(
-            telegram_repo.build_send_payload(payload_repo.add_close_order_success, id),
-            telegram_repo.build_send_payload(payload_repo.add_ack_callback),
-        ),
-    )
+def send_close_order(chat_id: str):
+    def _send(id: str) -> str:
+        telegram_repo.send(
+            telegram.Channel("", chat_id),
+            compose(
+                telegram_repo.build_send_payload(
+                    payload_repo.add_close_order_success,
+                    id,
+                ),
+                telegram_repo.build_send_payload(payload_repo.add_ack_callback),
+            ),
+        )
+        return id
+
+    return _send

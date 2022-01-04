@@ -22,7 +22,12 @@ def build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
 def send(channel: telegram.Channel, payload_builder: telegram.PayloadBuilder) -> None:
     with requests.post(
         f"{BASE_URL}/sendMessage",
-        json=payload_builder({"chat_id": channel.chat_id, "parse_mode": "MarkdownV2"}),
+        json=payload_builder(
+            {
+                "chat_id": channel.chat_id,
+                "parse_mode": "MarkdownV2",
+            }
+        ),
     ) as r:
         if r.status_code == 429:
             time.sleep(3)
