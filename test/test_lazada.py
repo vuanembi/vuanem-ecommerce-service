@@ -5,6 +5,8 @@ import pytest
 
 from lazada import lazada_controller, lazada_service, auth_repo, data_repo
 
+from test.conftest import run
+
 
 class TestAuth:
     @pytest.fixture()
@@ -54,19 +56,15 @@ class TestAuth:
 
 class TestData:
     @pytest.fixture()
-    def auth_builder(self, session):
-        return lazada_service.auth_service(session).unwrap()
+    def auth_builder(self):
+        return lazada_service.auth_service().unwrap()
 
     def test_get_orders(self, session, auth_builder):
         res = data_repo.get_orders(session, auth_builder, "2022-01-01T00:00:00")
         assert is_successful(res)
 
-    def test_get_order_item(self, session, auth_builder):
-        res = data_repo.get_order_item(session, auth_builder, "330337506104790")
-        assert is_successful(res)
-
     def test_items(self, session, auth_builder):
-        res = lazada_service.get_items(
+        res = lazada_service._get_items(
             session,
             auth_builder,
             [
@@ -76,8 +74,9 @@ class TestData:
         )
         res
 
-    def test_get_order_details(self, session, auth_builder):
-        res = lazada_service.get_order_details(session, auth_builder)
+    def test_get_orders_items(self, session, auth_builder):
+        created_after = data_repo.get_max_created_at()
+        res = created_after.bind(data_repo.get_orders(session, auth_builder))
         res
 
     def test_get_max_created_at(self):
@@ -88,4 +87,8 @@ class TestData:
 class TestIntegration:
     def test_controller(self):
         res = lazada_controller.lazada_controller({})
+        res
+
+    def test_lazada(self):
+        res = run("/lazada")
         res

@@ -38,7 +38,6 @@ def token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessTok
 def auth_service() -> ResultE[lazada.AuthBuilder]:
     return (
         auth_repo.get_access_token()
-        .lash(raise_exception)
         .bind(utils.check_expired)  # type: ignore
         .lash(token_refresh_service)  # type: ignore
         .map(data_repo.get_auth_builder)  # type: ignore
@@ -67,7 +66,7 @@ def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
 
 
 @curry
-def _get_orders(
+def _get_orders_items(
     auth_builder: lazada.AuthBuilder,
     created_after: datetime,
 ) -> ResultE[list[lazada.OrderItems]]:
@@ -83,7 +82,7 @@ def _get_orders(
 def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
     return flatten(
         flow(  # type: ignore
-            Success(_get_orders),
+            Success(_get_orders_items),
             auth_service().apply,
             data_repo.get_max_created_at().apply,
         )
@@ -103,8 +102,10 @@ def _handle_order(order: lazada.OrderItems) -> ResultE[str]:
 def order_service(orders: list[lazada.OrderItems]) -> ResultE[dict]:
     return Fold.collect_all(
         [
-            prepared_id.apply(
-                order.apply(Success(message_service.send_new_order("Lazada")))
+            flow(
+                Success(message_service.send_new_order("Lazada")),
+                order.apply,
+                prepared_id.apply,
             )
             for order, prepared_id in [
                 (Success(order), _handle_order(order)) for order in orders

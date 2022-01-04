@@ -47,6 +47,7 @@ def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
                     "created_at": parse_timestamp(order["created_at"]),
                 }
                 for order in res["data"]["orders"]
+                if parse_timestamp(order["created_at"]) != created_after
             ]
             return orders if not orders else orders + __get(offset + PAGE_LIMIT)
 
@@ -97,12 +98,13 @@ def get_max_created_at() -> datetime:
 
 @safe
 def persist_max_created_at(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
-    LAZADA.set(
-        {
-            "state": {
-                "max_created_at": max([order["created_at"] for order in orders]),
+    if orders:
+        LAZADA.set(
+            {
+                "state": {
+                    "max_created_at": max([order["created_at"] for order in orders]),
+                },
             },
-        },
-        merge=True,
-    )
+            merge=True,
+        )
     return orders
