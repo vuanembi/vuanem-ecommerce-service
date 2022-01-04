@@ -49,32 +49,35 @@ def build_prepared_order_service(
     return _build
 
 
-def _create_order_from_prepared(
-    prepared_order_doc_ref: firestore.DocumentReference,
-) -> Result[str, Any]:
-    with restlet_repo.netsuite_session() as session:
-        return flow(
-            prepared_order_doc_ref,
-            lambda x: x.get().to_dict(),
-            prepare_repo.validate_prepared_order("pending"),
-            bind(netsuite_repo.build_sales_order_from_prepared(session)),
-            bind(netsuite_repo.create_sales_order(session)),
-            map_(lambda x: int(x["id"])),  # type: ignore
-            map_(
-                prepare_repo.update_prepared_order_status(
-                    prepared_order_doc_ref,
-                    "created",
-                )
-            ),
-            map_(message_service.send_create_order_success),
-            alt(message_service.send_create_order_error),
-            lash(safe(str)),
-        )
+def _create_order_from_prepared(chat_id: str):
+    def _create(
+        prepared_order_doc_ref: firestore.DocumentReference,
+    ) -> Result[str, Any]:
+        with restlet_repo.netsuite_session() as session:
+            return flow(
+                prepared_order_doc_ref,
+                lambda x: x.get().to_dict(),
+                prepare_repo.validate_prepared_order("pending"),
+                bind(netsuite_repo.build_sales_order_from_prepared(session)),
+                bind(netsuite_repo.create_sales_order(session)),
+                map_(lambda x: int(x["id"])),  # type: ignore
+                map_(
+                    prepare_repo.update_prepared_order_status(
+                        prepared_order_doc_ref,
+                        "created",
+                    )
+                ),
+                map_(message_service.send_create_order_success(chat_id)),
+                alt(message_service.send_create_order_error(chat_id)),
+                lash(safe(str)),
+            )
+
+    return _create
 
 
-def create_order_service(prepared_id: str) -> Result[str, Any]:
+def create_order_service(chat_id: str, prepared_id: str) -> Result[str, Any]:
     return flow(
         prepared_id,
         prepare_repo.get_prepared_order,
-        bind(_create_order_from_prepared),
+        bind(_create_order_from_prepared(chat_id)),
     )
