@@ -2,21 +2,20 @@ from typing import Callable
 
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE, Success
-from returns.pointfree import bind, map_
+from returns.pointfree import map_
 from returns.pipeline import flow
 from returns.iterables import Fold
 from returns.functions import raise_exception
 
 from tiki import tiki, auth_repo, data_repo
 from netsuite import netsuite, netsuite_service, prepare_repo
-from telegram import telegram, message_service
 
 
 def auth_service() -> OAuth2Session:
     return auth_repo.get_access_token().map(auth_repo.get_auth_session).unwrap()
 
 
-_build_prepared_order = netsuite_service.build_prepared_order_service(
+prepared_order_builder = netsuite_service.build_prepared_order_service(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
@@ -32,57 +31,35 @@ _build_prepared_order = netsuite_service.build_prepared_order_service(
 )
 
 
-def _handle_order(order: tiki.Order) -> ResultE[str]:
-    return flow(
-        order,
-        data_repo.persist_tiki_order,
-        bind(_build_prepared_order),
-        bind(prepare_repo.persist_prepared_order),
-        map_(lambda x: x.id),  # type: ignore
-    )
-
-
 def pull_service(session: OAuth2Session) -> ResultE[tiki.EventRes]:
     return (
         data_repo.get_ack_id().bind(data_repo.get_events(session)).lash(raise_exception)
     )
 
 
-def order_service(session: OAuth2Session, events: list[tiki.Event]) -> ResultE[dict]:
+def get_orders_service(
+    session: OAuth2Session,
+    events: list[tiki.Event],
+) -> ResultE[list[tiki.Order]]:
     return Fold.collect_all(
         [
             flow(
-                Success(message_service.send_new_order(telegram.TIKI_CHANNEL)),
-                order.apply,
-                prepared_id.apply,
+                event,
+                data_repo.extract_order,
+                data_repo.get_order(session),
             )
-            for order, prepared_id in [
-                (order, order.bind(_handle_order))
-                for order in [
-                    data_repo.get_order(session)(data_repo.extract_order(e))
-                    for e in events
-                ]
-            ]
+            for event in events
         ],
         Success(()),
-    ).map(lambda x: {"orders": [y[1] for y in x]})
+    ).map(list)
 
 
 def ack_service(ack_id: str) -> Callable[[dict], ResultE[dict]]:
     def _svc(res: dict):
-        return data_repo.update_ack_id(ack_id).map(
-            lambda x: {
-                **res,
-                "ack": x,
-            }
+        return flow(
+            ack_id,
+            data_repo.update_ack_id,
+            map_(lambda x: {**res, "ack": x}),  # type: ignore
         )
-
-    return _svc
-
-
-def events_service(session: OAuth2Session):
-    def _svc(event_res: tiki.EventRes) -> ResultE[dict]:
-        ack_id, events = event_res
-        return order_service(session, events).bind(ack_service(ack_id))
 
     return _svc

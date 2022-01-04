@@ -49,7 +49,7 @@ def build_prepared_order_service(
 
 
 def prepare_orders_service(
-    order_persister: Callable[[dict], dict],
+    order_persister: Callable[[dict], ResultE[dict]],
     prepared_order_builder: Callable[
         [dict],
         ResultE[Union[netsuite.PreparedOrder, netsuite.Order]],
