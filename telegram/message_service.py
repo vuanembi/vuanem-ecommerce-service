@@ -1,5 +1,3 @@
-from returns.curry import curry
-
 from common.utils import compose
 from telegram import telegram, telegram_repo, payload_repo
 
@@ -7,7 +5,6 @@ from telegram import telegram, telegram_repo, payload_repo
 
 
 def send_new_order(channel: telegram.Channel):
-    @curry
     def _send(order: dict, id: int) -> tuple[dict, int]:
         telegram_repo.send(
             channel,

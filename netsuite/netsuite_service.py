@@ -1,5 +1,4 @@
 from typing import Callable, Union, Any
-
 from returns.pipeline import flow
 from returns.result import Result, ResultE, Success, safe
 from returns.iterables import Fold
@@ -7,7 +6,7 @@ from returns.pointfree import bind, lash, map_, alt
 from google.cloud import firestore
 
 from netsuite import netsuite, netsuite_repo, prepare_repo, restlet_repo
-from telegram import message_service
+from telegram import telegram, message_service
 
 
 def build_prepared_order_service(
@@ -47,6 +46,33 @@ def build_prepared_order_service(
             )
 
     return _build
+
+
+def prepare_orders_service(
+    order_persister: Callable[[dict], ResultE[dict]],
+    prepared_order_builder: Callable[
+        [dict],
+        ResultE[Union[netsuite.PreparedOrder, netsuite.Order]],
+    ],
+    channel: telegram.Channel,
+):
+    def _svc(orders: list[dict]) -> ResultE[dict[str, Any]]:
+        return Fold.collect_all(
+            [
+                flow(  # type: ignore
+                    order,
+                    order_persister,
+                    bind(prepared_order_builder),
+                    bind(prepare_repo.persist_prepared_order),
+                    map_(lambda x: x.id),  # type: ignore
+                    map_(lambda x: message_service.send_new_order(channel)(order, x)),  # type: ignore
+                )
+                for order in orders
+            ],
+            Success(()),
+        ).map(lambda x: {"orders": [y[1] for y in x]})
+
+    return _svc
 
 
 def _create_order_from_prepared(chat_id: str):
