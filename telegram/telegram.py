@@ -16,7 +16,7 @@ TIKI_CHANNEL = Channel(
     "-1001685563275" if os.getenv("PYTHON_ENV") == "prod" else "-645664226",
 )
 LAZADA_CHANNEL = Channel(
-    "LAZADA",
+    "Lazada",
     "-661578343" if os.getenv("PYTHON_ENV") == "prod" else "-645664226",
 )
 

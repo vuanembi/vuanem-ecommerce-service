@@ -107,31 +107,13 @@ class TestData:
         res = order
         assert is_successful(res)
 
-    def test_get_orders(self, auth_session):
-        _, events = tiki_service.pull_service(auth_session)
-        res = events.bind(
-            lambda events: [
-                data_repo.get_order(auth_session)(data_repo.extract_order(e))
-                for e in events
-            ]
-        )
-        assert res
-
     def test_build_order(self, order, static_order):
-        res1 = order.bind(tiki_service._build_prepared_order)
-        res2 = static_order.bind(tiki_service._build_prepared_order)
+        res1 = order.bind(tiki_service.prepared_order_builder)
+        res2 = static_order.bind(tiki_service.prepared_order_builder)
         assert res1, res2
 
-    def test_handle_order(self, order):
-        res = order.bind(tiki_service._handle_order)
-        assert res
-
-    def test_order_service(self, auth_session, events):
-        res = tiki_service.order_service(auth_session)(events)
-        res
-
-    def test_events_service(self, auth_session, events):
-        res = tiki_service.events_service(auth_session)(("1111", events))
+    def test_get_orders_service(self, auth_session, events):
+        res = tiki_service.get_orders_service(auth_session, events)
         res
 
 
