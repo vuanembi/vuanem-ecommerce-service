@@ -4,7 +4,7 @@ from netsuite import (
     netsuite_service,
     netsuite_repo,
     prepare_repo,
-    coupon_code_ss_service,
+    saved_search_service,
 )
 
 
@@ -49,12 +49,13 @@ class TestNetSuite:
 
 class TestSavedSearch:
     def test_coupon_code(self):
-        res = coupon_code_ss_service.coupon_code_ss_service(
+        res = saved_search_service.coupon_code_ss_service(
             {
                 "data": [
-                    "1601-KT-BDU03-KMAT-001",
-                    "1601-KT-BDU03-KMAT-002",
+                    # "1601-KT-BDU03-KMAT-001",
+                    # "1601-KT-BDU03-KMAT-002",
+                    # "1601-KT-BDU03-KMAT-002",
                 ],
             }
         )
-        res
+        assert is_successful(res)
