@@ -17,9 +17,9 @@ def service_factory(
     return Failure(f"Operation not supported {json.dumps(data)}")
 
 
-def callback_controller(request_data: telegram.Update) -> dict:
+def callback_controller(request) -> dict:
     return (
-        callback_service.validation_service(request_data)
+        callback_service.validation_service(request.get_json())
         .bind(service_factory)
         .lash(lambda x: Success(x))
         .map(

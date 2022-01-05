@@ -24,7 +24,7 @@ def service_factory(session: OAuth2Session):
     return _svc
 
 
-def tiki_controller(request_data: dict) -> dict:
+def tiki_controller(request) -> dict:
     with tiki_service.auth_service() as session:
         return (
             tiki_service.pull_service(session)

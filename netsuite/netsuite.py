@@ -45,7 +45,7 @@ TIKI_CUSTOMER: Customer = {
 }
 
 LAZADA_CUSTOMER: Customer = {
-    "entity": 985867,
+    "entity": 987331,
     "custbody_customer_phone": "1998103103",
     "custbody_recipient_phone": "1998103103",
     "custbody_recipient": "TEMP Lazada",
