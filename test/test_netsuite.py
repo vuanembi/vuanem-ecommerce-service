@@ -1,6 +1,11 @@
 from returns.pipeline import is_successful
 from returns.result import Success
-from netsuite import netsuite_service, netsuite_repo, prepare_repo
+from netsuite import (
+    netsuite_service,
+    netsuite_repo,
+    prepare_repo,
+    coupon_code_ss_service,
+)
 
 
 class TestPrepare:
@@ -40,3 +45,16 @@ class TestNetSuite:
     def test_create_order_service(self, prepared_order_id):
         res = Success(prepared_order_id).bind(netsuite_service.create_order_service)
         assert res
+
+
+class TestSavedSearch:
+    def test_coupon_code(self):
+        res = coupon_code_ss_service.coupon_code_ss_service(
+            {
+                "data": [
+                    "1601-KT-BDU03-KMAT-001",
+                    "1601-KT-BDU03-KMAT-002",
+                ],
+            }
+        )
+        res
