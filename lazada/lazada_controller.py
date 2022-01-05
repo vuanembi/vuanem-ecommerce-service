@@ -3,7 +3,7 @@ from netsuite import netsuite_service
 from telegram import telegram
 
 
-def lazada_controller(request_data: dict) -> dict:
+def lazada_controller(request) -> dict:
     return (
         lazada_service.get_orders_service()
         .bind(
