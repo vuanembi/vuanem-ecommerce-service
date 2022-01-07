@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 from datetime import date, timedelta
 
 from requests_oauthlib import OAuth1Session

@@ -86,7 +86,6 @@ def _create_order_from_prepared(
             map_(lambda x: x["order"]),  # type: ignore
             bind(netsuite_repo.build_sales_order_from_prepared(session)),
             bind(netsuite_repo.create_sales_order(session)),
-            # bind(lambda _: Failure(Exception('12312312'))),
             map_(lambda x: int(x["id"])),  # type: ignore
             map_(
                 prepare_repo.update_prepared_order_status(
