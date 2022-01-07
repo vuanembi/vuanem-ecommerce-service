@@ -2,7 +2,7 @@ import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
 
-from tiki import tiki_controller, tiki_service, auth_repo, data_repo, tiki_repo
+from tiki import tiki_service, auth_repo, data_repo, tiki_repo
 
 from test.conftest import run
 
@@ -119,9 +119,5 @@ class TestData:
 
 class TestIntegration:
     def test_controller(self):
-        res = tiki_controller.tiki_controller({})
-        assert res
-
-    def test_tiki(self):
         res = run("/tiki")
         res

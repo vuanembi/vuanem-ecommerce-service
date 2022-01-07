@@ -18,6 +18,12 @@ def build_callback_data(type_: str, action: int, value: str) -> str:
     )
 
 
+def add_message_reply(message_id: int) -> telegram.Payload:
+    return {
+        "reply_to_message_id": message_id,
+    }
+
+
 def add_ack_callback() -> telegram.Payload:
     return {
         "reply_markup": {
@@ -63,11 +69,11 @@ def add_new_order_callback(id: str) -> telegram.Payload:
     }
 
 
-def add_create_order_success(id: str) -> telegram.Payload:
+def add_create_order_success(id: str, memo: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
-                f"Tạo đơn hàng `{id}` thành công ^^",
+                f"Tạo đơn hàng `{memo}` thành công `{id}` ^^",
                 DIVIDER,
                 f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
             ]
@@ -75,11 +81,11 @@ def add_create_order_success(id: str) -> telegram.Payload:
     }
 
 
-def add_create_order_error(error: Exception) -> telegram.Payload:
+def add_create_order_error(error: Exception, memo: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
-                f"Tạo đơn hàng thất bại X\.X",
+                f"Tạo đơn hàng `{memo}` thất bại X\.X",
                 DIVIDER,
                 "```",
                 repr(error),

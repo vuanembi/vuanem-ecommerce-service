@@ -43,7 +43,7 @@ validate_callback = _validate_unique(CALLBACK, lambda x: x["callback_query"]["da
 
 def validate_data(
     update: telegram.Update,
-) -> Result[tuple[str, telegram.CalbackData], str]:
+) -> Result[tuple[str, int, telegram.CalbackData], str]:
     return flow(
         update,
         lambda x: x["callback_query"]["data"],
@@ -53,6 +53,7 @@ def validate_data(
                 Success(  # type: ignore
                     (
                         str(update["callback_query"]["message"]["chat"]["id"]),
+                        update["callback_query"]["message"]["message_id"],
                         data,
                     )
                 )
