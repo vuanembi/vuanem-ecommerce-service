@@ -1,4 +1,6 @@
-from telegram import callback_controller, callback_service
+from telegram import callback_service
+
+from test.conftest import run
 
 
 def test_validation_service(telegram_update):
@@ -7,5 +9,5 @@ def test_validation_service(telegram_update):
 
 
 def test_controller(telegram_update):
-    res = callback_controller.callback_controller(telegram_update)
+    res = run("/callback", telegram_update)
     res

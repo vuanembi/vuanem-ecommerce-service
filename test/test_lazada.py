@@ -3,7 +3,7 @@ from returns.pipeline import is_successful
 
 import pytest
 
-from lazada import lazada_controller, lazada_service, auth_repo, data_repo
+from lazada import lazada_service, auth_repo, data_repo
 
 from test.conftest import run
 
@@ -86,9 +86,5 @@ class TestData:
 
 class TestIntegration:
     def test_controller(self):
-        res = lazada_controller.lazada_controller({})
-        res
-
-    def test_lazada(self):
         res = run("/lazada")
         res
