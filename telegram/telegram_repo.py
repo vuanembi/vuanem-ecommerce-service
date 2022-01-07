@@ -36,7 +36,7 @@ def send(channel: telegram.Channel, payload_builder: telegram.PayloadBuilder) ->
             r.raise_for_status()
 
 
-def answer_callback(update: telegram.Update) -> None:
+def answer_callback(update: telegram.Update) -> telegram.Update:
     requests.post(
         f"{BASE_URL}/answerCallbackQuery",
         json={
@@ -44,3 +44,4 @@ def answer_callback(update: telegram.Update) -> None:
             "text": "Đợi xíu...",
         },
     )
+    return update

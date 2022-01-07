@@ -101,11 +101,9 @@ def get_prepared_order(id: str) -> Result[firestore.DocumentReference, str]:
 
 
 def validate_prepared_order(status: str):
-    def _validate(
-        order: dict,
-    ) -> Result[Union[netsuite.PreparedOrder, netsuite.Order], str]:
+    def _validate(order: dict) -> Result[dict, str]:
         return (
-            Success(order["order"])
+            Success(order)
             if order["status"] == status
             else Failure(f"Wrong status, expected {status}, got {order['status']}")
         )
@@ -114,7 +112,7 @@ def validate_prepared_order(status: str):
 
 
 def update_prepared_order_status(doc_ref: firestore.DocumentReference, status: str):
-    def _update(id: int) -> int:
+    def _update(id: int) -> tuple[int, str]:
         doc_ref.set(
             {
                 "status": status,
@@ -122,6 +120,6 @@ def update_prepared_order_status(doc_ref: firestore.DocumentReference, status: s
             },
             merge=True,
         )
-        return id
+        return id, doc_ref.get(["order.memo"]).get("order.memo")
 
     return _update

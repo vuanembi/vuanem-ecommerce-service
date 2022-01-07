@@ -39,6 +39,7 @@ class Chat(TypedDict):
 
 
 class Message(TypedDict):
+    message_id: int
     chat: Chat
 
 

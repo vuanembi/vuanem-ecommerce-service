@@ -67,61 +67,60 @@ def netsuite_order(prepared_order):
 
 
 @pytest.fixture()
-def callback_data():
-    return {"t": "O", "a": 1, "v": "oWP9OBsJ3Ugnj3lRErO4"}
+def callback_data(prepared_order_id):
+    return json.dumps({"t": "O", "a": 1, "v": prepared_order_id})
 
 
 @pytest.fixture()
 def telegram_update(callback_data):
     return {
-        "update_id": 123456,
+        "update_id": 724516415,
         "callback_query": {
-            "id": "3662730095478523210",
+            "id": "3662730096086300294",
             "from": {
                 "id": 852795805,
-                "is_bot": False,
+                "is_bot": True,
                 "first_name": "HM",
                 "username": "hieumdd",
                 "language_code": "en",
             },
             "message": {
-                "message_id": 25,
+                "message_id": 643,
                 "from": {
-                    "id": 2011095877,
+                    "id": 5028559722,
                     "is_bot": True,
-                    "first_name": "Bot Bắn Đơn",
-                    "username": "vuanembi_ecommercebot",
+                    "first_name": "vuanembi_ecommercebot_dev",
+                    "username": "vuanembi_ecommerce_dev_bot",
                 },
                 "chat": {
-                    # "id": -645664226,
-                    "id": -661578343,
+                    "id": -645664226,
                     "title": "HM & Bot Bắn Đơn",
                     "type": "group",
                     "all_members_are_administrators": True,
                 },
-                "date": 1638870628,
-                "text": "Đơn hàng Tiki mới\n===========\ncode: '678789503'\nid: 131999047\nitems:\n- invoice:\n    row_total: 6299000\n  product:\n    name: Giường ngủ gỗ cao su Amando Cherry vững chắc, phong cách hiện đại, nâng\n      đỡ tốt - 160x200\n    seller_product_code: '1404003002002'\n  qty: 1\nshipping:\n  address:\n    district: Thành phố Nha Trang\n    full_name: Nguyễn Vũ Ngọc Giang\n    phone: 0938169869\n    street: 36A Cù Lao Trung\n    ward: Phường Vĩnh Thọ",
+                "date": 1641388011,
+                "text": "Đơn hàng Tiki mới\n===========\ncode: '929540084'\nid: 136344254\nitems:\n- product:\n    name: 'Gối Memory Foam Aeroflow iCool 45x65 giúp ngủ sâu, giảm đau cổ vai gáy,\n      phù hợp với mọi tư thế nằm '\n    seller_product_code: '1301009003001'\n  seller_income_detail:\n    item_qty: 1\n    sub_total: 765000\nshipping:\n  address:\n    district: Quận Hà Đông\n    full_name: nguyễn thành trung\n    phone: ''\n    street: lk2a26 nguyễn văn trỗi (đối diện số 74 nguyễn văn trỗi)\n    ward: Phường Mộ Lao",
                 "entities": [
                     {"offset": 9, "length": 4, "type": "bold"},
-                    {"offset": 30, "length": 406, "type": "pre"},
+                    {"offset": 30, "length": 458, "type": "pre"},
                 ],
                 "reply_markup": {
                     "inline_keyboard": [
                         [
                             {
-                                "text": "Tạo đơn (+)",
-                                "callback_data": '{"t": "O", "a": 1, "v": "pI9Jog6n1fFkNsVk4x7Y"}',
-                            },
+                                "text": "Tạo đơn",
+                                "callback_data": callback_data,
+                            }
                         ]
                     ]
                 },
             },
-            "chat_instance": "8890303927539922236",
-            "data": json.dumps(callback_data),
+            "chat_instance": "-1721483670851371259",
+            "data": callback_data,
         },
     }
 
 
 @pytest.fixture()
 def prepared_order_id():
-    return "46EeM7aq0nXAZyhPIGV5"
+    return "lORmUCkXLZGEnaxxzGGG"
