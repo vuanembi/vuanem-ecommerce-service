@@ -44,4 +44,4 @@ typing-extensions==3.10.0.2
 tzdata==2021.5; platform_system == "Windows" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
 tzlocal==4.1; python_version >= "3.6"
 uritemplate==4.1.1; python_version >= "3.6"
-urllib3==1.26.7; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4"
+urllib3==1.26.8; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4"
