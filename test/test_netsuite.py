@@ -1,10 +1,10 @@
 from returns.pipeline import is_successful
 from returns.result import Success
 from netsuite import (
+    analytics_service,
     netsuite_service,
     netsuite_repo,
     prepare_repo,
-    saved_search_service,
 )
 
 import pytest
@@ -51,18 +51,25 @@ class TestNetSuite:
         assert res
 
 
-class TestSavedSearch:
+class TestAnalytics:
     @pytest.fixture()
     def coupon_codes(self):
         return [
-            "1601-KT-BDU03-KMAT-001",
-            "1601-KT-BDU03-KMAT-002",
-            "1601-KT-BDU03-KMAT-002",
+            "0122-9KGOI-AGI02-0001",
+            "0122-9KGOI-AGI02-0011",
         ]
 
-    def test_coupon_code_service(self, coupon_codes):
-        res = saved_search_service.coupon_code_ss_service({"data": coupon_codes})
+    def test_coupon_code_analytics_service(self, coupon_codes):
+        res = analytics_service.coupon_code_analytics_service({"data": coupon_codes})
         assert is_successful(res)
+
+    def test_coupon_code_ss_service(self, coupon_codes):
+        res = analytics_service.coupon_code_ss_service({"data": coupon_codes})
+        assert is_successful(res)
+
+    def test_coupon_code_analytics_controller(self, coupon_codes):
+        res = run("/netsuite/analytics/coupon_code", {"data": coupon_codes})
+        assert res
 
     def test_coupon_code_controller(self, coupon_codes):
         res = run("/netsuite/saved_search/coupon_code", {"data": coupon_codes})
