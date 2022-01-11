@@ -30,12 +30,20 @@ def test_send_new_order(channel, order, id):
 
 
 def test_send_create_order_success(id):
-    message_service.send_create_order_success(id)
+    message_service.send_create_order_success(-645664226, 643)((1, id))
 
 
 def test_send_create_order_error():
-    message_service.send_create_order_error(Exception("Test exception"))
+    message_service.send_create_order_error(-645664226, 643)(
+        (Exception("Test exception"), "q23")
+    )
 
 
-# def test_send_closed_created_order(order):
-#     assert send_closed_created_order(order)["ok"]
+def test_send_close_order_success(id):
+    message_service.send_close_order_success(-645664226, 643)((1, id))
+
+
+def test_send_close_order_error(id):
+    message_service.send_close_order_error(-645664226, 643)(
+        (Exception("Test exception"), "q23", 123)
+    )
