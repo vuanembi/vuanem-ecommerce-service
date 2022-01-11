@@ -21,6 +21,16 @@ def service_factory(
                 .map(lambda x: str(x[0]))
                 .lash(lambda x: Success(repr(x[0])))
             )
+        elif data["a"] == -1:
+            return (
+                netsuite_service.close_order_service(
+                    chat_id,
+                    message_id,
+                    data["v"],
+                )
+                .map(lambda x: str(x[0]))
+                .lash(lambda x: Success(repr(x[0])))
+            )
     return Failure(f"Operation not supported {json.dumps(data)}")
 
 
