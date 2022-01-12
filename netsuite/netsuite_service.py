@@ -109,3 +109,46 @@ def create_order_service(
         map_(message_service.send_create_order_success(chat_id, message_id)),
         alt(message_service.send_create_order_error(chat_id, message_id)),
     )
+
+
+def _close_order_from_prepared(
+    prepared_order_doc_ref: firestore.DocumentReference,
+) -> Result[tuple[int, str], tuple[Exception, str]]:
+    with restlet_repo.netsuite_session() as session:
+        prepared_order = prepared_order_doc_ref.get().to_dict()
+        return flow(
+            prepared_order,
+            prepare_repo.validate_prepared_order("created"),
+            map_(lambda x: x["transactionId"]),  # type: ignore
+            bind(netsuite_repo.close_sales_order(session)),
+            map_(lambda x: int(x["id"])),  # type: ignore
+            map_(
+                prepare_repo.update_prepared_order_status(
+                    prepared_order_doc_ref,
+                    "closed",
+                )
+            ),
+            lash(
+                lambda x: Failure(  # type: ignore
+                    (
+                        x,
+                        prepared_order["order"]["memo"],
+                        prepared_order["transactionId"],
+                    )
+                )
+            ),
+        )
+
+
+def close_order_service(
+    chat_id: str,
+    message_id: int,
+    prepared_id: str,
+) -> Result[tuple[int, str], tuple[Exception, str, int]]:
+    return flow(  # type: ignore
+        prepared_id,
+        prepare_repo.get_prepared_order,
+        bind(_close_order_from_prepared),
+        map_(message_service.send_close_order_success(chat_id, message_id)),
+        alt(message_service.send_close_order_error(chat_id, message_id)),
+    )

@@ -110,13 +110,27 @@ def add_create_order_callback(id: str) -> telegram.Payload:
     }
 
 
-def add_close_order_success(id: str) -> telegram.Payload:
+def add_close_order_success(id: str, memo: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
-                f"Đóng đơn hàng `{id}` thành công X\.X",
+                f"Đóng đơn hàng `{memo}` thành công `{id}`",
                 DIVIDER,
                 f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
+            ]
+        )
+    }
+
+def add_close_order_error(error: Exception, memo: str, id: str) -> telegram.Payload:
+    return {
+        "text": "\n".join(
+            [
+                f"Đóng đơn hàng `{memo}` thất bại `{id}`",
+                DIVIDER,
+                f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
+                "```",
+                repr(error),
+                "```"
             ]
         )
     }

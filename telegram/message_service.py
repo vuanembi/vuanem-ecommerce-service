@@ -36,9 +36,13 @@ def send_create_order_success(chat_id: str, message_id: int):
                     id,
                     memo,
                 ),
-                telegram_repo.build_send_payload(payload_repo.add_ack_callback),
                 telegram_repo.build_send_payload(
-                    payload_repo.add_message_reply, message_id
+                    payload_repo.add_create_order_callback,
+                    id,
+                ),
+                telegram_repo.build_send_payload(
+                    payload_repo.add_message_reply,
+                    message_id,
                 ),
             ),
         )
@@ -58,9 +62,9 @@ def send_create_order_error(chat_id: str, message_id: int):
                     err,
                     memo,
                 ),
-                telegram_repo.build_send_payload(payload_repo.add_ack_callback),
                 telegram_repo.build_send_payload(
-                    payload_repo.add_message_reply, message_id
+                    payload_repo.add_message_reply,
+                    message_id,
                 ),
             ),
         )
@@ -69,18 +73,46 @@ def send_create_order_error(chat_id: str, message_id: int):
     return _send
 
 
-def send_close_order(chat_id: str):
-    def _send(id: str) -> str:
+def send_close_order_success(chat_id: str, message_id: int):
+    def _send(res: tuple[Exception, str]) -> tuple[Exception, str]:
+        id, memo = res
         telegram_repo.send(
             telegram.Channel("", chat_id),
             compose(
                 telegram_repo.build_send_payload(
                     payload_repo.add_close_order_success,
                     id,
+                    memo,
                 ),
-                telegram_repo.build_send_payload(payload_repo.add_ack_callback),
+                telegram_repo.build_send_payload(
+                    payload_repo.add_message_reply,
+                    message_id,
+                ),
             ),
         )
-        return id
+        return res
+
+    return _send
+
+
+def send_close_order_error(chat_id: str, message_id: int):
+    def _send(res: tuple[Exception, str, int]) -> tuple[Exception, str, int]:
+        err, memo, transaction_id = res
+        telegram_repo.send(
+            telegram.Channel("", chat_id),
+            compose(
+                telegram_repo.build_send_payload(
+                    payload_repo.add_close_order_error,
+                    err,
+                    memo,
+                    str(transaction_id),
+                ),
+                telegram_repo.build_send_payload(
+                    payload_repo.add_message_reply,
+                    message_id,
+                ),
+            ),
+        )
+        return res
 
     return _send

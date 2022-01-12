@@ -129,6 +129,18 @@ def create_sales_order(session: OAuth1Session):
     return _create
 
 
+def close_sales_order(session: OAuth1Session):
+    def _delete(order_id: int) -> ResultE[dict]:
+        return restlet_repo.request(
+            session,
+            restlet.SalesOrder,
+            "DELETE",
+            params={"id": order_id},
+        )
+
+    return _delete
+
+
 def get_sales_order_url(id: str) -> str:
     return (
         f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/"
