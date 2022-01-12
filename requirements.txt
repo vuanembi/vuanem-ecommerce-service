@@ -7,7 +7,7 @@ charset-normalizer==2.0.10; python_full_version >= "3.6.0" and python_version >=
 cryptography==36.0.1; python_version >= "3.6"
 dateparser==1.1.0; python_version >= "3.5"
 firebase-admin==5.2.0; python_version >= "3.6"
-google-api-core==2.3.2; platform_python_implementation != "PyPy" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
+google-api-core==2.4.0; platform_python_implementation != "PyPy" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
 google-api-python-client==2.34.0; python_version >= "3.6"
 google-auth-httplib2==0.1.0; python_version >= "3.6"
 google-auth==2.3.3; python_version >= "3.6" and python_full_version < "3.0.0" and platform_python_implementation != "PyPy" or platform_python_implementation != "PyPy" and python_version >= "3.6" and python_full_version >= "3.6.0"
@@ -25,7 +25,7 @@ msgpack==1.0.3; python_version >= "3.6"
 oauthlib==3.1.1; python_version >= "3.6"
 packaging==21.3; platform_python_implementation != "PyPy" and python_version >= "3.6"
 proto-plus==1.19.8; platform_python_implementation != "PyPy" and python_version >= "3.6"
-protobuf==3.19.1; platform_python_implementation != "PyPy" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
+protobuf==3.19.3; platform_python_implementation != "PyPy" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6")
 pyasn1-modules==0.2.8; python_version >= "3.6" and python_full_version < "3.0.0" and platform_python_implementation != "PyPy" or platform_python_implementation != "PyPy" and python_version >= "3.6" and python_full_version >= "3.6.0"
 pyasn1==0.4.8; python_version >= "3.6" and python_full_version < "3.0.0" and platform_python_implementation != "PyPy" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" and platform_python_implementation != "PyPy" or platform_python_implementation != "PyPy" and python_version >= "3.6" and python_full_version >= "3.6.0") or platform_python_implementation != "PyPy" and python_version >= "3.6" and python_full_version >= "3.6.0" and python_version < "4" and (python_version >= "3.6" and python_full_version < "3.0.0" and platform_python_implementation != "PyPy" or platform_python_implementation != "PyPy" and python_version >= "3.6" and python_full_version >= "3.6.0")
 pycparser==2.21; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
