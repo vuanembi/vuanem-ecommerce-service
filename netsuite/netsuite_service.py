@@ -105,6 +105,7 @@ def create_order_service(
     return flow(  # type: ignore
         prepared_id,
         prepare_repo.get_prepared_order,
+        alt(lambda x: (x, "")),  # type: ignore
         bind(_create_order_from_prepared),
         map_(message_service.send_create_order_success(chat_id, message_id)),
         alt(message_service.send_create_order_error(chat_id, message_id)),

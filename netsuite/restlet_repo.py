@@ -11,6 +11,10 @@ from netsuite import restlet
 BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
 
 
+class RestletError(Exception):
+    pass
+
+
 def netsuite_session() -> OAuth1Session:
     return OAuth1Session(
         client_key=os.getenv("CONSUMER_KEY"),
@@ -35,7 +39,14 @@ def request(
         BASE_URL,
         params={**restlet, **params},
         json=body,
-        headers={"Content-type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+        },
     ) as r:
-        r.raise_for_status()
-        return r.json()
+        if r.status_code == 200:
+            return r.json()
+        elif r.status_code == 400:
+            raise RestletError(r.json())
+        else:
+            r.raise_for_status()
+            return {}

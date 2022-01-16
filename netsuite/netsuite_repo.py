@@ -9,6 +9,8 @@ from returns.pointfree import lash, map_
 from netsuite import netsuite, restlet, restlet_repo
 
 
+
+
 def _get_customer(session: OAuth1Session):
     def _get(customer_req: netsuite.CustomerReq) -> ResultE[dict[str, str]]:
         return restlet_repo.request(
@@ -124,7 +126,12 @@ def build_sales_order_from_prepared(session: OAuth1Session):
 
 def create_sales_order(session: OAuth1Session):
     def _create(order: netsuite.Order) -> ResultE[dict]:
-        return restlet_repo.request(session, restlet.SalesOrder, "POST", body={**order})
+        return restlet_repo.request(
+            session,
+            restlet.SalesOrder,
+            "POST",
+            body={**order},
+        )
 
     return _create
 
