@@ -67,12 +67,27 @@ def netsuite_order(prepared_order):
 
 
 @pytest.fixture()
+def prepared_order_id():
+    return "ALdAt0gEtqiJmulmXrnz"
+
+
+@pytest.fixture()
+def message_id():
+    return 643
+
+
+@pytest.fixture()
 def callback_data(prepared_order_id):
     return json.dumps({"t": "O", "a": 1, "v": prepared_order_id})
 
 
 @pytest.fixture()
-def telegram_update(callback_data):
+def chat_id():
+    return -645664226
+
+
+@pytest.fixture()
+def telegram_update(callback_data, chat_id, message_id):
     return {
         "update_id": 724516415,
         "callback_query": {
@@ -85,7 +100,7 @@ def telegram_update(callback_data):
                 "language_code": "en",
             },
             "message": {
-                "message_id": 643,
+                "message_id": message_id,
                 "from": {
                     "id": 5028559722,
                     "is_bot": True,
@@ -93,7 +108,7 @@ def telegram_update(callback_data):
                     "username": "vuanembi_ecommerce_dev_bot",
                 },
                 "chat": {
-                    "id": -645664226,
+                    "id": chat_id,
                     "title": "HM & Bot Bắn Đơn",
                     "type": "group",
                     "all_members_are_administrators": True,
@@ -119,8 +134,3 @@ def telegram_update(callback_data):
             "data": callback_data,
         },
     }
-
-
-@pytest.fixture()
-def prepared_order_id():
-    return "lORmUCkXLZGEnaxxzGGG"

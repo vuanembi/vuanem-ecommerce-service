@@ -1,5 +1,4 @@
 from returns.pipeline import is_successful
-from returns.result import Success
 from netsuite import (
     analytics_service,
     netsuite_service,
@@ -16,8 +15,8 @@ class TestPrepare:
     def test_map_sku_to_item_id(self, netsuite_session):
         res1 = prepare_repo.map_sku_to_item_id(netsuite_session, "1206001016001")
         res2 = prepare_repo.map_sku_to_item_id(netsuite_session, "11111")
-        assert res1 == "283790"
-        assert res2 is None
+        assert res1.unwrap() == "283790"
+        assert res2
 
 
 class TestNetSuite:
@@ -46,8 +45,23 @@ class TestNetSuite:
         assert res_prepared.unwrap() == netsuite_order
         assert res.unwrap() == netsuite_order
 
-    def test_create_order_service(self, prepared_order_id):
-        res = Success(prepared_order_id).bind(netsuite_service.create_order_service)
+    @pytest.mark.parametrize(
+        "prepared_order_id",
+        [
+            "03dbXLxJayed9gbWDvcN",
+            "0CM8MOAl8H6VEINaYuIB",
+        ],
+        ids=[
+            "success",
+            "fail",
+        ],
+    )
+    def test_create_order_service(self, chat_id, message_id, prepared_order_id):
+        res = netsuite_service.create_order_service(
+            chat_id,
+            message_id,
+            prepared_order_id,
+        )
         assert res
 
 

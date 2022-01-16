@@ -20,7 +20,6 @@ def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
             params={"itemid": sku},
         )
         .map(lambda x: x["id"])  # type: ignore
-        .lash(lambda _: Failure(Exception()))
     )
 
 
@@ -92,12 +91,12 @@ def persist_prepared_order(
     return doc_ref
 
 
-def get_prepared_order(id: str) -> Result[firestore.DocumentReference, str]:
+def get_prepared_order(id: str) -> ResultE[firestore.DocumentReference]:
     doc_ref = PREPARED_ORDER.document(id)
     if doc_ref.get().exists:
         return Success(doc_ref)
     else:
-        return Failure("{id} does not exist")
+        return Failure(Exception("{id} does not exist"))
 
 
 def validate_prepared_order(status: str):
