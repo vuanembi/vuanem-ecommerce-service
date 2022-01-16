@@ -46,6 +46,8 @@ def request(
         if r.status_code == 200:
             return r.json()
         elif r.status_code == 400:
+            if "SSS_REQUEST_LIMIT_EXCEEDED" in r.text:
+                return request(session, restlet, method, params, body)  # type: ignore
             raise RestletError(r.json())
         else:
             r.raise_for_status()
