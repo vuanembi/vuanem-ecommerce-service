@@ -5,27 +5,25 @@ from telegram import telegram, telegram_repo, payload_repo
 
 
 def send_new_order(channel: telegram.Channel):
-    def _send(order: dict, id: int) -> tuple[dict, int]:
+    def _send(order: dict, prepared_id: str) -> tuple[dict, str]:
         telegram_repo.send(
             channel,
             compose(
                 telegram_repo.build_send_payload(
-                    payload_repo.add_new_order,
-                    channel.ecom,
-                    order,
+                    payload_repo.add_new_order, channel.ecom, order, prepared_id
                 ),
                 telegram_repo.build_send_payload(
                     payload_repo.add_new_order_callback,
-                    id,
+                    prepared_id,
                 ),
             ),
         )
-        return order, id
+        return order, prepared_id
 
     return _send
 
 
-def send_create_order_success(chat_id: str, message_id: int):
+def send_create_order_success(chat_id: str, message_id: int, prepared_id: str):
     def _send(res: tuple[int, str]) -> tuple[int, str]:
         id, memo = res
         telegram_repo.send(
@@ -38,7 +36,7 @@ def send_create_order_success(chat_id: str, message_id: int):
                 ),
                 telegram_repo.build_send_payload(
                     payload_repo.add_create_order_callback,
-                    id,
+                    prepared_id,
                 ),
                 telegram_repo.build_send_payload(
                     payload_repo.add_message_reply,
@@ -51,7 +49,7 @@ def send_create_order_success(chat_id: str, message_id: int):
     return _send
 
 
-def send_create_order_error(chat_id: str, message_id: int):
+def send_create_order_error(chat_id: str, message_id: int, prepared_id: str):
     def _send(res: tuple[Exception, str]) -> tuple[Exception, str]:
         err, memo = res
         telegram_repo.send(

@@ -12,11 +12,20 @@ from test.conftest import run
 
 
 class TestPrepare:
-    def test_map_sku_to_item_id(self, netsuite_session):
-        res1 = prepare_repo.map_sku_to_item_id(netsuite_session, "1206001016001")
-        res2 = prepare_repo.map_sku_to_item_id(netsuite_session, "11111")
-        assert res1.unwrap() == "283790"
-        assert res2
+    @pytest.mark.parametrize(
+        ("sku", "test_fn"),
+        [
+            ("1206001016001", lambda x: x.unwrap() == "283790"),
+            ("11111", lambda x: x),
+        ],
+        ids=[
+            "success",
+            "fail",
+        ],
+    )
+    def test_map_sku_to_item_id(self, netsuite_session, sku, test_fn):
+        res = prepare_repo.map_sku_to_item_id(netsuite_session, sku)
+        assert test_fn(res)
 
 
 class TestNetSuite:

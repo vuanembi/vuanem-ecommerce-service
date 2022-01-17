@@ -68,7 +68,7 @@ def netsuite_order(prepared_order):
 
 @pytest.fixture()
 def prepared_order_id():
-    return "ALdAt0gEtqiJmulmXrnz"
+    return "KI0mh4zAaCu02w1fniGL"
 
 
 @pytest.fixture()
@@ -78,7 +78,7 @@ def message_id():
 
 @pytest.fixture()
 def callback_data(prepared_order_id):
-    return json.dumps({"t": "O", "a": 1, "v": prepared_order_id})
+    return json.dumps({"t": "O", "a": -1, "v": prepared_order_id})
 
 
 @pytest.fixture()

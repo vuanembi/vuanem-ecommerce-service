@@ -12,6 +12,6 @@ def validation_service(
         update,
         telegram_repo.answer_callback,
         callback_repo.validate_update,
-        bind(callback_repo.validate_callback),
+        # bind(callback_repo.validate_callback),
         bind(callback_repo.validate_data),
     )

@@ -26,7 +26,7 @@ def id():
 
 
 def test_send_new_order(channel, order, id):
-    message_service.send_new_order(channel)(order)(id)
+    message_service.send_new_order(channel)(order, id)
 
 
 def test_send_create_order_success(id):

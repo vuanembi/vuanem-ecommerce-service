@@ -12,15 +12,14 @@ PREPARED_ORDER = DB.document("NetSuite").collection("PreparedOrder")
 
 
 def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
-    return (
-        restlet_repo.request(
-            session,
-            restlet.InventoryItem,
-            "GET",
-            params={"itemid": sku},
-        )
-        .map(lambda x: x["id"])  # type: ignore
-    )
+    return restlet_repo.request(
+        session,
+        restlet.InventoryItem,
+        "GET",
+        params={"itemid": sku},
+    ).map(
+        lambda x: x["id"]
+    )  # type: ignore
 
 
 def build_item(
