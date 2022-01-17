@@ -40,11 +40,13 @@ def add_ack_callback() -> telegram.Payload:
     }
 
 
-def add_new_order(ecom: str, order: dict) -> telegram.Payload:
+def add_new_order(ecom: str, order: dict, prepared_id: str) -> telegram.Payload:
     return {
         "text": "\n".join(
             [
                 f"Đơn hàng *{ecom}* mới",
+                DIVIDER,
+                f"`{prepared_id}`",
                 DIVIDER,
                 "```",
                 yaml.dump(order, allow_unicode=True),
@@ -54,14 +56,14 @@ def add_new_order(ecom: str, order: dict) -> telegram.Payload:
     }
 
 
-def add_new_order_callback(id: str) -> telegram.Payload:
+def add_new_order_callback(prepared_id: str) -> telegram.Payload:
     return {
         "reply_markup": {
             "inline_keyboard": [
                 [
                     {
                         "text": "Tạo đơn",
-                        "callback_data": build_callback_data("O", 1, id),
+                        "callback_data": build_callback_data("O", 1, prepared_id),
                     },
                 ]
             ],
@@ -95,14 +97,14 @@ def add_create_order_error(error: Exception, memo: str) -> telegram.Payload:
     }
 
 
-def add_create_order_callback(id: str) -> telegram.Payload:
+def add_create_order_callback(prepared_id: str) -> telegram.Payload:
     return {
         "reply_markup": {
             "inline_keyboard": [
                 [
                     {
                         "text": "Đóng đơn",
-                        "callback_data": build_callback_data("O", -1, id),
+                        "callback_data": build_callback_data("O", -1, prepared_id),
                     },
                 ]
             ]
@@ -121,6 +123,7 @@ def add_close_order_success(id: str, memo: str) -> telegram.Payload:
         )
     }
 
+
 def add_close_order_error(error: Exception, memo: str, id: str) -> telegram.Payload:
     return {
         "text": "\n".join(
@@ -130,7 +133,7 @@ def add_close_order_error(error: Exception, memo: str, id: str) -> telegram.Payl
                 f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
                 "```",
                 repr(error),
-                "```"
+                "```",
             ]
         )
     }

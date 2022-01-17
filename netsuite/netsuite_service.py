@@ -107,8 +107,20 @@ def create_order_service(
         prepare_repo.get_prepared_order,
         alt(lambda x: (x, "")),  # type: ignore
         bind(_create_order_from_prepared),
-        map_(message_service.send_create_order_success(chat_id, message_id)),
-        alt(message_service.send_create_order_error(chat_id, message_id)),
+        map_(
+            message_service.send_create_order_success(
+                chat_id,
+                message_id,
+                prepared_id,
+            )
+        ),
+        alt(
+            message_service.send_create_order_error(
+                chat_id,
+                message_id,
+                prepared_id,
+            )
+        ),
     )
 
 
