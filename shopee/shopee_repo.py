@@ -8,15 +8,38 @@ from datetime import datetime
 import requests
 import pytz
 
-from models.ecommerce import shopee
+from shopee import shopee
 
-BASE_URL = (
-    "https://partner.shopeemobile.com/api/v1"
-    if os.getenv("PYTHON_ENV") == "prod"
-    else "https://partner.test-stable.shopeemobile.com/api/v1"
-)
-PARTNER_ID = 1004299 if os.getenv("PYTHON_ENV") == "prod" else 1004299
-SHOP_ID = 29042 if os.getenv("PYTHON_ENV") == "prod" else 29042
+BASE_URL = "https://partner.shopeemobile.com"
+API_PATH = "api/v2"
+PARTNER_ID = 2002943
+SHOP_ID = 179124960
+
+
+def get_auth_builder(access_token: str = ""):
+    def build(path: str):
+        ts = str(int(datetime.now(pytz.timezone("Asia/Saigon")).timestamp()))
+        sign = hmac.new(  # type: ignore
+            os.getenv("SHOPEE_API_KEY", "").encode(),
+            f"{PARTNER_ID}{path}{ts}{access_token}{SHOP_ID}",
+            hashlib.sha256,
+        ).hexdigest()
+        return ts, access_token, sign
+    return build
+
+def shopee_request(session, auth_builder, path, body):
+    ts, access_token, sign = auth_builder(f"/{API_PATH}/{path}")
+    with session.post(
+        f"{BASE_URL}/{API_PATH}/{path}",
+        params={
+            "partner_id": PARTNER_ID,
+            "timestamp": ts,
+            "access_token": access_token,
+            "shop_id": SHOP_ID,
+            "sign": sign
+        }
+    ) as r:
+        res = r.json()
 
 
 def sign(url: str, body: dict) -> str:
@@ -32,7 +55,7 @@ def build_body(body: dict = {}) -> dict[str, Any]:
         **body,
         "partner_id": PARTNER_ID,
         "shopid": SHOP_ID,
-        "timestamp": int(datetime.now(pytz.timezone("Asia/Saigon")).timestamp()),
+        "timestamp": str(int(datetime.now(pytz.timezone("Asia/Saigon")).timestamp())),
     }
 
 
