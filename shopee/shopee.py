@@ -1,4 +1,17 @@
-from typing import TypedDict
+from typing import Any, Callable, TypedDict
+
+import requests
+
+AuthBuilder = Callable[[str, dict[str, Any]], requests.PreparedRequest]
+
+
+class AccessToken(TypedDict):
+    access_token: str
+    refresh_token: str
+
+class AuthParams(TypedDict):
+    shop_id: int
+    access_token: str
 
 
 class OrderStatusPushData(TypedDict):
