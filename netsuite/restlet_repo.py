@@ -27,28 +27,30 @@ def netsuite_session() -> OAuth1Session:
 
 
 @safe
-def request(
+def request(  # type: ignore
     session: OAuth1Session,
     restlet: restlet.Restlet,
     method: str,
     params: dict = {},
     body: Optional[dict] = None,
 ) -> dict[str, str]:
-    with session.request(
-        method,
-        BASE_URL,
-        params={**restlet, **params},
-        json=body,
-        headers={
-            "Content-Type": "application/json",
-        },
-    ) as r:
-        if r.status_code == 200:
-            return r.json()
-        elif r.status_code == 400:
-            if "SSS_REQUEST_LIMIT_EXCEEDED" in r.text:
-                return request(session, restlet, method, params, body)  # type: ignore
-            raise RestletError(r.json())
-        else:
-            r.raise_for_status()
-            return {}
+    def _request():
+        with session.request(
+            method,
+            BASE_URL,
+            params={**restlet, **params},
+            json=body,
+            headers={
+                "Content-Type": "application/json",
+            },
+        ) as r:
+            if r.status_code == 200:
+                return r.json()
+            elif r.status_code == 400:
+                if "SSS_REQUEST_LIMIT_EXCEEDED" in r.text:
+                    return _request()  # type: ignore
+                raise RestletError(r.json())
+            else:
+                r.raise_for_status()
+
+    return _request()
