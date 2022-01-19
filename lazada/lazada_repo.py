@@ -9,6 +9,7 @@ import requests
 from db.firestore import DB
 from lazada import lazada
 
+LAZ_APP_KEY = "104842"
 
 LAZADA = DB.document("Lazada")
 
@@ -40,7 +41,7 @@ def sign_params(uri: str, params: dict[str, Any]) -> dict[str, Any]:
         sorted(
             {
                 **params,
-                "app_key": os.getenv("LAZ_APP_KEY", ""),
+                "app_key": LAZ_APP_KEY,
                 "timestamp": int(round(time.time())) * 1000,
                 "sign_method": "sha256",
             }.items()
