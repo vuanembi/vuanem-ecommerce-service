@@ -20,6 +20,11 @@
       - [Thông báo đơn hàng mới](#thông-báo-đơn-hàng-mới-1)
       - [Thông báo đơn hàng đã tạo trên NetSuite](#thông-báo-đơn-hàng-đã-tạo-trên-netsuite-1)
     - [KH mặc định](#kh-mặc-định-1)
+  - [Shopee](#shopee)
+    - [Tạo đơn](#tạo-đơn-2)
+      - [Thông báo đơn hàng mới](#thông-báo-đơn-hàng-mới-2)
+      - [Thông báo đơn hàng đã tạo trên NetSuite](#thông-báo-đơn-hàng-đã-tạo-trên-netsuite-2)
+    - [KH mặc định](#kh-mặc-định-2)
 
 ## Logic
 
@@ -139,6 +144,42 @@ LAZADA_CUSTOMER: Customer = {
     "custbody_recipient": "TEMP Lazada",
     "shippingaddress": {
         "addressee": "TEMP Lazada",
+    },
+}
+```
+
+## Shopee
+
+App sẽ check đơn hàng của Shopee **15p/lần**. Hệ thống của Shopee **ko trả đủ thông tin cụ thể** cho từng đơn hàng [Thiếu thông tin giá của từng sản phẩm]. Khuyến cáo **ko tạo đơn** từ Shopee.
+
+### Tạo đơn
+
+#### Thông báo đơn hàng mới
+
+- Mã đơn
+- Sản phẩm:
+  - Tên
+  - Số lượng
+  - SKU
+  - Giá
+
+#### Thông báo đơn hàng đã tạo trên NetSuite
+
+- Cần thêm thông tin về **Sản phẩm**
+- Cần thêm thông tin về **Khách hàng**
+- Cần thêm thông tin về **Giao hàng**
+- Đường link mở đơn hàng để check
+
+### KH mặc định
+
+```python
+SHOPEE_CUSTOMER: Customer = {
+    "entity": 966287,
+    "custbody_customer_phone": "1998103101",
+    "custbody_recipient_phone": "1998103101",
+    "custbody_recipient": "TEMP Shopee",
+    "shippingaddress": {
+        "addressee": "TEMP Shopee",
     },
 }
 ```
