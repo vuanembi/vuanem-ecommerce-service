@@ -1,4 +1,4 @@
-from typing import Any, Callable, Union, Protocol
+from typing import Any, Union
 import os
 import time
 import hashlib
@@ -74,23 +74,3 @@ def build_shopee_request(
         ).prepare()
 
     return _build
-
-
-# get_order_details: Callable[[str], shopee.Order] = request_shopee(
-#     "orders/detail",
-#     lambda order_id: {
-#         "ordersn_list": [order_id],
-#     },
-#     lambda res: {
-#         "ordersn": res["orders"][0]["ordersn"],
-#         "items": [
-#             {
-#                 "variation_sku": item["variation_sku"],
-#                 "variation_quantity_purchased": item["variation_quantity_purchased"],
-#                 "variation_original_price": item["variation_original_price"],
-#                 "variation_discounted_price": item["variation_discounted_price"],
-#             }
-#             for item in res["orders"][0]["items"]
-#         ],
-#     },
-# )
