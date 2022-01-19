@@ -7,6 +7,8 @@ from returns.functions import raise_exception
 
 from tiki.tiki_repo import TIKI
 
+TIKI_CLIENT_ID = "9636507817321643"
+
 USER_AGENT = {
     "User-Agent": "PostmanRuntime/7.28.4",
 }
@@ -23,7 +25,7 @@ def update_access_token(token: dict) -> None:
 
 def get_auth_session(token: Optional[dict]) -> OAuth2Session:
     session = OAuth2Session(
-        os.getenv("TIKI_CLIENT_ID"),
+        TIKI_CLIENT_ID,
         os.getenv("TIKI_CLIENT_SECRET"),
         token=token,
         token_endpoint_auth_method="client_secret_basic",
