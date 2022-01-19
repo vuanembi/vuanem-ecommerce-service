@@ -3,7 +3,7 @@ import requests
 
 from shopee import shopee, shopee_repo
 
-auth_request = shopee_repo.build_shopee_request()
+auth_request = shopee_repo.build_shopee_request(shop_id_position="body")
 
 
 @safe
@@ -11,7 +11,8 @@ def get_token(session: requests.Session, code: str):
     with session.send(
         auth_request(
             "auth/token/get",
-            {
+            method="POST",
+            body={
                 "code": code,
             },
         )
@@ -29,7 +30,8 @@ def refresh_token(session: requests.Session, access_token: shopee.AccessToken):
     with session.send(
         auth_request(
             "auth/access_token/get",
-            {
+            method="POST",
+            body={
                 "refresh_token": access_token["refresh_token"],
             },
         )
