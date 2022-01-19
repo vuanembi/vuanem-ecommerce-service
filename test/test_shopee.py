@@ -55,4 +55,3 @@ class TestIntegration:
     def test_controller(self):
         res = run("/shopee")
         res
-
