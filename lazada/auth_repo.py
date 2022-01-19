@@ -3,22 +3,19 @@ import time
 import requests
 from returns.result import safe
 
-from db.firestore import DB
 from lazada import lazada, lazada_repo
-
-LAZADA = DB.document("Lazada")
 
 auth_request = lazada_repo.build_lazada_request("https://api.lazada.com/rest")
 
 
 @safe
 def get_access_token() -> lazada.AccessToken:
-    return LAZADA.get(["state.access_token"]).get("state.access_token")
+    return lazada_repo.LAZADA.get(["state.access_token"]).get("state.access_token")
 
 
 @safe
 def update_access_token(token: lazada.AccessToken) -> lazada.AccessToken:
-    LAZADA.set({"state": {"access_token": token}}, merge=True)
+    lazada_repo.LAZADA.set({"state": {"access_token": token}}, merge=True)
     return token
 
 

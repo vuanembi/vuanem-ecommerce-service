@@ -7,12 +7,9 @@ import requests
 from returns.result import safe
 from google.cloud import firestore
 
-from db.firestore import DB
 from lazada import lazada, lazada_repo
 
-LAZADA = DB.document("Lazada")
-
-ORDER = LAZADA.collection("Order")
+ORDER = lazada_repo.LAZADA.collection("Order")
 PAGE_LIMIT = 100
 
 
@@ -90,7 +87,7 @@ def persist_order(order):
 @safe
 def get_max_created_at() -> datetime:
     return (
-        LAZADA.get(["state.max_created_at"])
+        lazada_repo.LAZADA.get(["state.max_created_at"])
         .get("state.max_created_at")
         .replace(tzinfo=None)
     )
@@ -99,7 +96,7 @@ def get_max_created_at() -> datetime:
 @safe
 def persist_max_created_at(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
     if orders:
-        LAZADA.set(
+        lazada_repo.LAZADA.set(
             {
                 "state": {
                     "max_created_at": max([order["created_at"] for order in orders]),

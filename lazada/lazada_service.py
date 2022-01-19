@@ -32,18 +32,6 @@ def auth_service() -> ResultE[lazada.AuthBuilder]:
     )
 
 
-prepared_order_builder = netsuite_service.build_prepared_order_service(
-    items_fn=lambda x: x["items"],
-    item_sku_fn=lambda x: x["sku"],
-    item_qty_fn=lambda _: 1,
-    item_amt_fn=lambda x: x["paid_price"] + x["voucher_platform"],
-    item_location=netsuite.LAZADA_ECOMMERCE["location"],
-    ecom=netsuite.LAZADA_ECOMMERCE,
-    memo_builder=lambda x: f"{x['order_id']} - lazada",
-    customer_builder=lambda _: prepare_repo.build_customer(netsuite.LAZADA_CUSTOMER),
-)
-
-
 def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
     def _get(orders: list[lazada.Order]) -> ResultE[lazada.OrderItems]:
         return Fold.collect_all(
@@ -87,3 +75,15 @@ def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
             data_repo.get_max_created_at().apply,
         )
     )
+
+
+prepared_order_builder = netsuite_service.build_prepared_order_service(
+    items_fn=lambda x: x["items"],
+    item_sku_fn=lambda x: x["sku"],
+    item_qty_fn=lambda _: 1,
+    item_amt_fn=lambda x: x["paid_price"] + x["voucher_platform"],
+    item_location=netsuite.LAZADA_ECOMMERCE["location"],
+    ecom=netsuite.LAZADA_ECOMMERCE,
+    memo_builder=lambda x: f"{x['order_id']} - lazada",
+    customer_builder=lambda _: prepare_repo.build_customer(netsuite.LAZADA_CUSTOMER),
+)

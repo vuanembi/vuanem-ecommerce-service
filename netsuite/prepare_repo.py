@@ -17,9 +17,7 @@ def map_sku_to_item_id(session: OAuth1Session, sku: str) -> ResultE[str]:
         restlet.InventoryItem,
         "GET",
         params={"itemid": sku},
-    ).map(
-        lambda x: x["id"]
-    )  # type: ignore
+    ).map(lambda x: x["id"])
 
 
 def build_item(
