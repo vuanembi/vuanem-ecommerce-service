@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from returns.result import Failure
 from returns.pipeline import is_successful
 
 import pytest
@@ -53,4 +52,7 @@ class TestData:
 
 
 class TestIntegration:
-    pass
+    def test_controller(self):
+        res = run("/shopee")
+        res
+

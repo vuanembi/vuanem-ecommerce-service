@@ -98,7 +98,7 @@ LAZADA_ECOMMERCE: Ecommerce = {
     "custbody_onl_rep": 722312,
 }
 
-SHOPEE_COMMERCE: Ecommerce = {
+SHOPEE_ECOMMERCE: Ecommerce = {
     "subsidiary": 1,
     "department": 1041,
     "location": 787,
