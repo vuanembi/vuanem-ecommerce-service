@@ -38,6 +38,6 @@ def netsuite_controller(request: Request) -> dict[str, Any]:
             else:
                 return abort(400)
         else:
-            return abort(400)
+            return abort(404)
     else:
         return abort(400)

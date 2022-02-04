@@ -1,3 +1,7 @@
+from typing import Any
+
+from flask import Request, abort
+
 from tiki.tiki_controller import tiki_controller
 from lazada.lazada_controller import lazada_controller
 from shopee.shopee_controller import shopee_controller
@@ -5,7 +9,7 @@ from telegram.callback_controller import callback_controller
 from netsuite.netsuite_controller import netsuite_controller
 
 
-def main(request) -> dict:
+def main(request: Request) -> dict[str, Any]:
     request_path: str = request.path
 
     print(request_path, request.get_json())
@@ -26,9 +30,7 @@ def main(request) -> dict:
         response = netsuite_controller(request)
 
     else:
-        response = {
-            "status": 200,
-        }
+        response = abort(404)
 
     print(response)
     return response

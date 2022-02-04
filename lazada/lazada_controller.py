@@ -1,9 +1,13 @@
+from typing import Any
+
+from flask import Request
+
 from lazada import lazada_service, data_repo
 from netsuite import netsuite_service
 from telegram import telegram
 
 
-def lazada_controller(request) -> dict:
+def lazada_controller(request: Request) -> dict[str, Any]:
     return (
         lazada_service.get_orders_service()
         .bind(

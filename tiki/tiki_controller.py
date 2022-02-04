@@ -1,3 +1,6 @@
+from typing import Any
+
+from flask import Request
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE
 
@@ -24,7 +27,7 @@ def service_factory(session: OAuth2Session):
     return _svc
 
 
-def tiki_controller(request) -> dict:
+def tiki_controller(request: Request) -> dict[str, Any]:
     with tiki_service.auth_service() as session:
         return (
             tiki_service.pull_service(session)

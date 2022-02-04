@@ -1,5 +1,7 @@
+from typing import Any
 import json
 
+from flask import Request
 from returns.result import Result, Success, Failure
 
 from telegram import telegram, callback_service, message_service
@@ -42,9 +44,9 @@ def service_factory(
     return Failure(f"Operation not supported {json.dumps(data)}")
 
 
-def callback_controller(request) -> dict:
+def callback_controller(request: Request) -> dict[str, Any]:
     return (
-        callback_service.validation_service(request.get_json())
+        callback_service.validation_service(request.get_json()) # type: ignore
         .bind(service_factory)
         .lash(lambda x: Success(x))
         .map(
