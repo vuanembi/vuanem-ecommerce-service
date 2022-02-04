@@ -1,4 +1,5 @@
 from typing import Callable, Union, Any
+
 from returns.pipeline import flow
 from returns.result import Result, ResultE, Success, Failure
 from returns.iterables import Fold
@@ -98,8 +99,6 @@ def _create_order_from_prepared(
 
 
 def create_order_service(
-    chat_id: str,
-    message_id: int,
     prepared_id: str,
 ) -> Result[tuple[int, str], tuple[Exception, str]]:
     return flow(  # type: ignore
@@ -107,26 +106,12 @@ def create_order_service(
         prepare_repo.get_prepared_order,
         alt(lambda x: (x, "")),  # type: ignore
         bind(_create_order_from_prepared),
-        map_(
-            message_service.send_create_order_success(
-                chat_id,
-                message_id,
-                prepared_id,
-            )
-        ),
-        alt(
-            message_service.send_create_order_error(
-                chat_id,
-                message_id,
-                prepared_id,
-            )
-        ),
     )
 
 
 def _close_order_from_prepared(
     prepared_order_doc_ref: firestore.DocumentReference,
-) -> Result[tuple[int, str], tuple[Exception, str]]:
+) -> Result[tuple[int, str], tuple[Exception, str, int]]:
     with restlet_repo.netsuite_session() as session:
         prepared_order = prepared_order_doc_ref.get().to_dict()
         return flow(
@@ -154,14 +139,10 @@ def _close_order_from_prepared(
 
 
 def close_order_service(
-    chat_id: str,
-    message_id: int,
     prepared_id: str,
 ) -> Result[tuple[int, str], tuple[Exception, str, int]]:
     return flow(  # type: ignore
         prepared_id,
         prepare_repo.get_prepared_order,
         bind(_close_order_from_prepared),
-        map_(message_service.send_close_order_success(chat_id, message_id)),
-        alt(message_service.send_close_order_error(chat_id, message_id)),
     )
