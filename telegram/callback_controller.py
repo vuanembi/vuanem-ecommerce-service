@@ -2,7 +2,7 @@ import json
 
 from returns.result import Result, Success, Failure
 
-from telegram import telegram, callback_service
+from telegram import telegram, callback_service, message_service
 from netsuite import netsuite_service
 
 
@@ -13,21 +13,29 @@ def service_factory(
     if data["t"] == "O":
         if data["a"] == 1:
             return (
-                netsuite_service.create_order_service(
-                    chat_id,
-                    message_id,
-                    data["v"],
+                netsuite_service.create_order_service(data["v"])
+                .map(
+                    message_service.send_create_order_success(
+                        chat_id,
+                        message_id,
+                        data["v"],
+                    )
+                )
+                .alt(
+                    message_service.send_create_order_error(
+                        chat_id,
+                        message_id,
+                        data["v"],
+                    )
                 )
                 .map(lambda x: str(x[0]))
                 .lash(lambda x: Success(repr(x[0])))
             )
         elif data["a"] == -1:
             return (
-                netsuite_service.close_order_service(
-                    chat_id,
-                    message_id,
-                    data["v"],
-                )
+                netsuite_service.close_order_service(data["v"])
+                .map(message_service.send_close_order_success(chat_id, message_id))
+                .alt(message_service.send_close_order_error(chat_id, message_id))
                 .map(lambda x: str(x[0]))
                 .lash(lambda x: Success(repr(x[0])))
             )
