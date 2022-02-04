@@ -1,9 +1,13 @@
+from typing import Any
+
+from flask import Request
+
 from shopee import shopee_service, data_repo
 from netsuite import netsuite_service
 from telegram import telegram
 
 
-def shopee_controller(request) -> dict:
+def shopee_controller(request: Request) -> dict[str, Any]:
     return (
         shopee_service.get_orders_service()
         .bind(

@@ -72,7 +72,7 @@ def send_create_order_error(chat_id: str, message_id: int, prepared_id: str):
 
 
 def send_close_order_success(chat_id: str, message_id: int):
-    def _send(res: tuple[Exception, str]) -> tuple[Exception, str]:
+    def _send(res: tuple[int, str]) -> tuple[int, str]:
         id, memo = res
         telegram_repo.send(
             telegram.Channel("", chat_id),
