@@ -10,7 +10,7 @@ from netsuite.netsuite_controller import netsuite_controller
 
 
 def main(request: Request) -> dict[str, Any]:
-    request_path: str = request.path
+    request_path = request.path
 
     print(request_path, request.get_json())
 
