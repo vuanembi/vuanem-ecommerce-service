@@ -46,7 +46,7 @@ def service_factory(
 
 def callback_controller(request: Request) -> dict[str, Any]:
     return (
-        callback_service.validation_service(request.get_json()) # type: ignore
+        callback_service.validation_service(request.get_json())  # type: ignore
         .bind(service_factory)
         .lash(lambda x: Success(x))
         .map(
