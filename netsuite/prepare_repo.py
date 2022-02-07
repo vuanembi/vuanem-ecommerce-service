@@ -32,7 +32,7 @@ def build_item(
             "item": int(x),
             "quantity": qty,
             "price": -1,
-            "amount": int(amt / 1.1),
+            "amount": int(amt / 1.08),
             "commitinventory": netsuite.COMMIT_INVENTORY,
             "location": location,
             # ! hardcoded
