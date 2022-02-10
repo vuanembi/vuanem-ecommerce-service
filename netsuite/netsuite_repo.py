@@ -114,8 +114,8 @@ def build_sales_order_from_prepared(session: OAuth1Session):
     ) -> ResultE[netsuite.Order]:
         return flow(
             order,
-            lambda x: Success(x["entity"]) if "entity" in x else Failure(order),
-            lash(_get_or_create_customer(session)),
+            # lambda x: Success(x["entity"]) if "entity" in x else Failure(order),
+            _get_or_create_customer(session),
             map_(_add_order_meta(order)),
         )
 

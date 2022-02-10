@@ -34,8 +34,8 @@ class CustomerReq(TypedDict):
     lastname: str
 
 
-TIKI_CUSTOMER: Customer = {
-    "entity": 979199,
+TIKI_CUSTOMER: PreparedCustomer = {
+    # "entity": 979199,
     "custbody_customer_phone": "1998103102",
     "custbody_recipient_phone": "1998103102",
     "custbody_recipient": "TEMP Tiki",
@@ -44,8 +44,8 @@ TIKI_CUSTOMER: Customer = {
     },
 }
 
-LAZADA_CUSTOMER: Customer = {
-    "entity": 987331,
+LAZADA_CUSTOMER: PreparedCustomer = {
+    # "entity": 987331,
     "custbody_customer_phone": "1998103103",
     "custbody_recipient_phone": "1998103103",
     "custbody_recipient": "TEMP Lazada",
@@ -54,8 +54,8 @@ LAZADA_CUSTOMER: Customer = {
     },
 }
 
-SHOPEE_CUSTOMER: Customer = {
-    "entity": 966287,
+SHOPEE_CUSTOMER: PreparedCustomer = {
+    # "entity": 966287,
     "custbody_customer_phone": "1998103101",
     "custbody_recipient_phone": "1998103101",
     "custbody_recipient": "TEMP Shopee",
