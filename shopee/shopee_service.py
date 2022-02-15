@@ -5,9 +5,10 @@ from returns.pipeline import flow
 from returns.pointfree import bind, map_
 from returns.curry import curry
 from returns.converters import flatten
+from netsuite.sales_order import sales_order, sales_order_service
 
 from shopee import shopee, shopee_repo, auth_repo, data_repo
-from netsuite import netsuite, netsuite_service, prepare_repo
+from netsuite.sales_order.sales_order import prepare_repo
 
 
 def _token_refresh_service(token: shopee.AccessToken) -> ResultE[shopee.AccessToken]:
@@ -53,13 +54,13 @@ def get_orders_service() -> ResultE[list[shopee.Order]]:
     )
 
 
-prepared_order_builder = netsuite_service.build_prepared_order_service(
+prepared_order_builder = sales_order_service.build_prepared_order_service(
     items_fn=lambda x: x["item_list"],
     item_sku_fn=lambda x: x["item_sku"],
     item_qty_fn=lambda x: x["model_quantity_purchased"],
     item_amt_fn=lambda x: x["model_discounted_price"],
-    item_location=netsuite.SHOPEE_ECOMMERCE["location"],
-    ecom=netsuite.SHOPEE_ECOMMERCE,
+    item_location=sales_order.SHOPEE_ECOMMERCE["location"],
+    ecom=sales_order.SHOPEE_ECOMMERCE,
     memo_builder=lambda x: f"{x['order_sn']} - shopee",
-    customer_builder=lambda _: prepare_repo.build_customer(netsuite.SHOPEE_CUSTOMER),
+    customer_builder=lambda _: prepare_repo.build_customer(sales_order.SHOPEE_CUSTOMER),
 )

@@ -1,12 +1,12 @@
 from returns.pipeline import is_successful
 from netsuite import (
     analytics_service,
-    netsuite_service,
     netsuite_repo,
     prepare_repo,
 )
 
 import pytest
+from netsuite.sales_order import sales_order_service
 
 from test.conftest import run
 
@@ -66,7 +66,7 @@ class TestNetSuite:
         ],
     )
     def test_create_order_service(self, chat_id, message_id, prepared_order_id):
-        res = netsuite_service.create_order_service(
+        res = sales_order_service.create_order_service(
             chat_id,
             message_id,
             prepared_order_id,

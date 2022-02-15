@@ -4,7 +4,8 @@ from datetime import date
 from returns.result import Result, ResultE, Success
 from returns.methods import cond
 
-from netsuite import analytics_repo, restlet, restlet_repo
+from netsuite import analytics_repo
+from netsuite.restlet import restlet, restlet_repo
 
 
 def validation_service(

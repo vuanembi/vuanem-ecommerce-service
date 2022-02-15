@@ -6,28 +6,28 @@ from returns.iterables import Fold
 from returns.pointfree import bind, lash, map_, alt
 from google.cloud import firestore
 
-from netsuite import netsuite, netsuite_repo, prepare_repo, restlet_repo
+from netsuite.restlet import restlet_repo
+from netsuite.sales_order import sales_order, sales_order_repo
+from netsuite.customer import customer, customer_repo
+from netsuite.item import item_repo
 from telegram import telegram, message_service
 
 
-def build_prepared_order_service(
+def build(
     items_fn: Callable[[dict], list[dict]],
     item_sku_fn: Callable[[dict], str],
     item_qty_fn: Callable[[dict], int],
     item_amt_fn: Callable[[dict], int],
     item_location: int,
     memo_builder: Callable[[dict], str],
-    ecom: netsuite.Ecommerce,
-    customer_builder: Callable[
-        [dict],
-        Union[netsuite.PreparedCustomer, netsuite.Customer],
-    ],
+    ecom: sales_order.Ecommerce,
+    customer_builder: Callable[[dict], customer.Customer],
 ):
-    def _build(order: dict) -> ResultE[Union[netsuite.PreparedOrder, netsuite.Order]]:
+    def _build(order: dict) -> ResultE[sales_order.Order]:
         with restlet_repo.netsuite_session() as session:
             return Fold.collect_all(
                 [
-                    prepare_repo.build_item(
+                    item_repo.build(
                         session,
                         item_sku_fn(item),
                         item_qty_fn(item),
@@ -41,20 +41,17 @@ def build_prepared_order_service(
                 lambda x: {
                     "item": list(x),
                     **customer_builder(order),  # type: ignore
-                    **ecom,
-                    **prepare_repo.build_prepared_order_meta(memo_builder(order)),
+                    **ecom,  # type: ignore
+                    **sales_order_repo.build_detail(memo_builder(order)),
                 }
             )
 
     return _build
 
 
-def prepare_orders_service(
+def ingest_orders(
     order_persister: Callable[[dict], ResultE[dict]],
-    prepared_order_builder: Callable[
-        [dict],
-        ResultE[Union[netsuite.PreparedOrder, netsuite.Order]],
-    ],
+    prepared_order_builder: Callable[[dict], ResultE[sales_order.Order]],
     channel: telegram.Channel,
 ):
     def _svc(orders: list[dict]) -> ResultE[dict[str, Any]]:

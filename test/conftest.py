@@ -5,8 +5,9 @@ import json
 import requests
 import pytest
 
-from netsuite import netsuite, restlet_repo
+from netsuite.sales_order import sales_order
 from main import main
+from netsuite.restlet import restlet_repo
 
 
 @pytest.fixture()
@@ -24,7 +25,7 @@ def run(path: str, data: Optional[dict] = None) -> dict:
 
 
 @pytest.fixture()
-def prepared_order() -> netsuite.PreparedOrder:
+def prepared_order() -> sales_order.PreparedOrder:
     return {
         "trandate": "2021-10-26",
         "shipdate": "2021-10-29",

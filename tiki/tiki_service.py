@@ -6,25 +6,26 @@ from returns.pointfree import map_
 from returns.pipeline import flow
 from returns.iterables import Fold
 from returns.functions import raise_exception
+from netsuite.sales_order import sales_order, sales_order_service
 
 from tiki import tiki, auth_repo, data_repo
-from netsuite import netsuite, netsuite_service, prepare_repo
+from netsuite.sales_order.sales_order import prepare_repo
 
 
 def auth_service() -> OAuth2Session:
     return auth_repo.get_access_token().map(auth_repo.get_auth_session).unwrap()
 
 
-prepared_order_builder = netsuite_service.build_prepared_order_service(
+prepared_order_builder = sales_order_service.build_prepared_order_service(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
     item_amt_fn=lambda x: x["seller_income_detail"]["sub_total"],
-    item_location=netsuite.TIKI_ECOMMERCE["location"],
-    ecom=netsuite.TIKI_ECOMMERCE,
+    item_location=sales_order.TIKI_ECOMMERCE["location"],
+    ecom=sales_order.TIKI_ECOMMERCE,
     memo_builder=lambda x: f"{x['code']} - tiki",
     customer_builder=lambda x: prepare_repo.build_customer(
-        netsuite.TIKI_CUSTOMER,
+        sales_order.TIKI_CUSTOMER,
         x["shipping"]["address"]["phone"],
         x["shipping"]["address"]["full_name"],
     ),

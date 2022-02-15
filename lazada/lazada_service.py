@@ -11,7 +11,8 @@ from returns.converters import flatten
 
 from common import utils
 from lazada import lazada, auth_repo, data_repo
-from netsuite import netsuite, netsuite_service, prepare_repo
+from netsuite.sales_order.sales_order import prepare_repo
+from netsuite.sales_order import sales_order, sales_order_service
 
 
 def token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
@@ -77,13 +78,13 @@ def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
     )
 
 
-prepared_order_builder = netsuite_service.build_prepared_order_service(
+prepared_order_builder = sales_order_service.build_prepared_order_service(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["sku"],
     item_qty_fn=lambda _: 1,
     item_amt_fn=lambda x: x["paid_price"] + x["voucher_platform"],
-    item_location=netsuite.LAZADA_ECOMMERCE["location"],
-    ecom=netsuite.LAZADA_ECOMMERCE,
+    item_location=sales_order.LAZADA_ECOMMERCE["location"],
+    ecom=sales_order.LAZADA_ECOMMERCE,
     memo_builder=lambda x: f"{x['order_id']} - lazada",
-    customer_builder=lambda _: prepare_repo.build_customer(netsuite.LAZADA_CUSTOMER),
+    customer_builder=lambda _: prepare_repo.build_customer(sales_order.LAZADA_CUSTOMER),
 )
