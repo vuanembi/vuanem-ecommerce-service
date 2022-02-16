@@ -53,14 +53,15 @@ def create(order: sales_order.Order) -> ResultE[int]:
             order,
             bind(sales_order_repo.build(session)),
             bind(sales_order_repo.create(session)),
-            map_(lambda x: int(x["id"])),  # type: ignore
+            map_(lambda x: x["id"]),  # type: ignore
         )
 
 
-def close(id: int) -> ResultE[int]:
+def close(order: sales_order.Order) -> ResultE[int]:
     with restlet_repo.netsuite_session() as session:
         return flow(  # type: ignore
-            id,
+            order,
+            lambda x: x["order"]["id"],
             bind(sales_order_repo.close(session)),
             map_(lambda x: int(x["id"])),  # type: ignore
         )

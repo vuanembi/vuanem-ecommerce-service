@@ -43,15 +43,16 @@ def validate(status: str):
     return _validate
 
 
-def update_status(doc_ref: DocumentReference, status: str):
+def update(order_doc_ref: DocumentReference, status: str):
+    @safe
     def _update(id: int) -> tuple[int, str]:
-        doc_ref.set(
+        order_doc_ref.set(
             {
                 "status": status,
-                "transactionId": id,
+                "order.id": id,
             },
             merge=True,
         )
-        return id, doc_ref.get(["order.memo"]).get("order.memo")
+        return id, order_doc_ref.get(["order.memo"]).get("order.memo")
 
     return _update
