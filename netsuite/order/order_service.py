@@ -11,7 +11,7 @@ from netsuite.order import order_repo
 from telegram import telegram, message_service
 
 
-def ingest_orders(
+def ingest(
     creator: Callable[[dict], ResultE[dict]],
     builder: Callable[[dict], ResultE[sales_order.Order]],
     channel: telegram.Channel,

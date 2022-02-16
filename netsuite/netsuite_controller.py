@@ -3,8 +3,8 @@ from typing import Any, Optional
 from flask import Request, abort
 from returns.result import Success
 
-from netsuite import analytics_service
-from netsuite.sales_order import sales_order_service
+from netsuite.analytics import analytics_service
+from netsuite.order import order_service
 
 
 analytics_services = {
@@ -21,9 +21,9 @@ def netsuite_controller(request: Request) -> dict[str, Any]:
         elif request.path == "/netsuite/restlet/sales_order":
             if request.method in ["POST", "PUT"] and "prepared_id" in body:
                 svc = (
-                    sales_order_service.close_order_service
+                    order_service.close
                     if request.method == "PUT"
-                    else sales_order_service.create_order_service
+                    else order_service.create
                 )
                 return (
                     svc(body["prepared_id"])  # type: ignore
