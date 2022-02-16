@@ -4,7 +4,7 @@ from datetime import date
 from returns.result import Result, ResultE, Success
 from returns.methods import cond
 
-from netsuite import analytics_repo
+from netsuite.analytics import analytics_repo
 from netsuite.restlet import restlet, restlet_repo
 
 

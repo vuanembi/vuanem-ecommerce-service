@@ -3,8 +3,7 @@ from typing import Any
 from requests_oauthlib import OAuth1Session
 from returns.result import ResultE
 
-from netsuite.restlet import restlet_repo
-from netsuite.restlet import restlet
+from netsuite.restlet import restlet, restlet_repo
 
 
 def post_analytics(session: OAuth1Session):
