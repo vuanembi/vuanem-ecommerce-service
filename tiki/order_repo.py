@@ -10,6 +10,6 @@ ORDER: CollectionReference = TIKI.collection("Order")
 
 @safe
 def create(order: tiki.Order) -> DocumentReference:
-    doc_ref = ORDER.document(order["id"])
+    doc_ref = ORDER.document(str(order["id"]))
     doc_ref.set(order)
     return doc_ref

@@ -5,8 +5,6 @@ import os
 from requests import Session
 from returns.result import ResultE, safe
 from authlib.integrations.requests_client import OAuth2Session
-from google.cloud import firestore
-
 from db.firestore import DB
 from tiki import tiki
 
@@ -35,27 +33,6 @@ def get_events(session: OAuth2Session):
     return _get
 
 
-# @safe
-# def get_ack_id() -> str:
-#     return TIKI.get(["state.ack.ack_id"]).get("state.ack.ack_id")
-
-
-# @safe
-# def update_ack_id(ack_id: str) -> str:
-#     TIKI.set(
-#         {
-#             "state": {
-#                 "ack": {
-#                     "ack_id": ack_id,
-#                     "updated_at": firestore.SERVER_TIMESTAMP,
-#                 }
-#             }
-#         },
-#         merge=True,
-#     )
-#     return ack_id
-
-
 def extract_order(event: tiki.Event) -> str:
     return event["payload"]["order_code"]
 
@@ -70,6 +47,36 @@ def get_order(session: Session) -> Callable[[str], ResultE[tiki.Order]]:
             },
         ) as r:
             data = r.json()
-        return data
+        return {
+            "id": data["id"],
+            "code": data["code"],
+            "items": [
+                {
+                    "product": {
+                        "name": item["product"]["name"],
+                        "seller_product_code": item["product"]["seller_product_code"],
+                    },
+                    "seller_income_detail": {
+                        "item_qty": item["seller_income_detail"]["item_qty"],
+                        "sub_total": item["seller_income_detail"]["sub_total"],
+                    },
+                }
+                for item in data["items"]
+            ],
+            "shipping": {
+                "address": {
+                    "full_name": data["shipping"]["address"]["full_name"],
+                    "street": data["shipping"]["address"]["street"],
+                    "ward": data["shipping"]["address"]["ward"],
+                    "district": data["shipping"]["address"]["district"],
+                    "phone": data["shipping"]["address"]["phone"],
+                },
+            },
+            "fulfillment_type": data.get("fulfillment_type"),
+            "status": data.get("status"),
+            "inventory_status": data.get("inventory_status"),
+            "created_at": data.get("created_at"),
+            "updated_at": data.get("updated_at"),
+        }
 
     return _get

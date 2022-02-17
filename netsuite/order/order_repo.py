@@ -2,19 +2,20 @@ from returns.result import Result, ResultE, Success, Failure, safe
 from google.cloud.firestore import DocumentReference, SERVER_TIMESTAMP
 
 from netsuite.order import order
+from netsuite.sales_order import sales_order
 from db.firestore import DB
 
 ORDER = DB.document("NetSuite").collection("Order")
 
 
 @safe
-def create(order_ref: DocumentReference) -> DocumentReference:
-    order = order_ref.get().to_dict()
+def create(built_order: tuple[DocumentReference, sales_order.Order]) -> DocumentReference:
+    source_ref, order = built_order
     doc_ref = ORDER.document()
     doc_ref.create(
         {
-            "source": order_ref,
-            "order": order["order"],
+            "source": source_ref,
+            "order": order,
             "status": "pending",
             "created_at": SERVER_TIMESTAMP,
             "updated_at": SERVER_TIMESTAMP,
