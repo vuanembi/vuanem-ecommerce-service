@@ -13,6 +13,7 @@ from netsuite.restlet import restlet, restlet_repo
 
 def build_detail(memo: str) -> sales_order.Detail:
     return {
+        "id": None,
         "leadsource": customer.LEAD_SOURCE,
         "custbody_expecteddeliverytime": sales_order.EXPECTED_DELIVERY_TIME,
         "trandate": date.today().isoformat(),

@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 from netsuite.customer import customer
 from netsuite.item import item
@@ -51,6 +51,7 @@ SHOPEE_ECOMMERCE: Ecommerce = {
 
 
 class Detail(TypedDict):
+    id: Optional[int]
     leadsource: int
     custbody_expecteddeliverytime: int
     custbody_expected_shipping_method: int
