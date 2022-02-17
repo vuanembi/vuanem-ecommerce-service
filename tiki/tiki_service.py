@@ -6,17 +6,17 @@ from returns.pointfree import map_
 from returns.pipeline import flow
 from returns.iterables import Fold
 from returns.functions import raise_exception
-from netsuite.sales_order import sales_order, sales_order_service
 
-from tiki import tiki, auth_repo, data_repo
-from netsuite.sales_order.sales_order import prepare_repo
+from netsuite.sales_order import sales_order, sales_order_service
+from netsuite.customer import customer, customer_repo
+from tiki import tiki, tiki_repo, auth_repo, event_repo
 
 
 def auth_service() -> OAuth2Session:
     return auth_repo.get_access_token().map(auth_repo.get_auth_session).unwrap()
 
 
-prepared_order_builder = sales_order_service.build_prepared_order_service(
+builder = sales_order_service.build(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
@@ -24,8 +24,8 @@ prepared_order_builder = sales_order_service.build_prepared_order_service(
     item_location=sales_order.TIKI_ECOMMERCE["location"],
     ecom=sales_order.TIKI_ECOMMERCE,
     memo_builder=lambda x: f"{x['code']} - tiki",
-    customer_builder=lambda x: prepare_repo.build_customer(
-        sales_order.TIKI_CUSTOMER,
+    customer_builder=lambda x: customer_repo.add(
+        customer.TIKI_CUSTOMER,
         x["shipping"]["address"]["phone"],
         x["shipping"]["address"]["full_name"],
     ),
@@ -34,7 +34,7 @@ prepared_order_builder = sales_order_service.build_prepared_order_service(
 
 def pull_service(session: OAuth2Session) -> ResultE[tiki.EventRes]:
     return (
-        data_repo.get_ack_id().bind(data_repo.get_events(session)).lash(raise_exception)
+        event_repo.get_ack_id().bind(tiki_repo.get_events(session)).lash(raise_exception)
     )
 
 
@@ -46,8 +46,8 @@ def get_orders_service(
         [
             flow(
                 event,
-                data_repo.extract_order,
-                data_repo.get_order(session),
+                tiki_repo.extract_order,
+                tiki_repo.get_order(session),
             )
             for event in events
         ],
@@ -59,7 +59,7 @@ def ack_service(ack_id: str) -> Callable[[dict], ResultE[dict]]:
     def _svc(res: dict):
         return flow(
             ack_id,
-            data_repo.update_ack_id,
+            event_repo.update_ack_id,
             map_(lambda x: {**res, "ack": x}),  # type: ignore
         )
 

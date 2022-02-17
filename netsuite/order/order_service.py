@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable
 
 from returns.pipeline import flow
 from returns.result import Result, ResultE, Success
@@ -12,11 +12,11 @@ from telegram import telegram, message_service
 
 
 def ingest(
-    creator: Callable[[dict], ResultE[dict]],
+    creator: Callable[[dict], ResultE[DocumentReference]],
     builder: Callable[[dict], ResultE[sales_order.Order]],
     channel: telegram.Channel,
 ):
-    def _svc(orders: list[dict]) -> ResultE[dict[str, Any]]:
+    def _svc(orders: list[dict]) -> ResultE[dict[str, list[str]]]:
         return Fold.collect_all(
             [
                 flow(  # type: ignore

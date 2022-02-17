@@ -8,14 +8,14 @@ ORDER = DB.document("NetSuite").collection("Order")
 
 
 @safe
-def create(order: order.Order) -> DocumentReference:
+def create(order_ref: DocumentReference) -> DocumentReference:
+    order = order_ref.get().to_dict()
     doc_ref = ORDER.document()
     doc_ref.create(
         {
-            "source": order["source"],
+            "source": order_ref,
             "order": order["order"],
             "status": "pending",
-            "transaction_id": None,
             "created_at": SERVER_TIMESTAMP,
             "updated_at": SERVER_TIMESTAMP,
             "is_deleted": False,
