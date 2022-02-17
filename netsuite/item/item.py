@@ -6,6 +6,7 @@ COMMIT_INVENTORY = 3
 
 
 class Item(TypedDict):
+    _id: int
     item: int
     quantity: int
     price: int
