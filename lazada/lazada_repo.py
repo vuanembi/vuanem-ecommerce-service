@@ -18,7 +18,7 @@ LAZADA = DB.document("Lazada")
 PAGE_LIMIT = 100
 
 
-def _build_lazada_request(
+def build_lazada_request(
     base_url: str,
     access_token: Optional[lazada.AccessToken] = None,
 ) -> Callable[[str, dict[str, Any]], requests.PreparedRequest]:
@@ -71,7 +71,7 @@ def parse_timestamp(x: str) -> Optional[datetime]:
 
 
 def get_auth_builder(token: lazada.AccessToken) -> lazada.AuthBuilder:
-    return _build_lazada_request("https://api.lazada.vn/rest", token)
+    return build_lazada_request("https://api.lazada.vn/rest", token)
 
 
 def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):

@@ -10,6 +10,6 @@ def backup(document: str, collection: str):
 
 
 # backup("Tiki", "Order")
-backup("NetSuite", "PreparedOrder")
-# backup("Tiki", "Order")
+# backup("NetSuite", "PreparedOrder")
+backup("Lazada", "Order")
 # backup("Tiki", "Order")
