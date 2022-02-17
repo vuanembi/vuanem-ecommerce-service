@@ -4,6 +4,7 @@ from returns.pipeline import flow
 from returns.result import ResultE, Success
 from returns.iterables import Fold
 from returns.pointfree import bind, map_
+from google.cloud.firestore import DocumentReference
 
 from netsuite.restlet import restlet_repo
 from netsuite.sales_order import sales_order, sales_order_repo
@@ -21,27 +22,34 @@ def build(
     ecom: sales_order.Ecommerce,
     customer_builder: Callable[[dict], customer.Customer],
 ):
-    def _build(order: dict) -> ResultE[sales_order.Order]:
+    def _build(
+        order_doc_ref: DocumentReference,
+    ) -> ResultE[tuple[DocumentReference, sales_order.Order]]:
+        order = order_doc_ref.get().to_dict()
         with restlet_repo.netsuite_session() as session:
-            return Fold.collect_all(
-                [
-                    item_repo.build(
-                        session,
-                        item_sku_fn(item),
-                        item_qty_fn(item),
-                        item_amt_fn(item),
-                        item_location,
-                    )
-                    for item in items_fn(order)
-                ],
-                Success(()),
-            ).map(
-                lambda x: {
-                    "item": list(x),
-                    **customer_builder(order),  # type: ignore
-                    **ecom,  # type: ignore
-                    **sales_order_repo.build_detail(memo_builder(order)),
-                }
+            return (
+                Fold.collect_all(
+                    [
+                        item_repo.build(
+                            session,
+                            item_sku_fn(item),
+                            item_qty_fn(item),
+                            item_amt_fn(item),
+                            item_location,
+                        )
+                        for item in items_fn(order)
+                    ],
+                    Success(()),
+                )
+                .map(
+                    lambda x: {
+                        "item": list(x),
+                        **customer_builder(order),  # type: ignore
+                        **ecom,  # type: ignore
+                        **sales_order_repo.build_detail(memo_builder(order)),  # type: ignore
+                    }
+                )
+                .map(lambda x: (order_doc_ref, x))  # type: ignore
             )
 
     return _build
