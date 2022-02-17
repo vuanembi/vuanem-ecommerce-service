@@ -2,7 +2,7 @@ import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
 
-from tiki import tiki_service, auth_repo, data_repo, tiki_repo
+from tiki import tiki_service, tiki_repo, auth_repo, event_repo
 
 from test.conftest import run
 
@@ -10,6 +10,11 @@ from test.conftest import run
 @pytest.fixture()
 def state():
     return tiki_repo.TIKI
+
+
+@pytest.fixture()
+def auth_session():
+    return tiki_service.auth_service()
 
 
 class TestAuth:
@@ -29,11 +34,22 @@ class TestAuth:
         assert res.token.is_expired() == False
 
 
-class TestData:
-    @pytest.fixture()
-    def auth_session(self):
-        return tiki_service.auth_service()
+class TestEvent:
+    def test_get_ack_id(self):
+        res = event_repo.get_ack_id()
+        assert is_successful(res)
 
+    def test_update_ack_id(self):
+        res = event_repo.update_ack_id("6b405afc-25d6-4634-a2f1-a20e80bcf5bf")
+        assert is_successful(res)
+
+    def test_pull_service(self, auth_session):
+        ack_id, events = tiki_service.pull_service(auth_session).unwrap()
+        assert ack_id
+        assert events
+
+
+class TestTiki:
     @pytest.fixture()
     def events(self):
         return [
@@ -53,7 +69,7 @@ class TestData:
 
     @pytest.fixture()
     def order(self, auth_session, order_id):
-        return Success(order_id).bind(data_repo.get_order(auth_session))
+        return Success(order_id).bind(tiki_repo.get_order(auth_session))
 
     @pytest.fixture()
     def static_order(self):
@@ -90,26 +106,13 @@ class TestData:
             }
         )
 
-    def test_get_ack_id(self):
-        res = data_repo.get_ack_id()
-        assert is_successful(res)
-
-    def test_update_ack_id(self):
-        res = data_repo.update_ack_id("6b405afc-25d6-4634-a2f1-a20e80bcf5bf")
-        assert is_successful(res)
-
-    def test_pull_service(self, auth_session):
-        ack_id, events = tiki_service.pull_service(auth_session).unwrap()
-        assert ack_id
-        assert events
-
     def test_get_order(self, order):
         res = order
         assert is_successful(res)
 
     def test_build_order(self, order, static_order):
-        res1 = order.bind(tiki_service.prepared_order_builder)
-        res2 = static_order.bind(tiki_service.prepared_order_builder)
+        res1 = order.bind(tiki_service.builder)
+        res2 = static_order.bind(tiki_service.builder)
         assert res1, res2
 
     def test_get_orders_service(self, auth_session, events):
