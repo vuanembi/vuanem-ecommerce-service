@@ -10,9 +10,20 @@ from returns.curry import curry
 from returns.converters import flatten
 
 from common import utils
-from lazada import lazada, auth_repo, data_repo
-from netsuite.sales_order.sales_order import prepare_repo
+from lazada import lazada, lazada_repo, auth_repo, order_repo
+from netsuite.customer import customer, customer_repo
 from netsuite.sales_order import sales_order, sales_order_service
+
+builder = sales_order_service.build(
+    items_fn=lambda x: x["items"],
+    item_sku_fn=lambda x: x["sku"],
+    item_qty_fn=lambda _: 1,
+    item_amt_fn=lambda x: x["paid_price"] + x["voucher_platform"],
+    item_location=sales_order.LAZADA_ECOMMERCE["location"],
+    ecom=sales_order.LAZADA_ECOMMERCE,
+    memo_builder=lambda x: f"{x['order_id']} - lazada",
+    customer_builder=lambda _: customer_repo.add(customer.LAZADA_CUSTOMER),
+)
 
 
 def token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
@@ -29,7 +40,7 @@ def auth_service() -> ResultE[lazada.AuthBuilder]:
         auth_repo.get_access_token()
         .bind(utils.check_expired)  # type: ignore
         .lash(token_refresh_service)  # type: ignore
-        .map(data_repo.get_auth_builder)  # type: ignore
+        .map(lazada_repo.get_auth_builder)  # type: ignore
     )
 
 
@@ -37,7 +48,7 @@ def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
     def _get(orders: list[lazada.Order]) -> ResultE[lazada.OrderItems]:
         return Fold.collect_all(
             [
-                data_repo.get_order_item(session, auth_builder, order["order_id"])
+                lazada_repo.get_order_item(session, auth_builder, order["order_id"])
                 for order in orders
             ],
             Success(()),
@@ -62,9 +73,9 @@ def _get_orders_items(
     with requests.Session() as session:
         return flow(
             created_after,
-            data_repo.get_orders(session, auth_builder),
+            lazada_repo.get_orders(session, auth_builder),
             bind(_get_items(session, auth_builder)),
-            bind(data_repo.persist_max_created_at),
+            bind(order_repo.update_max_created_at),
         )
 
 
@@ -73,18 +84,6 @@ def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
         flow(  # type: ignore
             Success(_get_orders_items),
             auth_service().apply,
-            data_repo.get_max_created_at().apply,
+            order_repo.get_max_created_at().apply,
         )
     )
-
-
-prepared_order_builder = sales_order_service.build_prepared_order_service(
-    items_fn=lambda x: x["items"],
-    item_sku_fn=lambda x: x["sku"],
-    item_qty_fn=lambda _: 1,
-    item_amt_fn=lambda x: x["paid_price"] + x["voucher_platform"],
-    item_location=sales_order.LAZADA_ECOMMERCE["location"],
-    ecom=sales_order.LAZADA_ECOMMERCE,
-    memo_builder=lambda x: f"{x['order_id']} - lazada",
-    customer_builder=lambda _: prepare_repo.build_customer(sales_order.LAZADA_CUSTOMER),
-)
