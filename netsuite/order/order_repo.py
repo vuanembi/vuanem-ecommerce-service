@@ -14,7 +14,7 @@ def create(built_order: tuple[DocumentReference, sales_order.Order]) -> Document
     doc_ref = ORDER.document()
     doc_ref.create(
         {
-            "source": source_ref,
+            "source_ref": source_ref,
             "order": order,
             "status": "pending",
             "created_at": SERVER_TIMESTAMP,
