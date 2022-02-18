@@ -24,7 +24,7 @@ def build_detail(memo: str) -> sales_order.Detail:
     }
 
 
-def _add_order_detail(order: sales_order.Order):
+def _build_customer_callback(order: sales_order.Order):
     def _add(customer_id: int) -> sales_order.Order:
         return {
             "entity": customer_id,
@@ -70,7 +70,7 @@ def build(session: OAuth1Session):
         return flow(
             order,
             customer_repo.build(session),
-            map_(_add_order_detail(order)),
+            map_(_build_customer_callback(order)),
         )
 
     return _build

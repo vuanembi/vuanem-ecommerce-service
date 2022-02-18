@@ -50,8 +50,7 @@ SHOPEE_ECOMMERCE: Ecommerce = {
 }
 
 
-class Detail(TypedDict):
-    id: Optional[int]
+class _Detail(TypedDict):
     leadsource: int
     custbody_expecteddeliverytime: int
     custbody_expected_shipping_method: int
@@ -59,6 +58,10 @@ class Detail(TypedDict):
     shipdate: str
     custbody_print_form: bool
     memo: str
+
+
+class Detail(_Detail, total=False):
+    id: Optional[int]
 
 
 class Order(customer.Customer, Detail, item.Items, Ecommerce):
