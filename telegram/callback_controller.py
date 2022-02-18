@@ -5,7 +5,7 @@ from flask import Request
 from returns.result import Result, Success, Failure
 
 from telegram import telegram, callback_service, message_service
-from netsuite.sales_order import sales_order_service
+from netsuite.order import order_service
 
 
 def service_factory(
@@ -15,7 +15,7 @@ def service_factory(
     if data["t"] == "O":
         if data["a"] == 1:
             return (
-                sales_order_service.create_order_service(data["v"])
+                order_service.create(data["v"])
                 .map(
                     message_service.send_create_order_success(
                         chat_id,
@@ -35,7 +35,7 @@ def service_factory(
             )
         elif data["a"] == -1:
             return (
-                sales_order_service.close_order_service(data["v"])
+                order_service.close(data["v"])
                 .map(message_service.send_close_order_success(chat_id, message_id))
                 .alt(message_service.send_close_order_error(chat_id, message_id))
                 .map(lambda x: str(x[0]))
