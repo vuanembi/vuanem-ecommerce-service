@@ -1,33 +1,16 @@
-from typing import Any
-
 from requests_oauthlib import OAuth1Session
 from returns.result import ResultE
 
 from netsuite.restlet import restlet, restlet_repo
 
 
-def post_analytics(session: OAuth1Session):
-    def _post(body: dict) -> ResultE[dict[str, Any]]:
-        return restlet_repo.request(
+def request(session: OAuth1Session, _restlet: restlet.Restlet):
+    def _request(body: dict) -> ResultE[restlet.AnalyticsResponse]:
+        return restlet_repo.request(  # type: ignore
             session,
-            restlet.Analytics,
+            _restlet,
             "POST",
             body=body,
         )
 
-    return _post
-
-
-def get_saved_search(saved_search: restlet.SavedSearch):
-    def _get(session: OAuth1Session):
-        def __get(params: dict) -> ResultE[dict[str, Any]]:
-            return restlet_repo.request(
-                session,
-                saved_search,
-                "GET",
-                params=params,
-            )
-
-        return __get
-
-    return _get
+    return _request

@@ -97,17 +97,9 @@ class TestAnalytics:
         ]
 
     def test_coupon_code_analytics_service(self, coupon_codes):
-        res = analytics_service.coupon_code_analytics_service({"data": coupon_codes})
-        assert is_successful(res)
-
-    def test_coupon_code_ss_service(self, coupon_codes):
-        res = analytics_service.coupon_code_ss_service({"data": coupon_codes})
+        res = analytics_service.coupon_code_service({"data": coupon_codes})
         assert is_successful(res)
 
     def test_coupon_code_analytics_controller(self, coupon_codes):
         res = run("/netsuite/analytics/coupon_code", {"data": coupon_codes})
-        assert res
-
-    def test_coupon_code_controller(self, coupon_codes):
-        res = run("/netsuite/saved_search/coupon_code", {"data": coupon_codes})
         assert res
