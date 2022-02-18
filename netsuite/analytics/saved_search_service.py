@@ -7,7 +7,7 @@ from netsuite.analytics import analytics_repo
 from netsuite.restlet import restlet, restlet_repo
 
 
-def bank_in_transit_service(start: date, end: date):
+def bank_in_transit(start: date, end: date):
     with restlet_repo.netsuite_session() as session:
         return flow(
             tuple([i.isoformat() for i in [start, end]]),
