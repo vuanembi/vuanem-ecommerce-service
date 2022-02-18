@@ -8,6 +8,7 @@ import requests
 from returns.result import ResultE, Success, safe
 from returns.iterables import Fold
 
+from db.firestore import DB
 from shopee import shopee
 
 BASE_URL = "https://partner.shopeemobile.com"
@@ -18,6 +19,7 @@ TIME_RANGE_FIELD = "create_time"
 PAGE_SIZE = 100
 BATCH_SIZE = 45
 
+SHOPEE = DB.document("Shopee")
 
 def sign_params(
     uri: str,

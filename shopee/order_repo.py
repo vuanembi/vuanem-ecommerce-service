@@ -3,11 +3,9 @@ from datetime import datetime
 from returns.result import safe
 from google.cloud.firestore import DocumentReference
 
-from db.firestore import DB
-from shopee import shopee
+from shopee import shopee, shopee_repo
 
-SHOPEE = DB.document("Shopee")
-ORDER = SHOPEE.collection("Order")
+ORDER = shopee_repo.SHOPEE.collection("Order")
 
 
 @safe
@@ -19,13 +17,13 @@ def create(order: shopee.Order) -> DocumentReference:
 
 @safe
 def get_max_created_at() -> datetime:
-    return SHOPEE.get(["state.max_created_at"]).get("state.max_created_at")
+    return shopee_repo.SHOPEE.get(["state.max_created_at"]).get("state.max_created_at")
 
 
 @safe
 def update_max_created_at(orders: list[shopee.Order]) -> list[shopee.Order]:
     if orders:
-        SHOPEE.set(
+        shopee_repo.SHOPEE.set(
             {
                 "state": {
                     "max_created_at": max([order["create_time"] for order in orders]),
