@@ -2,6 +2,7 @@ from typing import TypedDict, Optional
 
 from netsuite.customer import customer
 from netsuite.item import item
+from netsuite.location import location
 
 
 EXPECTED_DELIVERY_TIME = 4
@@ -20,8 +21,8 @@ class Ecommerce(TypedDict):
 
 
 TIKI_ECOMMERCE: Ecommerce = {
-    "subsidiary": 1,
-    "department": 1044,
+    "subsidiary": location.SUBSIDIARY,
+    "department": location.DEPARTMENT,
     "location": 788,
     "custbody_order_payment_method": 23,
     "salesrep": 1664,
@@ -30,8 +31,8 @@ TIKI_ECOMMERCE: Ecommerce = {
 }
 
 LAZADA_ECOMMERCE: Ecommerce = {
-    "subsidiary": 1,
-    "department": 1044,
+    "subsidiary": location.SUBSIDIARY,
+    "department": location.DEPARTMENT,
     "location": 789,
     "custbody_order_payment_method": 44,
     "salesrep": 1664,
@@ -40,8 +41,8 @@ LAZADA_ECOMMERCE: Ecommerce = {
 }
 
 SHOPEE_ECOMMERCE: Ecommerce = {
-    "subsidiary": 1,
-    "department": 1041,
+    "subsidiary": location.SUBSIDIARY,
+    "department": location.DEPARTMENT,
     "location": 787,
     "custbody_order_payment_method": 41,
     "salesrep": 1664,
