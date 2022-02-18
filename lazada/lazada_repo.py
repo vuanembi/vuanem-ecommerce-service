@@ -63,8 +63,6 @@ def sign_params(uri: str, params: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-
-
 def parse_timestamp(x: str) -> Optional[datetime]:
     parsed = dateparser.parse(x)
     return parsed.astimezone(pytz.utc).replace(tzinfo=None) if parsed else None

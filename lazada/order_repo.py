@@ -8,6 +8,7 @@ from lazada import lazada, lazada_repo
 
 ORDER = lazada_repo.LAZADA.collection("Order")
 
+
 @safe
 def create(order: lazada.OrderItems) -> DocumentReference:
     doc_ref = ORDER.document(str(order["order_id"]))

@@ -18,7 +18,7 @@ def service_factory(session: OAuth2Session):
                 order_service.ingest(
                     order_repo.create,  # type: ignore
                     tiki_service.builder,
-                    telegram.TIKI_CHANNEL
+                    telegram.TIKI_CHANNEL,
                 )
             )
             .bind(tiki_service.ack_service(ack_id))

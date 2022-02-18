@@ -66,4 +66,3 @@ class Order(TypedDict):
     shipping: Shipping
     created_at: str
     updated_at: str
-

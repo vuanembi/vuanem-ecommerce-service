@@ -21,6 +21,7 @@ BATCH_SIZE = 45
 
 SHOPEE = DB.document("Shopee")
 
+
 def sign_params(
     uri: str,
     access_token: str,

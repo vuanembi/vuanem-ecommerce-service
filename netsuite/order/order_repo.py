@@ -9,7 +9,9 @@ ORDER = DB.document("NetSuite").collection("Order")
 
 
 @safe
-def create(built_order: tuple[DocumentReference, sales_order.Order]) -> DocumentReference:
+def create(
+    built_order: tuple[DocumentReference, sales_order.Order]
+) -> DocumentReference:
     source_ref, order = built_order
     doc_ref = ORDER.document()
     doc_ref.create(

@@ -21,10 +21,10 @@ def validation_service(
         request_data,
     )
 
+
 def analytics_controller(request: Request) -> dict[str, Any]:
     body = request.get_json()
     if request.path in services and body:
         return services[request.path](body).unwrap()
     else:
         abort(404)
-

@@ -34,7 +34,9 @@ builder = sales_order_service.build(
 
 def pull_service(session: OAuth2Session) -> ResultE[tiki.EventRes]:
     return (
-        event_repo.get_ack_id().bind(tiki_repo.get_events(session)).lash(raise_exception)
+        event_repo.get_ack_id()
+        .bind(tiki_repo.get_events(session))
+        .lash(raise_exception)
     )
 
 
