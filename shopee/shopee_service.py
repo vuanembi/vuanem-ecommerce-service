@@ -52,7 +52,7 @@ def _get_orders_items(
             shopee_repo.get_orders(session, request_builder),
             bind(shopee_repo.get_order_items(session, request_builder)),
             map_(lambda x: [i for i in x if i["create_time"] != create_time]),  # type: ignore
-            bind(order_repo.update_max_created_at),
+            bind(order_repo.update_max_updated_at),
         )
 
 
@@ -61,6 +61,6 @@ def get_orders_service() -> ResultE[list[shopee.Order]]:
         flow(  # type: ignore
             Success(_get_orders_items),
             auth_service().apply,
-            order_repo.get_max_created_at().apply,
+            order_repo.get_max_updated_at().apply,
         )
     )
