@@ -15,7 +15,7 @@ BASE_URL = "https://partner.shopeemobile.com"
 API_PATH = "api/v2"
 PARTNER_ID = 2002943
 SHOP_ID = 179124960
-TIME_RANGE_FIELD = "create_time"
+TIME_RANGE_FIELD = "update_time"
 PAGE_SIZE = 100
 BATCH_SIZE = 45
 
@@ -138,6 +138,7 @@ def get_orders_batch_item(
         {
             "order_sn": order["order_sn"],
             "create_time": order["create_time"],
+            "update_time": order["update_time"],
             "item_list": [
                 {
                     "item_name": item["item_name"],
