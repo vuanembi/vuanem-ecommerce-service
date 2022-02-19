@@ -1,5 +1,4 @@
 from typing import TypedDict
-from enum import Enum
 
 
 class Restlet(TypedDict):
@@ -11,17 +10,6 @@ SalesOrder: Restlet = {"script": 997, "deploy": 1}
 Customer: Restlet = {"script": 1099, "deploy": 1}
 InventoryItem: Restlet = {"script": 1101, "deploy": 1}
 JournalEntry: Restlet = {"script": 1213, "deploy": 1}
+
 SavedSearch: Restlet = {"script": 1208, "deploy": 1}
 Analytics: Restlet = {"script": 1098, "deploy": 1}
-
-
-class SavedSearchID(Enum):
-    BankInTransit = "2252"
-
-
-class Dataset(Enum):
-    CouponCode = "custdataset25"
-
-
-class AnalyticsResponse(TypedDict):
-    data: list[dict]

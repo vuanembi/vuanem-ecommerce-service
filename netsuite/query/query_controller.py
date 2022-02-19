@@ -4,7 +4,7 @@ from flask import Request, abort
 from returns.result import Result, ResultE
 from returns.methods import cond
 
-from netsuite.analytics import analytics_service
+from netsuite.query.analytics import analytics_service
 
 services = {
     "/netsuite/analytics/coupon_code": analytics_service.coupon_code_service,

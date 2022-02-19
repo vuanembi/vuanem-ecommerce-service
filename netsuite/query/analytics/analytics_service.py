@@ -4,7 +4,7 @@ from returns.result import Success, ResultE
 from returns.pipeline import flow
 from returns.pointfree import lash
 
-from netsuite.analytics import analytics_repo
+from netsuite.query import query_repo
 from netsuite.restlet import restlet, restlet_repo
 
 
@@ -37,6 +37,6 @@ def coupon_code_service(data: dict[str, list[str]]) -> ResultE[dict[str, list[st
                     },
                 ],
             },
-            analytics_repo.request(session, restlet.Analytics),
+            query_repo.request(session, restlet.Analytics),
             lash(lambda _: Success({"data": []})),  # type: ignore
         )
