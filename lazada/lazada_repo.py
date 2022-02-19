@@ -6,7 +6,7 @@ import hmac
 from datetime import datetime
 
 import requests
-import dateparser
+from dateutil import parser
 import pytz
 import requests
 from returns.result import safe
@@ -64,8 +64,10 @@ def sign_params(uri: str, params: dict[str, Any]) -> dict[str, Any]:
 
 
 def parse_timestamp(x: str) -> Optional[datetime]:
-    parsed = dateparser.parse(x)
-    return parsed.astimezone(pytz.utc).replace(tzinfo=None) if parsed else None
+    try:
+        return parser.parse(x).astimezone(pytz.utc).replace(tzinfo=None) if x else None
+    except:
+        return None
 
 
 def get_auth_builder(token: lazada.AccessToken) -> lazada.AuthBuilder:
