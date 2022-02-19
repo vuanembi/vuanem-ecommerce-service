@@ -12,7 +12,7 @@ ORDER = lazada_repo.LAZADA.collection("Order")
 @safe
 def create(order: lazada.OrderItems) -> DocumentReference:
     doc_ref = ORDER.document(str(order["order_id"]))
-    doc_ref.create(order)
+    doc_ref.set(order)
     return doc_ref
 
 

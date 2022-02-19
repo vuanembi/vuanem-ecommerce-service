@@ -52,6 +52,7 @@ def get_order(session: Session) -> Callable[[str], ResultE[tiki.Order]]:
             "code": data["code"],
             "items": [
                 {
+                    "_fulfillment_type": data.get("fulfillment_type"),
                     "product": {
                         "name": item["product"]["name"],
                         "seller_product_code": item["product"]["seller_product_code"],

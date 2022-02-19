@@ -40,6 +40,7 @@ class SellerIncomeDetail(TypedDict):
 
 
 class Item(TypedDict):
+    _fulfillment_type: str
     product: Product
     seller_income_detail: SellerIncomeDetail
 

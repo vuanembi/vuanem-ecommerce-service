@@ -6,7 +6,7 @@ import hmac
 from datetime import datetime
 
 import requests
-import dateparser
+from dateutil import parser
 import pytz
 import requests
 from returns.result import safe
@@ -64,8 +64,10 @@ def sign_params(uri: str, params: dict[str, Any]) -> dict[str, Any]:
 
 
 def parse_timestamp(x: str) -> Optional[datetime]:
-    parsed = dateparser.parse(x)
-    return parsed.astimezone(pytz.utc).replace(tzinfo=None) if parsed else None
+    try:
+        return parser.parse(x).astimezone(pytz.utc).replace(tzinfo=None) if x else None
+    except:
+        return None
 
 
 def get_auth_builder(token: lazada.AccessToken) -> lazada.AuthBuilder:
@@ -74,13 +76,13 @@ def get_auth_builder(token: lazada.AccessToken) -> lazada.AuthBuilder:
 
 def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
     @safe
-    def _get(created_after: datetime):
+    def _get(updated_after: datetime):
         def __get(offset: int = 0):
             with session.send(
                 auth_builder(
                     "/orders/get",
                     {
-                        "created_after": created_after.isoformat(timespec="seconds")
+                        "updated_after": updated_after.isoformat(timespec="seconds")
                         + "Z",
                         "limit": PAGE_LIMIT,
                         "offset": offset,
@@ -92,9 +94,10 @@ def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
                 {
                     "order_id": order["order_id"],
                     "created_at": parse_timestamp(order["created_at"]),
+                    "updated_at": parse_timestamp(order["updated_at"]),
                 }
                 for order in res["data"]["orders"]
-                if parse_timestamp(order["created_at"]) != created_after
+                if parse_timestamp(order["updated_at"]) != updated_after
             ]
             return orders if not orders else orders + __get(offset + PAGE_LIMIT)
 

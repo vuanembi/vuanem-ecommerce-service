@@ -20,7 +20,12 @@ builder = sales_order_service.build(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
-    item_amt_fn=lambda x: x["seller_income_detail"]["sub_total"],
+    item_amt_fn=lambda x: (
+        x["seller_income_detail"]["item_price"] * x["seller_income_detail"]["item_qty"]
+    )
+    - x["seller_income_detail"]["discount"]["discount_coupon"]
+    if x["_fulfillment_type"] == "tiki_delivery"
+    else x["seller_income_detail"]["sub_total"],
     item_location=sales_order.TIKI_ECOMMERCE["location"],
     ecom=sales_order.TIKI_ECOMMERCE,
     memo_builder=lambda x: f"{x['code']} - tiki",
