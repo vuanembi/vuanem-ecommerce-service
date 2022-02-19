@@ -13,18 +13,28 @@ def create(
     built_order: tuple[DocumentReference, sales_order.Order]
 ) -> DocumentReference:
     source_ref, order = built_order
-    doc_ref = ORDER.document()
-    doc_ref.create(
-        {
-            "source_ref": source_ref,
-            "order": order,
-            "status": "pending",
-            "created_at": SERVER_TIMESTAMP,
-            "updated_at": SERVER_TIMESTAMP,
-            "is_deleted": False,
-        },
-    )
-    return doc_ref
+    existing = ORDER.where("source_ref", "==", source_ref).get()
+    if existing:
+        existing_ref = existing[0].reference
+        existing_ref.set(
+            {
+                "updated_at": SERVER_TIMESTAMP,
+            }
+        )
+        return existing_ref
+    else:
+        doc_ref = ORDER.document()
+        doc_ref.create(
+            {
+                "source_ref": source_ref,
+                "order": order,
+                "status": "pending",
+                "created_at": SERVER_TIMESTAMP,
+                "updated_at": SERVER_TIMESTAMP,
+                "is_deleted": False,
+            },
+        )
+        return doc_ref
 
 
 def get(id: str) -> ResultE[DocumentReference]:
@@ -53,6 +63,7 @@ def update(order_doc_ref: DocumentReference, status: str):
             {
                 "status": status,
                 "order.id": id,
+                "updated_at": SERVER_TIMESTAMP,
             },
             merge=True,
         )

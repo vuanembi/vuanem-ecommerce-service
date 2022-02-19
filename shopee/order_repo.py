@@ -11,7 +11,7 @@ ORDER = shopee_repo.SHOPEE.collection("Order")
 @safe
 def create(order: shopee.Order) -> DocumentReference:
     doc_ref = ORDER.document(str(order["order_sn"]))
-    doc_ref.create(order)
+    doc_ref.set(order)
     return doc_ref
 
 
