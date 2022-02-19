@@ -4,7 +4,7 @@ from returns.pipeline import is_successful
 
 import pytest
 
-from shopee import shopee_service, auth_repo, data_repo
+from shopee import shopee_service, shopee_repo, auth_repo
 
 from test.conftest import run
 
@@ -28,13 +28,13 @@ class TestAuth:
         res
 
 
-class TestData:
+class TestShopee:
     @pytest.fixture()
     def auth_builder(self):
         return shopee_service.auth_service().unwrap()
 
     def test_get_orders(self, session, auth_builder):
-        res = data_repo.get_orders(session, auth_builder)(
+        res = shopee_repo.get_orders(session, auth_builder)(
             int(datetime(2022, 1, 10).timestamp())
         )
         assert is_successful(res)

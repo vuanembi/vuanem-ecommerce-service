@@ -5,9 +5,22 @@ from returns.pipeline import flow
 from returns.pointfree import bind, map_
 from returns.curry import curry
 from returns.converters import flatten
+from netsuite.sales_order import sales_order, sales_order_service
 
-from shopee import shopee, shopee_repo, auth_repo, data_repo
-from netsuite import netsuite, netsuite_service, prepare_repo
+from shopee import shopee, shopee_repo, auth_repo, order_repo
+from netsuite.sales_order import sales_order_service
+from netsuite.customer import customer, customer_repo
+
+builder = sales_order_service.build(
+    items_fn=lambda x: x["item_list"],
+    item_sku_fn=lambda x: x["item_sku"],
+    item_qty_fn=lambda x: x["model_quantity_purchased"],
+    item_amt_fn=lambda x: x["model_discounted_price"],
+    item_location=sales_order.SHOPEE_ECOMMERCE["location"],
+    ecom=sales_order.SHOPEE_ECOMMERCE,
+    memo_builder=lambda x: f"{x['order_sn']} - shopee",
+    customer_builder=lambda _: customer_repo.add(customer.SHOPEE_CUSTOMER),
+)
 
 
 def _token_refresh_service(token: shopee.AccessToken) -> ResultE[shopee.AccessToken]:
@@ -36,10 +49,10 @@ def _get_orders_items(
     with requests.Session() as session:
         return flow(
             create_time,
-            data_repo.get_orders(session, request_builder),
-            bind(data_repo.get_order_items(session, request_builder)),
+            shopee_repo.get_orders(session, request_builder),
+            bind(shopee_repo.get_order_items(session, request_builder)),
             map_(lambda x: [i for i in x if i["create_time"] != create_time]),  # type: ignore
-            bind(data_repo.persist_max_created_at),
+            bind(order_repo.update_max_created_at),
         )
 
 
@@ -48,18 +61,6 @@ def get_orders_service() -> ResultE[list[shopee.Order]]:
         flow(  # type: ignore
             Success(_get_orders_items),
             auth_service().apply,
-            data_repo.get_max_created_at().apply,
+            order_repo.get_max_created_at().apply,
         )
     )
-
-
-prepared_order_builder = netsuite_service.build_prepared_order_service(
-    items_fn=lambda x: x["item_list"],
-    item_sku_fn=lambda x: x["item_sku"],
-    item_qty_fn=lambda x: x["model_quantity_purchased"],
-    item_amt_fn=lambda x: x["model_discounted_price"],
-    item_location=netsuite.SHOPEE_ECOMMERCE["location"],
-    ecom=netsuite.SHOPEE_ECOMMERCE,
-    memo_builder=lambda x: f"{x['order_sn']} - shopee",
-    customer_builder=lambda _: prepare_repo.build_customer(netsuite.SHOPEE_CUSTOMER),
-)

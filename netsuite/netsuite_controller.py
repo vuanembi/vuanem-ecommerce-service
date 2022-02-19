@@ -3,26 +3,28 @@ from typing import Any, Optional
 from flask import Request, abort
 from returns.result import Success
 
-from netsuite import netsuite_service, analytics_service
+from netsuite.analytics import analytics_controller
+from netsuite.order import order_service
 
 
-analytics_services = {
-    "/netsuite/analytics/coupon_code": analytics_service.coupon_code_analytics_service,
-    "/netsuite/saved_search/coupon_code": analytics_service.coupon_code_ss_service,
-}
+analytics_path = [
+    "analytics",
+    "saved_search",
+]
 
 
 def netsuite_controller(request: Request) -> dict[str, Any]:
     body: Optional[dict[str, Any]] = request.get_json()
     if body:
-        if request.path in analytics_services:
-            return analytics_services[request.path](body).unwrap()
-        elif request.path == "/netsuite/restlet/sales_order":
+        for path in analytics_path:
+            if path in request.path:
+                return analytics_controller.analytics_controller(request)
+        if request.path == "/netsuite/order":
             if request.method in ["POST", "PUT"] and "prepared_id" in body:
                 svc = (
-                    netsuite_service.close_order_service
+                    order_service.close
                     if request.method == "PUT"
-                    else netsuite_service.create_order_service
+                    else order_service.create
                 )
                 return (
                     svc(body["prepared_id"])  # type: ignore

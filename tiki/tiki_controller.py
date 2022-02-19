@@ -4,8 +4,8 @@ from flask import Request
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE
 
-from tiki import tiki, tiki_service, data_repo
-from netsuite import netsuite_service
+from tiki import tiki, tiki_service, order_repo
+from netsuite.order import order_service
 from telegram import telegram
 
 
@@ -15,9 +15,9 @@ def service_factory(session: OAuth2Session):
         return (
             tiki_service.get_orders_service(session, events)
             .bind(
-                netsuite_service.prepare_orders_service(
-                    data_repo.persist_tiki_order,  # type: ignore
-                    tiki_service.prepared_order_builder,
+                order_service.ingest(
+                    order_repo.create,  # type: ignore
+                    tiki_service.builder,
                     telegram.TIKI_CHANNEL,
                 )
             )

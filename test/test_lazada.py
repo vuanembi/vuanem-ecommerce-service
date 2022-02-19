@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from returns.result import Failure
 from returns.pipeline import is_successful
 
 import pytest
 
-from lazada import lazada_service, auth_repo, data_repo
+from lazada import lazada_service, auth_repo, lazada_repo, order_repo
 
 from test.conftest import run
 
@@ -54,13 +56,13 @@ class TestAuth:
         assert is_successful(res)
 
 
-class TestData:
+class TestLazada:
     @pytest.fixture()
     def auth_builder(self):
         return lazada_service.auth_service().unwrap()
 
     def test_get_orders(self, session, auth_builder):
-        res = data_repo.get_orders(session, auth_builder, "2022-01-01T00:00:00")
+        res = lazada_repo.get_orders(session, auth_builder)(datetime(2022, 2, 15))
         assert is_successful(res)
 
     def test_items(self, session, auth_builder):
@@ -75,12 +77,12 @@ class TestData:
         res
 
     def test_get_orders_items(self, session, auth_builder):
-        created_after = data_repo.get_max_created_at()
-        res = created_after.bind(data_repo.get_orders(session, auth_builder))
+        created_after = order_repo.get_max_created_at()
+        res = created_after.bind(lazada_repo.get_orders(session, auth_builder))
         res
 
     def test_get_max_created_at(self):
-        res = data_repo.get_max_created_at()
+        res = order_repo.get_max_created_at()
         res
 
 
