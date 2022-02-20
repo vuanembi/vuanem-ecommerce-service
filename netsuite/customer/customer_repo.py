@@ -1,12 +1,14 @@
 from typing import Optional
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE
+from returns.result import ResultE, safe
 from returns.pipeline import flow
-from returns.pointfree import map_, lash
+from returns.pointfree import map_, lash, bind
 
 from netsuite.customer import customer
 from netsuite.restlet import restlet, restlet_repo
+from netsuite.query import query_service
+from netsuite.query.saved_search import saved_search
 
 
 def add(
@@ -39,21 +41,21 @@ def _build_request(name: str, phone: str) -> customer.CustomerReq:
 
 
 def _get(session: OAuth1Session):
-    def _req(customer_req: customer.CustomerReq) -> ResultE[dict[str, str]]:
-        return restlet_repo.request(
-            session,
-            restlet.Customer,
-            "GET",
-            params={
-                "phone": customer_req["phone"],
+    def _req(customer_req: customer.CustomerReq) -> ResultE[str]:
+        return flow(
+            {
+                "id": saved_search.SavedSearch.Customer.value,
+                "filterExp": [["phone", "contains", customer_req["phone"]]],
             },
+            query_service.saved_search_service(session),
+            bind(safe(lambda x: x[0]["internalid"])),
         )
 
     return _req
 
 
 def _create(session: OAuth1Session):
-    def _req(customer_req: customer.CustomerReq) -> ResultE[dict[str, str]]:
+    def _req(customer_req: customer.CustomerReq) -> ResultE[str]:
         return restlet_repo.request(
             session,
             restlet.Customer,
@@ -64,7 +66,9 @@ def _create(session: OAuth1Session):
                 "lastname": customer_req["lastname"],
                 "phone": customer_req["phone"],
             },
-        )
+        ).map(
+            lambda x: x["id"]
+        )  # type: ignore
 
     return _req
 
@@ -77,7 +81,6 @@ def build(session: OAuth1Session):
             _get(session),
             lash(lambda _: Failure(customer_req)),  # type: ignore
             lash(_create(session)),
-            map_(lambda x: x["id"]),  # type: ignore
             map_(int),
         )
 
