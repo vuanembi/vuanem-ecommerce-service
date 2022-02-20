@@ -76,13 +76,13 @@ def get_auth_builder(token: lazada.AccessToken) -> lazada.AuthBuilder:
 
 def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
     @safe
-    def _get(updated_after: datetime):
+    def _get(update_after: datetime):
         def __get(offset: int = 0):
             with session.send(
                 auth_builder(
                     "/orders/get",
                     {
-                        "updated_after": updated_after.isoformat(timespec="seconds")
+                        "update_after": update_after.isoformat(timespec="seconds")
                         + "Z",
                         "limit": PAGE_LIMIT,
                         "offset": offset,
@@ -97,7 +97,7 @@ def get_orders(session: requests.Session, auth_builder: lazada.AuthBuilder):
                     "updated_at": parse_timestamp(order["updated_at"]),
                 }
                 for order in res["data"]["orders"]
-                if parse_timestamp(order["updated_at"]) != updated_after
+                if parse_timestamp(order["updated_at"]) != update_after
             ]
             return orders if not orders else orders + __get(offset + PAGE_LIMIT)
 

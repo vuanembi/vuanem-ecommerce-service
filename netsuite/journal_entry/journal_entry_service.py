@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 from returns.result import ResultE
 from returns.pipeline import flow
@@ -7,13 +7,26 @@ from returns.pointfree import map_, bind
 from netsuite.restlet import restlet_repo
 from netsuite.location import location
 from netsuite.journal_entry import journal_entry_repo
-from netsuite.analytics.saved_search_service import bank_in_transit
+from netsuite.query import query_service
+from netsuite.query.saved_search import saved_search
 
 
 def bank_in_transit_service(_date: date) -> ResultE[str]:
     with restlet_repo.netsuite_session() as session:
         return flow(
-            bank_in_transit(_date, _date),
+            {
+                "id": saved_search.SavedSearch.BankInTransit.value,
+                "filterExp": [
+                    ["trandate", "WITHIN", _date, _date],
+                    "AND",
+                    ["account.custrecord_intransit_bank_at_store", "IS", "T"],
+                    "AND",
+                    ["account.number", "CONTAINS", "113343"],
+                    "AND",
+                    ["type", "ANYOF", "CustDep", "CustPymt"],
+                ],
+            },
+            query_service.saved_search_service(session),
             map_(journal_entry_repo.build_bank_in_transit_lines),
             map_(  # type: ignore
                 lambda x: {

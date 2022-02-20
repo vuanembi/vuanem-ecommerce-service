@@ -3,10 +3,10 @@ from datetime import date, datetime, timedelta
 
 from flask import Request
 
-from netsuite.journal_entry import bank_in_transit_service
+from netsuite.journal_entry.journal_entry_service import bank_in_transit_service
 
 services = {
-    "/netsuite/journal_entry/bank_in_transit": bank_in_transit_service.bank_in_transit_service,
+    "/netsuite/journal_entry/bank_in_transit": bank_in_transit_service,
 }
 
 

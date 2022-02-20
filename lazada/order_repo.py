@@ -17,21 +17,22 @@ def create(order: lazada.OrderItems) -> DocumentReference:
 
 
 @safe
-def get_max_created_at() -> datetime:
+def get_max_updated_at() -> datetime:
     return (
-        lazada_repo.LAZADA.get(["state.max_created_at"])
-        .get("state.max_created_at")
+        lazada_repo.LAZADA.get(["state.max_updated_at"])
+        .get("state.max_updated_at")
         .replace(tzinfo=None)
     )
 
 
 @safe
-def update_max_created_at(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
+def update_max_updated_at(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
     if orders:
         lazada_repo.LAZADA.set(
             {
                 "state": {
                     "max_created_at": max([order["created_at"] for order in orders]),
+                    "max_updated_at": max([order["updated_at"] for order in orders]),
                 },
             },
             merge=True,
