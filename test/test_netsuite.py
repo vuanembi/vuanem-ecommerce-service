@@ -1,11 +1,11 @@
 from returns.pipeline import is_successful
 
-from netsuite.analytics import analytics_service
+from netsuite.query.analytics import analytics_service
 from netsuite.sales_order import sales_order_repo, sales_order_service
 from netsuite.customer import customer_repo
 from netsuite.item import item_repo
 from netsuite.order import order_service
-from netsuite.journal_entry import bank_in_transit_service
+from netsuite.journal_entry import journal_entry_service
 
 import pytest
 
@@ -106,6 +106,8 @@ class TestAnalytics:
         res = run("/netsuite/analytics/coupon_code", {"data": coupon_codes})
         assert res
 
+
 class TestBankInTransit:
     def test_bank_in_transit_service(self):
-        x = bank_in_transit_service.bank_in_transit_service()
+        res = journal_entry_service.bank_in_transit_service()
+        res
