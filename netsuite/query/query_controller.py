@@ -1,7 +1,7 @@
 from typing import Any
 
 from flask import Request, abort
-from returns.result import Result, ResultE
+from returns.result import Result
 from returns.methods import cond
 
 from netsuite.query.analytics import analytics_service
@@ -22,7 +22,7 @@ def validation_service(
     )
 
 
-def analytics_controller(request: Request) -> dict[str, Any]:
+def query_controller(request: Request) -> dict[str, Any]:
     body = request.get_json()
     if request.path in services and body:
         return services[request.path](body).unwrap()

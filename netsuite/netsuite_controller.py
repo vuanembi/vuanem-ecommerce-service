@@ -3,11 +3,11 @@ from typing import Any, Optional
 from flask import Request, abort
 from returns.result import Success
 
-from netsuite.analytics import analytics_controller
+from netsuite.query import query_controller
 from netsuite.order import order_service
 
 
-analytics_path = [
+query_path = [
     "analytics",
     "saved_search",
 ]
@@ -16,9 +16,9 @@ analytics_path = [
 def netsuite_controller(request: Request) -> dict[str, Any]:
     body: Optional[dict[str, Any]] = request.get_json()
     if body:
-        for path in analytics_path:
+        for path in query_path:
             if path in request.path:
-                return analytics_controller.analytics_controller(request)
+                return query_controller.query_controller(request)
         if request.path == "/netsuite/order":
             if request.method in ["POST", "PUT"] and "prepared_id" in body:
                 svc = (
