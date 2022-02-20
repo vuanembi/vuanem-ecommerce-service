@@ -106,6 +106,7 @@ class TestAnalytics:
         res = run("/netsuite/analytics/coupon_code", {"data": coupon_codes})
         assert res
 
+
 class TestBankInTransit:
     def test_bank_in_transit_service(self):
         res = journal_entry_service.bank_in_transit_service()
