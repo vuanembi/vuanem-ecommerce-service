@@ -38,7 +38,7 @@ def _build_customer_callback(order: sales_order.Order):
             "custbody_recipient": order["custbody_recipient"],
             "custbody_recipient_phone": order["custbody_recipient_phone"],
             "shippingaddress": order["shippingaddress"],
-            "shipaddress": order["shipaddress"].replace('|', "\n"),
+            "shipaddress": order["shipaddress"].replace("|", "\n"),
             "custbody_order_payment_method": order["custbody_order_payment_method"],
             "custbody_expected_shipping_method": order[
                 "custbody_expected_shipping_method"
