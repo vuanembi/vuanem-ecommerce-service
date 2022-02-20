@@ -5,6 +5,7 @@ from returns.pipeline import flow
 from returns.pointfree import lash
 
 from netsuite.query import query_repo
+from netsuite.query.analytics import analytics
 from netsuite.restlet import restlet, restlet_repo
 
 
@@ -13,7 +14,7 @@ def coupon_code_service(data: dict[str, list[str]]) -> ResultE[dict[str, list[st
         return flow(
             data["data"],
             lambda values: {
-                "id": restlet.Dataset.CouponCode.value,
+                "id": analytics.Dataset.CouponCode.value,
                 "cond": [
                     {
                         "fieldId": "code",
