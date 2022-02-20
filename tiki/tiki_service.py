@@ -33,6 +33,16 @@ builder = sales_order_service.build(
         customer.TIKI_CUSTOMER,
         x["shipping"]["address"]["phone"],
         x["shipping"]["address"]["full_name"],
+        "|".join(
+            [
+                x["shipping"]["address"]["full_name"],
+                x["shipping"]["address"]["street"],
+                x["shipping"]["address"]["ward"],
+                x["shipping"]["address"]["district"],
+                x["shipping"]["address"]["region"],
+                x["shipping"]["address"]["country"],
+            ]
+        ),
     ),
 )
 

@@ -38,6 +38,7 @@ def prepared_order() -> sales_order.Order:
         "custbody_recipient": "Hieu",
         "custbody_recipient_phone": "0773314403",
         "shippingaddress": {"addressee": "anh Hiếu"},
+        "shipaddress": "\n".join(["Test", "test", "test"]),
         "custbody_order_payment_method": 23,
         "custbody_expected_shipping_method": 4,
         "custbody_print_form": True,

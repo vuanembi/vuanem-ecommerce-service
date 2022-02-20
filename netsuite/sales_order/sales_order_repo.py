@@ -38,6 +38,7 @@ def _build_customer_callback(order: sales_order.Order):
             "custbody_recipient": order["custbody_recipient"],
             "custbody_recipient_phone": order["custbody_recipient_phone"],
             "shippingaddress": order["shippingaddress"],
+            "shipaddress": order["shipaddress"].replace('|', "\n"),
             "custbody_order_payment_method": order["custbody_order_payment_method"],
             "custbody_expected_shipping_method": order[
                 "custbody_expected_shipping_method"
@@ -69,6 +70,7 @@ def build(session: OAuth1Session):
     def _build(order: sales_order.Order) -> ResultE[sales_order.Order]:
         return flow(
             order,
+            lambda x: (x["custbody_recipient"], x["custbody_recipient_phone"]),
             customer_repo.build(session),
             map_(_build_customer_callback(order)),
         )
