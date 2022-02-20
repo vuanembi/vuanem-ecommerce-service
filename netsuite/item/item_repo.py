@@ -27,7 +27,6 @@ def _map_sku(session: OAuth1Session, sku: str) -> ResultE[int]:
 
 
 def random_item_id() -> int:
-    # ! TODO frontend parseInt(Date.now() * Math.random())
     return int(datetime.now().timestamp() * 1000 * random.random())
 
 

@@ -14,6 +14,7 @@ class Customer(TypedDict):
     custbody_recipient_phone: str
     custbody_recipient: str
     shippingaddress: ShippingAddress
+    shipaddress: str
 
 
 class CustomerReq(TypedDict):
@@ -31,6 +32,7 @@ TIKI_CUSTOMER: Customer = {
     "shippingaddress": {
         "addressee": "TEMP Tiki",
     },
+    "shipaddress": "Số 1 Đào Duy Anh|Phương Mai|Đống Đa|Hà Nội|Việt Nam",
 }
 
 LAZADA_CUSTOMER: Customer = {
@@ -41,6 +43,7 @@ LAZADA_CUSTOMER: Customer = {
     "shippingaddress": {
         "addressee": "TEMP Lazada",
     },
+    "shipaddress": "Số 1 Đào Duy Anh|Phương Mai|Đống Đa|Hà Nội|Việt Nam",
 }
 
 SHOPEE_CUSTOMER: Customer = {
@@ -51,4 +54,5 @@ SHOPEE_CUSTOMER: Customer = {
     "shippingaddress": {
         "addressee": "TEMP Shopee",
     },
+    "shipaddress": "Số 1 Đào Duy Anh|Phương Mai|Đống Đa|Hà Nội|Việt Nam",
 }

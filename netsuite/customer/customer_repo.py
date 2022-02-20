@@ -15,6 +15,7 @@ def add(
     default: customer.Customer,
     phone: Optional[str] = None,
     name: Optional[str] = None,
+    address: Optional[str] = None,
 ) -> customer.Customer:
     return (
         {
@@ -25,8 +26,9 @@ def add(
             "shippingaddress": {
                 "addressee": name,
             },
+            "shipaddress": address,
         }
-        if phone and name
+        if phone and name and address
         else default
     )
 
@@ -74,7 +76,8 @@ def _create(session: OAuth1Session):
 
 
 def build(session: OAuth1Session):
-    def _build(name: str, phone: str) -> ResultE[int]:
+    def _build(name_phone: tuple[str, str]) -> ResultE[int]:
+        name, phone = name_phone
         customer_req = _build_request(name, phone)
         return flow(
             customer_req,
