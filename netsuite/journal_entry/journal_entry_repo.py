@@ -1,3 +1,4 @@
+import os
 from datetime import date, timedelta
 
 from dateutil import rrule
@@ -55,7 +56,7 @@ def build(entry: journal_entry.JournalEntryDraft) -> journal_entry.JournalEntry:
 
 
 def create(session: OAuth1Session):
-    def _create(order: sales_order.Order) -> ResultE[dict]:
+    def _create(order: sales_order.Order) -> ResultE[dict[str, str]]:
         return restlet_repo.request(
             session,
             restlet.JournalEntry,
@@ -66,3 +67,10 @@ def create(session: OAuth1Session):
         )
 
     return _create
+
+
+def get_url(id: str) -> str:
+    return (
+        f"https://{os.getenv('ACCOUNT_ID')}.app.netsuite.com/"
+        + f"app/accounting/transactions/journal.nl?id={id}"
+    )

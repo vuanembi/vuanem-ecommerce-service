@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mail</title>
+    </head>
+    <body>
+        <h2>Link JE đã tạo</h2>
+        <a href="{{link}}">{{link}}</a>
+        <h2>Danh sách CD/CP</h2>
+        <table>
+            <tr>
+                {% for header in headers %}
+                <td>{{ header }}</td>
+                {% endfor %}
+            </tr>
+            {% for entry in entries %}
+            <tr>
+                {% for header in headers %}
+                <td>{{ entry[header] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

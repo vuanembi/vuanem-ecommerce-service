@@ -10,3 +10,7 @@ class Order(TypedDict):
     created_at: str
     updated_at: str
     is_deleted: bool
+
+
+class OrderRequest(TypedDict):
+    id: str

@@ -1,45 +1,18 @@
-from typing import Any, Optional
+from typing import Any
 
 from flask import Request, abort
-from returns.result import Success
 
-from netsuite.query import query_controller
-from netsuite.order import order_service
-
-
-query_path = [
-    "analytics",
-    "saved_search",
-]
+from netsuite.query.query_controller import query_controller
+from netsuite.journal_entry.journal_entry_controller import journal_entry_controller
+from netsuite.order.order_controller import order_controller
 
 
 def netsuite_controller(request: Request) -> dict[str, Any]:
-    body: Optional[dict[str, Any]] = request.get_json()
-    if body:
-        for path in query_path:
-            if path in request.path:
-                return query_controller.query_controller(request)
-        if request.path == "/netsuite/order":
-            if request.method in ["POST", "PUT"] and "prepared_id" in body:
-                svc = (
-                    order_service.close
-                    if request.method == "PUT"
-                    else order_service.create
-                )
-                return (
-                    svc(body["prepared_id"])  # type: ignore
-                    .map(
-                        lambda x: {
-                            "status": 200,
-                            "result": x[0],
-                        }
-                    )
-                    .lash(lambda x: Success(abort(400, repr(x[0]))))
-                ).unwrap()
-
-            else:
-                return abort(400)
-        else:
-            return abort(404)
+    if "analytics" or "saved_search" in request.path:
+        return query_controller(request)
+    elif "order" in request.path:
+        return order_controller(request)
+    elif "journal_entry" in request.path:
+        return journal_entry_controller(request)
     else:
-        return abort(400)
+        abort(404)

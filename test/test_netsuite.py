@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from returns.pipeline import is_successful
 
 from netsuite.query.analytics import analytics_service
@@ -108,6 +110,12 @@ class TestAnalytics:
 
 
 class TestBankInTransit:
-    def test_bank_in_transit_service(self):
-        res = journal_entry_service.bank_in_transit_service()
+    def test_service(self):
+        res = journal_entry_service.bank_in_transit_service(
+            date.today() - timedelta(days=1)
+        )
+        res
+
+    def test_controller(self):
+        res = run("/netsuite/journal_entry/bank_in_transit")
         res
