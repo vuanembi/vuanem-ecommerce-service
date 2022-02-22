@@ -8,7 +8,7 @@ from netsuite.order.order_controller import order_controller
 
 
 def netsuite_controller(request: Request) -> dict[str, Any]:
-    if "analytics" or "saved_search" in request.path:
+    if "analytics" in request.path or "saved_search" in request.path:
         return query_controller(request)
     elif "order" in request.path:
         return order_controller(request)
