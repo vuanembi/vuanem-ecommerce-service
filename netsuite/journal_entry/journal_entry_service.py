@@ -23,7 +23,10 @@ def bank_in_transit_service(_date: date) -> ResultE[str]:
             "memo",
         ]
         sendgrid_repo.send_email(
-            to=["bi@vuanem.com", "doisoat.tckt@vuanem.com.vn,"],
+            to=[
+                "bi@vuanem.com",
+                "doisoat.tckt@vuanem.com.vn",
+            ],
             subject=f"VNBI Bank In Transit {_date.isoformat()}",
             content=[
                 {
