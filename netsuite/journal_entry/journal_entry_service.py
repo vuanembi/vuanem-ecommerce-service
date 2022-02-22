@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, timedelta
 
-from returns.result import ResultE, Success
+from returns.result import ResultE, Success, Failure
 from returns.pipeline import flow
 from returns.pointfree import map_, bind
 from returns.curry import curry
@@ -13,9 +13,11 @@ from netsuite.query.saved_search import saved_search
 from mail import sendgrid_repo, template_repo
 
 
-def bank_in_transit_service(_date: date) -> ResultE[str]:
+def bank_in_transit_service(
+    _date: date = date.today() - timedelta(days=1),
+) -> ResultE[str]:
     @curry
-    def _send_email(entries: list[dict[str, str]], je_id: str):
+    def _send_email(entries: list[dict[str, str]], je_id: str) -> str:
         fields = [
             "tranid",
             "trandate",
@@ -62,8 +64,10 @@ def bank_in_transit_service(_date: date) -> ResultE[str]:
             },
             query_service.saved_search_service(session),
         )
+
         je_id = flow(
             entries,
+            bind(lambda x: Success(x) if x else Failure(x)),  # type: ignore
             map_(journal_entry_repo.build_bank_in_transit_lines),
             map_(  # type: ignore
                 lambda x: {
@@ -78,8 +82,12 @@ def bank_in_transit_service(_date: date) -> ResultE[str]:
             bind(journal_entry_repo.create(session)),
             map_(lambda x: x["id"]),  # type: ignore
         )
-        return flow(
-            Success(_send_email),
-            entries.apply,
-            je_id.apply,
+        return (
+            flow(
+                Success(_send_email),
+                entries.apply,
+                je_id.apply,
+            )
+            .map(lambda x: {"result": x})
+            .lash(lambda _: Success({"result": None}))
         )
