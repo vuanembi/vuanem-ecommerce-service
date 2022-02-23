@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from returns.result import ResultE, Success, Failure
 from returns.pipeline import flow
@@ -13,9 +13,13 @@ from netsuite.query.saved_search import saved_search
 from mail import sendgrid_repo, template_repo
 
 
-def bank_in_transit_service(
-    _date: date = date.today() - timedelta(days=1),
-) -> ResultE[str]:
+def bank_in_transit_service(body: dict[str, str]) -> ResultE[str]:
+    _date = (
+        datetime.strptime(body["date"], "%Y-%m-%d").date()
+        if body and "date" in body and body["date"]
+        else date.today() - timedelta(days=1)
+    )
+
     @curry
     def _send_email(entries: list[dict[str, str]], je_id: str) -> str:
         fields = [

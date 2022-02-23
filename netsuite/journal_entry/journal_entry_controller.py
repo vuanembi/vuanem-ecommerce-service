@@ -9,4 +9,4 @@ services = {
 
 def journal_entry_controller(request: Request):
     if request.path in services:
-        return services[request.path]().unwrap()
+        return services[request.path](request.get_json()).unwrap()

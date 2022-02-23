@@ -116,6 +116,13 @@ class TestBankInTransit:
         )
         res
 
-    def test_controller(self):
-        res = run("/netsuite/journal_entry/bank_in_transit")
+    @pytest.mark.parametrize(
+        "_date",
+        [
+            None,
+            "2022-02-20",
+        ],
+    )
+    def test_controller(self, _date: str):
+        res = run("/netsuite/journal_entry/bank_in_transit", {"date": _date})
         res
