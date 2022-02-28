@@ -15,7 +15,7 @@ BASE_URL = "https://partner.shopeemobile.com"
 API_PATH = "api/v2"
 PARTNER_ID = 2002943
 SHOP_ID = 179124960
-TIME_RANGE_FIELD = "update_time"
+TIME_RANGE_FIELD = "create_time"
 PAGE_SIZE = 100
 BATCH_SIZE = 45
 

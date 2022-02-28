@@ -75,7 +75,7 @@ def _get_orders_items(
             created_after,
             lazada_repo.get_orders(session, auth_builder),
             bind(_get_items(session, auth_builder)),
-            bind(order_repo.update_max_updated_at),
+            bind(order_repo.update_max_created_at),
         )
 
 
@@ -84,6 +84,6 @@ def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
         flow(  # type: ignore
             Success(_get_orders_items),
             auth_service().apply,
-            order_repo.get_max_updated_at().apply,
+            order_repo.get_max_created_at().apply,
         )
     )
