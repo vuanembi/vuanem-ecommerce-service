@@ -1,5 +1,3 @@
-from datetime import date, timedelta
-
 from returns.pipeline import is_successful
 
 from netsuite.query.analytics import analytics_service
@@ -7,7 +5,7 @@ from netsuite.sales_order import sales_order_repo, sales_order_service
 from netsuite.customer import customer_repo
 from netsuite.item import item_repo
 from netsuite.order import order_service
-from netsuite.journal_entry import journal_entry_service
+from netsuite.journal_entry import journal_entry_controller
 
 import pytest
 
@@ -110,19 +108,26 @@ class TestAnalytics:
 
 
 class TestBankInTransit:
-    def test_service(self):
-        res = journal_entry_service.bank_in_transit_service(
-            date.today() - timedelta(days=1)
-        )
-        res
+    @pytest.fixture(
+        params=journal_entry_controller.services.items(),
+        ids=[i.split("/")[-1] for i in journal_entry_controller.services.keys()],
+    )
+    def service(self, request):
+        return request.param
 
-    @pytest.mark.parametrize(
-        "_date",
-        [
+    @pytest.fixture(
+        params=[
             None,
             "2022-02-20",
         ],
     )
-    def test_controller(self, _date: str):
-        res = run("/netsuite/journal_entry/bank_in_transit", {"date": _date})
+    def _date(self, request):
+        return request.param
+
+    def test_service(self, service, _date):
+        res = service[1]({"date": _date})
+        res
+
+    def test_controller(self, service, _date):
+        res = run(service[0], {"date": _date})
         res
