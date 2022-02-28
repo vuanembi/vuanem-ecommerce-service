@@ -46,6 +46,7 @@ def build_bank_in_transit_lines(dr_account: int, cr_account: int):
                 for entry in entries
             ],
         ]
+
     return _build
 
 
