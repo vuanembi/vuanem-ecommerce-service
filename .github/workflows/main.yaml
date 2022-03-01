@@ -18,6 +18,8 @@ env:
 jobs:
   set-env:
     runs-on: ubuntu-latest
+    outputs:
+      fn-name: ${{ steps.set-fn-name.outputs.fn-name }}
     steps: 
       - name: Set env vars (dev)
         if: endsWith(github.ref, '/dev')
@@ -32,6 +34,10 @@ jobs:
           echo "FUNCTION_NAME=vuanem-ecommerce-service" >> $GITHUB_ENV
           echo "PYTHON_ENV=prod" >> $GITHUB_ENV
           echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
+
+      - id: set-fn-name
+        name: Set Function Name
+        run: echo "::set-output name=fn-name::${{ env.FUNCTION_NAME}}"
       
       - name: Create ${{ env.ENV_KEY }}
         run: |
@@ -74,7 +80,7 @@ jobs:
       - name: Deploy
         uses: google-github-actions/deploy-cloud-functions@v0
         with:
-          name: ${{ env.FUNCTION_NAME }}
+          name: ${{ needs.set-env.outputs.fn-name }}
           entry_point: main
           runtime: python39
           memory_mb: 2048MB,
