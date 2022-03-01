@@ -33,4 +33,5 @@ class Item(TypedDict):
 class Order(TypedDict):
     order_sn: OrderSN
     create_time: int
+    update_time: int
     item_list: list[Item]

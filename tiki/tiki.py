@@ -40,6 +40,7 @@ class SellerIncomeDetail(TypedDict):
 
 
 class Item(TypedDict):
+    _fulfillment_type: str
     product: Product
     seller_income_detail: SellerIncomeDetail
 
@@ -59,5 +60,10 @@ class Shipping(TypedDict):
 class Order(TypedDict):
     id: int
     code: str
+    fulfillment_type: str
+    status: str
+    inventory_status: str
     items: list[Item]
     shipping: Shipping
+    created_at: str
+    updated_at: str

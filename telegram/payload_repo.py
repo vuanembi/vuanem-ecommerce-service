@@ -2,7 +2,7 @@ import json
 
 import yaml
 
-from netsuite.netsuite_repo import get_sales_order_url
+from netsuite.sales_order.sales_order_repo import get_url
 from telegram import telegram
 
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
@@ -77,7 +77,7 @@ def add_create_order_success(id: str, memo: str) -> telegram.Payload:
             [
                 f"Tạo đơn hàng `{memo}` thành công `{id}` ^^",
                 DIVIDER,
-                f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
+                f"Check ngay: [{get_url(id)}]({get_url(id)})",
             ]
         )
     }
@@ -118,7 +118,7 @@ def add_close_order_success(id: str, memo: str) -> telegram.Payload:
             [
                 f"Đóng đơn hàng `{memo}` thành công `{id}`",
                 DIVIDER,
-                f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
+                f"Check ngay: [{get_url(id)}]({get_url(id)})",
             ]
         )
     }
@@ -130,7 +130,7 @@ def add_close_order_error(error: Exception, memo: str, id: str) -> telegram.Payl
             [
                 f"Đóng đơn hàng `{memo}` thất bại `{id}`",
                 DIVIDER,
-                f"Check ngay: [{get_sales_order_url(id)}]({get_sales_order_url(id)})",
+                f"Check ngay: [{get_url(id)}]({get_url(id)})",
                 "```",
                 repr(error),
                 "```",

@@ -5,7 +5,8 @@ import json
 import requests
 import pytest
 
-from netsuite import netsuite, restlet_repo
+from netsuite.sales_order import sales_order
+from netsuite.restlet import restlet_repo
 from main import main
 
 
@@ -24,8 +25,9 @@ def run(path: str, data: Optional[dict] = None) -> dict:
 
 
 @pytest.fixture()
-def prepared_order() -> netsuite.PreparedOrder:
+def prepared_order() -> sales_order.Order:
     return {
+        "entity": None,
         "trandate": "2021-10-26",
         "shipdate": "2021-10-29",
         "subsidiary": 1,
@@ -36,6 +38,7 @@ def prepared_order() -> netsuite.PreparedOrder:
         "custbody_recipient": "Hieu",
         "custbody_recipient_phone": "0773314403",
         "shippingaddress": {"addressee": "anh Hiếu"},
+        "shipaddress": "\n".join(["Test", "test", "test"]),
         "custbody_order_payment_method": 23,
         "custbody_expected_shipping_method": 4,
         "custbody_print_form": True,

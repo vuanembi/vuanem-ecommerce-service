@@ -30,11 +30,11 @@ def test_send_new_order(channel, order, id):
 
 
 def test_send_create_order_success(id):
-    message_service.send_create_order_success(-645664226, 643)((1, id))
+    message_service.send_create_order_success(-645664226, 643, 1)((1, id))
 
 
 def test_send_create_order_error():
-    message_service.send_create_order_error(-645664226, 643)(
+    message_service.send_create_order_error(-645664226, 643, 1)(
         (Exception("Test exception"), "q23")
     )
 
