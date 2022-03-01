@@ -47,11 +47,11 @@ jobs:
           echo "CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}" >> ${{ env.ENV_FILE }}
           echo "ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}" >> ${{ env.ENV_FILE }}
           echo "TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}" >> ${{ env.ENV_FILE }}
-          echo "ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}" >> ${{ env.ENV_FILE }}
+          echo "ACCOUNT_ID: '${{ secrets.ACCOUNT_ID }}'" >> ${{ env.ENV_FILE }}
           echo "TIKI_CLIENT_SECRET: ${{ secrets.TIKI_CLIENT_SECRET }}" >> ${{ env.ENV_FILE }}
           echo "LAZ_APP_SECRET: ${{ secrets.LAZ_APP_SECRET }}" >> ${{ env.ENV_FILE }}
           echo "SHOPEE_API_KEY: ${{ secrets.SHOPEE_API_KEY }}" >> ${{ env.ENV_FILE }}
-          echo "SENDGRID_API_KEY: ${{ secrets.SECRET_KEY }}" >> ${{ env.ENV_FILE }}
+          echo "SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}" >> ${{ env.ENV_FILE }}
 
       - name: Upload ${{ env.ENV_FILE }}
         uses: actions/upload-artifact@v2
