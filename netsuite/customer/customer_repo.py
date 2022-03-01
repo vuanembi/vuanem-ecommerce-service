@@ -1,7 +1,7 @@
 from typing import Optional
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE, safe
+from returns.result import ResultE, Failure, safe
 from returns.pipeline import flow
 from returns.pointfree import map_, lash, bind
 
