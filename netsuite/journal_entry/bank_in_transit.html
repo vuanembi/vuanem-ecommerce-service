@@ -11,18 +11,22 @@
         <a href="{{link}}">{{link}}</a>
         <h2>Danh sách CD/CP</h2>
         <table>
-            <tr>
-                {% for header in headers %}
-                <td>{{ header }}</td>
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    <th scope="col">{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for entry in entries %}
+            </thead>
+            <tbody>
+                <tr>
+                    {% for header in headers %}
+                    <td>{{ entry[header] }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% for entry in entries %}
-            <tr>
-                {% for header in headers %}
-                <td>{{ entry[header] }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
+            </tbody>
         </table>
     </body>
 </html>
