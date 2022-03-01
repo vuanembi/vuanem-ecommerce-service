@@ -7,7 +7,7 @@ from returns.pointfree import bind, map_, alt
 from google.cloud.firestore import DocumentReference
 
 from netsuite.sales_order import sales_order, sales_order_service
-from netsuite.order import order_repo
+from netsuite.order import order, order_repo
 from telegram import telegram, message_service
 
 
@@ -35,12 +35,17 @@ def ingest(
     return _svc
 
 
-def operation(ops: Callable[[sales_order.Order], ResultE[int]], status: str):
+def operation(
+    validator: Callable[[order.Order], Result[order.Order, str]],
+    ops: Callable[[sales_order.Order], ResultE[int]],
+    status: str,
+):
     def _operation(id: str) -> Result[tuple[int, str], tuple[Exception, str]]:
         def __operation(order_doc_ref: DocumentReference) -> ResultE[tuple[int, str]]:
-            return flow(
+            return flow( # type: ignore
                 order_doc_ref,
-                map_(lambda x: x.get().to_dict()),  # type: ignore
+                lambda x: x.get().to_dict(),  # type: ignore
+                validator,
                 map_(lambda x: x["order"]),  # type: ignore
                 bind(ops),
                 bind(order_repo.update(order_doc_ref, status)),
@@ -50,11 +55,19 @@ def operation(ops: Callable[[sales_order.Order], ResultE[int]], status: str):
         return flow(  # type: ignore
             id,
             order_repo.get,
-            map_(__operation),
+            bind(__operation),
         )
 
     return _operation
 
 
-create = operation(sales_order_service.create, "created")
-close = operation(sales_order_service.close, "closed")
+create = operation(
+    order_repo.validate("pending"),
+    sales_order_service.create,
+    "created",
+)
+close = operation(
+    order_repo.validate("created"),
+    sales_order_service.close,
+    "closed",
+)

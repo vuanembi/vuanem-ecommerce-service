@@ -59,35 +59,39 @@ class TestSalesOrder:
 
 
 class TestOrder:
-    @pytest.mark.parametrize(
-        "id",
-        [
-            "03dbXLxJayed9gbWDvcN",
-            "0CM8MOAl8H6VEINaYuIB",
-        ],
-        ids=[
-            "success",
-            "fail",
+    @pytest.fixture(
+        params=[
+            "tYhgMsckwOhfIyga97aL",
         ],
     )
-    def test_create_service(self, id):
-        res = order_service.create(id)
+    def order_id(self, request):
+        return request.param
+
+    @pytest.mark.parametrize(
+        "service",
+        [
+            order_service.create,
+            order_service.close,
+        ],
+        ids=[
+            "create",
+            "close",
+        ],
+    )
+    def test_service(self, service, order_id):
+        res = service(order_id)
         assert res
 
     @pytest.mark.parametrize(
-        "id",
+        "method",
         [
-            "03dbXLxJayed9gbWDvcN",
-            "0CM8MOAl8H6VEINaYuIB",
-        ],
-        ids=[
-            "success",
-            "fail",
+            "POST",
+            "PUT",
         ],
     )
-    def test_close_service(self, id):
-        res = order_service.close(id)
-        assert res
+    def test_controller(self, method, order_id):
+        res = run("/netsuite/order", {"id": order_id}, method)
+        res
 
 
 class TestAnalytics:

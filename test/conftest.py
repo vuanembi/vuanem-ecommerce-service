@@ -20,8 +20,15 @@ def netsuite_session():
     return restlet_repo.netsuite_session()
 
 
-def run(path: str, data: Optional[dict] = None) -> dict:
-    return main(Mock(get_json=Mock(return_value=data), path=path, args=data))
+def run(path: str, data: Optional[dict] = None, method: str = "POST") -> dict:
+    return main(
+        Mock(
+            get_json=Mock(return_value=data),
+            path=path,
+            args=data,
+            method=method,
+        )
+    )
 
 
 @pytest.fixture()
