@@ -16,7 +16,7 @@ def create(
     existing = ORDER.where("source_ref", "==", source_ref).get()
     if existing:
         existing_ref = existing[0].reference
-        existing_ref.set(
+        existing_ref.update(
             {
                 "updated_at": SERVER_TIMESTAMP,
             }
