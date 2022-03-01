@@ -35,19 +35,19 @@ jobs:
       
       - name: Create ${{ env.ENV_KEY }}
         run: |
-          echo "PYTHON_ENV: ${{ env.PYTHON_ENV }}" >> ${{ env.ENV_KEY }}
-          echo "TELEGRAM_TOKEN: ${{ env.TELEGRAM_TOKEN }}" >> ${{ env.ENV_KEY }}
-          echo "CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}" >> ${{ env.ENV_KEY }}
-          echo "CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}" >> ${{ env.ENV_KEY }}
-          echo "ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}" >> ${{ env.ENV_KEY }}
-          echo "TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}" >> ${{ env.ENV_KEY }}
-          echo "ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}" >> ${{ env.ENV_KEY }}
-          echo "TIKI_CLIENT_SECRET: ${{ secrets.TIKI_CLIENT_SECRET }}" >> ${{ env.ENV_KEY }}
-          echo "LAZ_APP_SECRET: ${{ secrets.LAZ_APP_SECRET }}" >> ${{ env.ENV_KEY }}
-          echo "SHOPEE_API_KEY: ${{ secrets.SHOPEE_API_KEY }}" >> ${{ env.ENV_KEY }}
-          echo "SENDGRID_API_KEY: ${{ secrets.SECRET_KEY }}" >> ${{ env.ENV_KEY }}
+          echo "PYTHON_ENV: ${{ env.PYTHON_ENV }}" >> ${{ env.ENV_FILE }}
+          echo "TELEGRAM_TOKEN: ${{ env.TELEGRAM_TOKEN }}" >> ${{ env.ENV_FILE }}
+          echo "CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}" >> ${{ env.ENV_FILE }}
+          echo "CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}" >> ${{ env.ENV_FILE }}
+          echo "ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}" >> ${{ env.ENV_FILE }}
+          echo "TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}" >> ${{ env.ENV_FILE }}
+          echo "ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}" >> ${{ env.ENV_FILE }}
+          echo "TIKI_CLIENT_SECRET: ${{ secrets.TIKI_CLIENT_SECRET }}" >> ${{ env.ENV_FILE }}
+          echo "LAZ_APP_SECRET: ${{ secrets.LAZ_APP_SECRET }}" >> ${{ env.ENV_FILE }}
+          echo "SHOPEE_API_KEY: ${{ secrets.SHOPEE_API_KEY }}" >> ${{ env.ENV_FILE }}
+          echo "SENDGRID_API_KEY: ${{ secrets.SECRET_KEY }}" >> ${{ env.ENV_FILE }}
 
-      - name: Upload env.yaml
+      - name: Upload ${{ env.ENV_FILE }}
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ENV_KEY }}
@@ -61,7 +61,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Download env.yaml
+      - name: Download ${{ env.ENV_FILE }}
         uses: actions/download-artifact@v2
         with:
           name: ${{ env.ENV_KEY }}
