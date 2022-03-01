@@ -59,13 +59,12 @@ def validate(status: str):
 def update(order_doc_ref: DocumentReference, status: str):
     @safe
     def _update(id: int) -> tuple[int, str]:
-        order_doc_ref.set(
+        order_doc_ref.update(
             {
                 "status": status,
                 "order.id": id,
                 "updated_at": SERVER_TIMESTAMP,
             },
-            merge=True,
         )
         return id, order_doc_ref.get(["order.memo"]).get("order.memo")
 

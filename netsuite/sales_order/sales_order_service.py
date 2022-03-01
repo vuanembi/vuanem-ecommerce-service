@@ -69,7 +69,7 @@ def close(order: sales_order.Order) -> ResultE[int]:
     with restlet_repo.netsuite_session() as session:
         return flow(  # type: ignore
             order,
-            lambda x: x["order"]["id"],
-            bind(sales_order_repo.close(session)),
-            map_(lambda x: int(x["id"])),  # type: ignore
+            lambda x: x["id"],
+            sales_order_repo.close(session),
+            map_(lambda x: x["id"]),  # type: ignore
         )
