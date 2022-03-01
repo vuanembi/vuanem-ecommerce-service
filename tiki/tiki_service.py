@@ -35,12 +35,12 @@ builder = sales_order_service.build(
         x["shipping"]["address"]["full_name"],
         "|".join(
             [
-                x["shipping"]["address"]["full_name"],
-                x["shipping"]["address"]["street"],
-                x["shipping"]["address"]["ward"],
-                x["shipping"]["address"]["district"],
-                x["shipping"]["address"]["region"],
-                x["shipping"]["address"]["country"],
+                x["shipping"]["address"].get("full_name"),
+                x["shipping"]["address"].get("street", "Phố X"),
+                x["shipping"]["address"].get("ward", "Phường X"),
+                x["shipping"]["address"].get("district", "Quận X"),
+                x["shipping"]["address"].get("region", "Tỉnh X"),
+                x["shipping"]["address"].get("country", "X"),
             ]
         ),
     ),
