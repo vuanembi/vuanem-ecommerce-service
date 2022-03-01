@@ -34,9 +34,19 @@ class Product(TypedDict):
     seller_product_code: str
 
 
+class DiscountCoupon(TypedDict):
+    seller_discount: int
+
+
+class Discount(TypedDict):
+    discount_coupon: DiscountCoupon
+
+
 class SellerIncomeDetail(TypedDict):
+    item_price: int
     item_qty: int
     sub_total: int
+    discount: Discount
 
 
 class Item(TypedDict):

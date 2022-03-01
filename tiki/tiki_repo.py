@@ -58,8 +58,16 @@ def get_order(session: Session) -> Callable[[str], ResultE[tiki.Order]]:
                         "seller_product_code": item["product"]["seller_product_code"],
                     },
                     "seller_income_detail": {
+                        "item_price": item["seller_income_detail"]["item_price"],
                         "item_qty": item["seller_income_detail"]["item_qty"],
                         "sub_total": item["seller_income_detail"]["sub_total"],
+                        "discount": {
+                            "discount_coupon": {
+                                "seller_discount": item["seller_income_detail"][
+                                    "discount"
+                                ]["discount_coupon"]["seller_discount"]
+                            },
+                        },
                     },
                 }
                 for item in data["items"]
