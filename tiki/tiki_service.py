@@ -23,7 +23,7 @@ builder = sales_order_service.build(
     item_amt_fn=lambda x: (
         x["seller_income_detail"]["item_price"] * x["seller_income_detail"]["item_qty"]
     )
-    - x["seller_income_detail"]["discount"]["discount_coupon"]
+    - x["seller_income_detail"]["discount"]["discount_coupon"]["seller_discount"]
     if x["_fulfillment_type"] == "tiki_delivery"
     else x["seller_income_detail"]["sub_total"],
     item_location=sales_order.TIKI_ECOMMERCE["location"],
