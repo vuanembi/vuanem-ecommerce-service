@@ -40,16 +40,18 @@ jobs:
           echo "PYTHON_ENV=prod" >> $GITHUB_ENV
           echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Deploy to Cloud Functions
-        run: >-
-          gcloud functions deploy ${{ env.FUNCTION_NAME }}
-          --allow-unauthenticated
-          --entry-point=main
-          --region=us-central1
-          --timeout=530
-          --project=${{ env.PROJECT_ID }}
-          --memory=4096MB
-          --runtime=python39
-          --trigger-http
-          --service-account=${{ env.GCP_SA }}
-          --set-env-vars=PYTHON_ENV=${{ env.PYTHON_ENV }},CONSUMER_KEY=${{ secrets.CONSUMER_KEY }},CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }},ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }},TOKEN_SECRET=${{ secrets.TOKEN_SECRET }},ACCOUNT_ID=${{ secrets.ACCOUNT_ID }},TIKI_CLIENT_SECRET=${{ secrets.TIKI_CLIENT_SECRET }},LAZ_APP_SECRET=${{ secrets.LAZ_APP_SECRET }},SHOPEE_API_KEY=${{ secrets.SHOPEE_API_KEY }},TELEGRAM_TOKEN=${{ env.TELEGRAM_TOKEN }},SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
+      - name: Auth
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: Deploy
+        uses: google-github-actions/deploy-cloud-functions@v0
+        with:
+          name: ${{ env.FUNCTION_NAME }}
+          entry_point: main
+          runtime: python39
+          memory_mb: 2048MB,
+          timeout: 530,
+          service_account_email: ${{ env.GCP_SA }}
+          env_vars: PYTHON_ENV=${{ env.PYTHON_ENV }},CONSUMER_KEY=${{ secrets.CONSUMER_KEY }},CONSUMER_SECRET=${{ secrets.CONSUMER_SECRET }},ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }},TOKEN_SECRET=${{ secrets.TOKEN_SECRET }},ACCOUNT_ID=${{ secrets.ACCOUNT_ID }},TIKI_CLIENT_SECRET=${{ secrets.TIKI_CLIENT_SECRET }},LAZ_APP_SECRET=${{ secrets.LAZ_APP_SECRET }},SHOPEE_API_KEY=${{ secrets.SHOPEE_API_KEY }},TELEGRAM_TOKEN=${{ env.TELEGRAM_TOKEN }},SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
