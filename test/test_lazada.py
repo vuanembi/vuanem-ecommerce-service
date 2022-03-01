@@ -77,12 +77,12 @@ class TestLazada:
         res
 
     def test_get_orders_items(self, session, auth_builder):
-        created_after = order_repo.get_max_updated_at()
+        created_after = order_repo.get_max_created_at()
         res = created_after.bind(lazada_repo.get_orders(session, auth_builder))
         res
 
-    def test_get_max_updated_at(self):
-        res = order_repo.get_max_updated_at()
+    def test_get_max_created_at(self):
+        res = order_repo.get_max_created_at()
         res
 
 
