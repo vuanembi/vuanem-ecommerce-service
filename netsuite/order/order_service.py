@@ -42,7 +42,7 @@ def operation(
 ):
     def _operation(id: str) -> Result[tuple[int, str], tuple[Exception, str]]:
         def __operation(order_doc_ref: DocumentReference) -> ResultE[tuple[int, str]]:
-            return flow( # type: ignore
+            return flow(  # type: ignore
                 order_doc_ref,
                 lambda x: x.get().to_dict(),  # type: ignore
                 validator,
