@@ -33,7 +33,7 @@ builder = sales_order_service.build(
         customer.TIKI_CUSTOMER,
         x["shipping"]["address"]["phone"],
         x["shipping"]["address"]["full_name"],
-        "|".join(
+        customer_repo.add_shipping_address(
             [
                 x["shipping"]["address"].get("full_name"),
                 x["shipping"]["address"].get("street", "Phố X"),

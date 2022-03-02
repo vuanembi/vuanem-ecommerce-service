@@ -61,7 +61,7 @@ class TestSalesOrder:
 class TestOrder:
     @pytest.fixture(
         params=[
-            "tYhgMsckwOhfIyga97aL",
+            "tr1C9m41nQTTWgM4DK37",
         ],
     )
     def order_id(self, request):

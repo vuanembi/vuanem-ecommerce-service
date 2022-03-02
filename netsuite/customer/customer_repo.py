@@ -11,6 +11,10 @@ from netsuite.query import query_service
 from netsuite.query.saved_search import saved_search
 
 
+def add_shipping_address(components: list[str]) -> str:
+    return f"{customer.SHIPPING_ADDRESS_SEPARATOR} ".join(components)
+
+
 def add(
     default: customer.Customer,
     phone: Optional[str] = None,
@@ -30,6 +34,12 @@ def add(
         }
         if phone and name and address
         else default
+    )
+
+
+def serialize_shipping_address(address: str) -> str:
+    return "\n".join(
+        [i.strip() for i in address.split(customer.SHIPPING_ADDRESS_SEPARATOR)]
     )
 
 
