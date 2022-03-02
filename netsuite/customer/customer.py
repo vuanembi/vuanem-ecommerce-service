@@ -3,6 +3,18 @@ from typing import TypedDict, Optional
 
 LEAD_SOURCE = 144506
 
+SHIPPING_ADDRESS_SEPARATOR = ";"
+
+ROOT_ADDRESS = f"{SHIPPING_ADDRESS_SEPARATOR} ".join(
+    [
+        "Số 1 Đào Duy Anh",
+        "Phương Mai",
+        "Đống Đa",
+        "Hà Nội",
+        "Việt Nam",
+    ]
+)
+
 
 class ShippingAddress(TypedDict):
     addressee: str
@@ -32,7 +44,7 @@ TIKI_CUSTOMER: Customer = {
     "shippingaddress": {
         "addressee": "TEMP Tiki",
     },
-    "shipaddress": "Số 1 Đào Duy Anh|Phương Mai|Đống Đa|Hà Nội|Việt Nam",
+    "shipaddress": ROOT_ADDRESS,
 }
 
 LAZADA_CUSTOMER: Customer = {
@@ -43,7 +55,7 @@ LAZADA_CUSTOMER: Customer = {
     "shippingaddress": {
         "addressee": "TEMP Lazada",
     },
-    "shipaddress": "Số 1 Đào Duy Anh|Phương Mai|Đống Đa|Hà Nội|Việt Nam",
+    "shipaddress": ROOT_ADDRESS,
 }
 
 SHOPEE_CUSTOMER: Customer = {
@@ -54,5 +66,5 @@ SHOPEE_CUSTOMER: Customer = {
     "shippingaddress": {
         "addressee": "TEMP Shopee",
     },
-    "shipaddress": "Số 1 Đào Duy Anh|Phương Mai|Đống Đa|Hà Nội|Việt Nam",
+    "shipaddress": ROOT_ADDRESS,
 }
