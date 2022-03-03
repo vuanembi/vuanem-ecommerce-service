@@ -1,5 +1,7 @@
-import yaml
+from typing import Optional, Any
+import json
 
+import yaml
 from google.cloud.firestore import DocumentReference
 
 from netsuite.order import order
@@ -7,6 +9,14 @@ from netsuite.sales_order import sales_order_repo
 from telegram import telegram, telegram_repo
 
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
+
+
+def safe_encode(value: Any) -> Optional[Any]:
+    try:
+        json.dumps(value)
+        return value
+    except:
+        return None
 
 
 def get_url(id):
@@ -24,10 +34,14 @@ def send_new_order(channel: telegram.Channel):
                         DIVIDER,
                         "```",
                         yaml.dump(
-                            order_ref.get(["source_ref"])
-                            .get("source_ref")
-                            .get()
-                            .to_dict(),
+                            {
+                                k: safe_encode(v)
+                                for k, v in order_ref.get(["source_ref"])
+                                .get("source_ref")
+                                .get()
+                                .to_dict()
+                                .items()
+                            },
                             allow_unicode=True,
                         ),
                         "```",
