@@ -12,7 +12,7 @@ from netsuite.netsuite_controller import netsuite_controller
 def main(request: Request) -> dict[str, Any]:
     request_path = request.path
 
-    print(request_path, request.get_json())
+    print(request.method, request_path, request.get_json())
 
     if request_path.startswith("/tiki"):
         response = tiki_controller(request)

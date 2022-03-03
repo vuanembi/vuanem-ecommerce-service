@@ -58,7 +58,7 @@ def validate(status: str):
 
 def update(order_doc_ref: DocumentReference, status: str):
     @safe
-    def _update(id: int) -> tuple[int, str]:
+    def _update(id: int) -> DocumentReference:
         order_doc_ref.update(
             {
                 "status": status,
@@ -66,6 +66,6 @@ def update(order_doc_ref: DocumentReference, status: str):
                 "updated_at": SERVER_TIMESTAMP,
             },
         )
-        return id, order_doc_ref.get(["order.memo"]).get("order.memo")
+        return order_doc_ref
 
     return _update
