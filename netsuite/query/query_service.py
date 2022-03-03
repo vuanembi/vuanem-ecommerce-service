@@ -1,7 +1,7 @@
 from typing import Any
 
 from requests_oauthlib import OAuth1Session
-from returns.result import ResultE
+from returns.result import ResultE, Success
 from returns.pipeline import flow
 from returns.pointfree import map_, lash
 
@@ -16,7 +16,7 @@ def _query_service(_restlet: restlet.Restlet):
                 body,
                 query_repo.request(session, _restlet),
                 map_(lambda x: x["data"]),  # type: ignore
-                lash(lambda _: []),  # type: ignore
+                lash(lambda _: Success([])),  # type: ignore
             )
 
         return __svc
