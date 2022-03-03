@@ -1,4 +1,3 @@
-from typing import Callable
 import os
 import time
 import json

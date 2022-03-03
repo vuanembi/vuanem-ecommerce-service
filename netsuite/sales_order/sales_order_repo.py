@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import date, timedelta
 import os
 
@@ -108,7 +109,7 @@ def close(session: OAuth1Session):
     return _delete
 
 
-def get_url(id: str) -> str:
+def get_url(id: Optional[int]) -> str:
     return (
         f"https://{os.getenv('ACCOUNT_ID')}\.app\.netsuite\.com/"
         + f"app/accounting/transactions/salesord\.nl?id\={id}"
