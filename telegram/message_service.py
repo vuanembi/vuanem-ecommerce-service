@@ -1,4 +1,3 @@
-from typing import Optional
 import yaml
 
 from google.cloud.firestore import DocumentReference
@@ -10,12 +9,12 @@ from telegram import telegram, telegram_repo
 DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
 
 
-def get_url(id: Optional[int]):
+def get_url(id):
     return f"[{sales_order_repo.get_url(id)}]({sales_order_repo.get_url(id)})"
 
 
 def send_new_order(channel: telegram.Channel):
-    def _send(order: dict, id: str) -> tuple[dict, str]:
+    def _send(order_ref: DocumentReference) -> DocumentReference:
         telegram_repo.send(
             {
                 "chat_id": channel.chat_id,
@@ -23,10 +22,14 @@ def send_new_order(channel: telegram.Channel):
                     [
                         f"Đơn hàng *{channel.ecom}* mới",
                         DIVIDER,
-                        f"`{id}`",
-                        DIVIDER,
                         "```",
-                        yaml.dump(order, allow_unicode=True),
+                        yaml.dump(
+                            order_ref.get(["source_ref"])
+                            .get("source_ref")
+                            .get()
+                            .to_dict(),
+                            allow_unicode=True,
+                        ),
                         "```",
                     ]
                 ),
@@ -38,7 +41,7 @@ def send_new_order(channel: telegram.Channel):
                                 "callback_data": telegram_repo.build_callback_data(
                                     "O",
                                     1,
-                                    id,
+                                    order_ref.id,
                                 ),
                             },
                         ]
@@ -46,23 +49,23 @@ def send_new_order(channel: telegram.Channel):
                 },
             }
         )
-        return order, id
+        return order_ref
 
     return _send
 
 
 def send_create_order_success(chat_id: str, message_id: int):
     def _send(order_ref: DocumentReference) -> DocumentReference:
-        _order: order.Order = order_ref.get().to_dict()
+        _order: order.Order = order_ref.get(["order.id", "order.memo"])
         telegram_repo.send(
             {
                 "chat_id": chat_id,
                 "reply_to_message_id": message_id,
                 "text": "\n".join(
                     [
-                        f"Tạo đơn hàng `{_order['order']['memo']}` thành công^^",
+                        f"Tạo đơn hàng `{_order.get('order.memo')}` thành công^^",
                         DIVIDER,
-                        get_url(_order["order"]["id"]),
+                        get_url(_order.get('order.id')),
                     ]
                 ),
                 "reply_markup": {
@@ -110,16 +113,16 @@ def send_create_order_error(chat_id: str, message_id: int):
 
 def send_close_order_success(chat_id: str, message_id: int):
     def _send(order_ref: DocumentReference) -> tuple[int, str]:
-        _order = order_ref.get().to_dict()
+        _order = order_ref.get(["order.id", "order.memo"])
         telegram_repo.send(
             {
                 "chat_id": chat_id,
                 "reply_to_message_id": message_id,
                 "text": "\n".join(
                     [
-                        f"Đóng đơn hàng `{_order['order']['memo']}` thành công",
+                        f"Đóng đơn hàng `{_order.get('order.memo')}` thành công",
                         DIVIDER,
-                        get_url(_order["order"]["id"]),
+                        get_url(_order.get('order.id')),
                     ]
                 ),
             }
