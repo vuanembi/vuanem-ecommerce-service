@@ -3,7 +3,7 @@ from typing import Callable, Any
 from returns.pipeline import flow
 from returns.result import Result, ResultE, Success
 from returns.iterables import Fold
-from returns.pointfree import bind, map_, alt
+from returns.pointfree import bind, map_
 from google.cloud.firestore import DocumentReference
 
 from netsuite.sales_order import sales_order, sales_order_service
@@ -16,7 +16,7 @@ def ingest(
     builder: Callable[[dict], ResultE[sales_order.Order]],
     channel: telegram.Channel,
 ):
-    def _svc(orders: list[dict]) -> ResultE[dict[str, list[str]]]:
+    def _svc(orders: list[dict]) -> ResultE[dict[str, list[dict]]]:
         return Fold.collect_all(
             [
                 flow(  # type: ignore
@@ -24,13 +24,20 @@ def ingest(
                     creator,
                     bind(builder),
                     bind(order_repo.create),
-                    map_(lambda x: x.id),  # type: ignore
-                    map_(lambda x: message_service.send_new_order(channel)(order, x)),  # type: ignore
+                    map_(message_service.send_new_order(channel)),
+                    map_(
+                        lambda x: x.get(["source_ref"])  # type: ignore
+                        .get("source_ref")
+                        .get()
+                        .to_dict()
+                    ),
                 )
                 for order in orders
             ],
             Success(()),
-        ).map(lambda x: {"orders": [y[1] for y in x]})
+        ).map(
+            lambda x: {"orders": x}  # type: ignore
+        )
 
     return _svc
 
@@ -40,8 +47,8 @@ def operation(
     ops: Callable[[sales_order.Order], ResultE[int]],
     status: str,
 ):
-    def _operation(id: str) -> Result[tuple[int, str], tuple[Exception, str]]:
-        def __operation(order_doc_ref: DocumentReference) -> ResultE[tuple[int, str]]:
+    def _operation(id: str) -> ResultE[DocumentReference]:
+        def __operation(order_doc_ref: DocumentReference) -> ResultE[DocumentReference]:
             return flow(  # type: ignore
                 order_doc_ref,
                 lambda x: x.get().to_dict(),  # type: ignore
@@ -49,7 +56,6 @@ def operation(
                 map_(lambda x: x["order"]),  # type: ignore
                 bind(ops),
                 bind(order_repo.update(order_doc_ref, status)),
-                alt(lambda x: (x, "")),  # type: ignore
             )
 
         return flow(  # type: ignore

@@ -61,7 +61,7 @@ def create(order: sales_order.Order) -> ResultE[int]:
             order,
             sales_order_repo.build(session),
             bind(sales_order_repo.create(session)),
-            map_(lambda x: x["id"]),  # type: ignore
+            map_(lambda x: int(x["id"])),  # type: ignore
         )
 
 
@@ -71,5 +71,5 @@ def close(order: sales_order.Order) -> ResultE[int]:
             order,
             lambda x: x["id"],
             sales_order_repo.close(session),
-            map_(lambda x: x["id"]),  # type: ignore
+            map_(lambda x: int(x["id"])),  # type: ignore
         )

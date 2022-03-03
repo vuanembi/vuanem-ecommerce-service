@@ -1,6 +1,7 @@
 from typing import Any
 
 from flask import Request
+from returns.functions import raise_exception
 
 from lazada import lazada_service, order_repo
 from netsuite.order import order_service
@@ -18,5 +19,6 @@ def lazada_controller(request: Request) -> dict[str, Any]:
             )
         )
         .map(lambda x: {"controller": "lazada", "results": x})
+        .lash(raise_exception)
         .unwrap()
     )

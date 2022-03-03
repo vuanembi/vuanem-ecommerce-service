@@ -32,7 +32,7 @@ builder = sales_order_service.build(
     customer_builder=lambda x: customer_repo.add(
         customer.TIKI_CUSTOMER,
         x["shipping"]["address"]["phone"],
-        x["shipping"]["address"]["full_name"],
+        x["shipping"]["address"]["full_name"][:30],
         customer_repo.add_shipping_address(
             [
                 x["shipping"]["address"].get("full_name"),

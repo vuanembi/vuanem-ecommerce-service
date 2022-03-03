@@ -3,6 +3,7 @@ from typing import Any
 from flask import Request
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE
+from returns.functions import raise_exception
 
 from tiki import tiki, tiki_service, order_repo
 from netsuite.order import order_service
@@ -33,4 +34,5 @@ def tiki_controller(request: Request) -> dict[str, Any]:
             tiki_service.pull_service(session)
             .bind(service_factory(session))
             .map(lambda x: {"controller": "tiki", "results": x})
+            .lash(raise_exception)
         ).unwrap()
