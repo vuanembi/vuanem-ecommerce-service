@@ -1,4 +1,4 @@
-from typing import TypedDict, Any, Callable
+from typing import TypedDict, Any
 from dataclasses import dataclass
 import os
 
@@ -26,7 +26,6 @@ SHOPEE_CHANNEL = Channel(
 
 
 Payload = dict[str, Any]
-PayloadBuilder = Callable[[Payload], Payload]
 
 
 class CalbackData(TypedDict):

@@ -1,6 +1,7 @@
 from typing import Callable
 import os
 import time
+import json
 
 import requests
 
@@ -9,29 +10,27 @@ from telegram import telegram
 BASE_URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
 
 
-def build_send_payload(builder: Callable, *args) -> telegram.PayloadBuilder:
-    def build(payload: telegram.Payload) -> telegram.Payload:
-        return {
-            **payload,
-            **builder(*args),
+def build_callback_data(type_: str, action: int, value: str) -> str:
+    return json.dumps(
+        {
+            "t": type_,
+            "a": action,
+            "v": value,
         }
+    )
 
-    return build
 
-
-def send(channel: telegram.Channel, payload_builder: telegram.PayloadBuilder) -> None:
+def send(payload: telegram.Payload) -> None:
     with requests.post(
         f"{BASE_URL}/sendMessage",
-        json=payload_builder(
-            {
-                "chat_id": channel.chat_id,
-                "parse_mode": "MarkdownV2",
-            }
-        ),
+        json={
+            "parse_mode": "MarkdownV2",
+            **payload,
+        },
     ) as r:
         if r.status_code == 429:
             time.sleep(3)
-            return send(channel, payload_builder)
+            return send(payload)
         else:
             r.raise_for_status()
 
