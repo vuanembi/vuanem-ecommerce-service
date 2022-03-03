@@ -65,7 +65,7 @@ def send_create_order_success(chat_id: str, message_id: int):
                     [
                         f"Tạo đơn hàng `{_order.get('order.memo')}` thành công^^",
                         DIVIDER,
-                        get_url(_order.get('order.id')),
+                        get_url(_order.get("order.id")),
                     ]
                 ),
                 "reply_markup": {
@@ -122,7 +122,7 @@ def send_close_order_success(chat_id: str, message_id: int):
                     [
                         f"Đóng đơn hàng `{_order.get('order.memo')}` thành công",
                         DIVIDER,
-                        get_url(_order.get('order.id')),
+                        get_url(_order.get("order.id")),
                     ]
                 ),
             }

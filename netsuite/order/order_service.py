@@ -12,7 +12,7 @@ from telegram import telegram, message_service
 
 
 def ingest(
-    creator: Callable[[dict], ResultE[DocumentReference]],
+    creator: Callable[[Any], ResultE[DocumentReference]],
     builder: Callable[[dict], ResultE[sales_order.Order]],
     channel: telegram.Channel,
 ):
