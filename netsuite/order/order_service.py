@@ -40,8 +40,8 @@ def operation(
     ops: Callable[[sales_order.Order], ResultE[int]],
     status: str,
 ):
-    def _operation(id: str) -> Result[tuple[int, str], tuple[Exception, str]]:
-        def __operation(order_doc_ref: DocumentReference) -> ResultE[tuple[int, str]]:
+    def _operation(id: str) -> ResultE[DocumentReference]:
+        def __operation(order_doc_ref: DocumentReference) -> ResultE[DocumentReference]:
             return flow(  # type: ignore
                 order_doc_ref,
                 lambda x: x.get().to_dict(),  # type: ignore
@@ -49,7 +49,6 @@ def operation(
                 map_(lambda x: x["order"]),  # type: ignore
                 bind(ops),
                 bind(order_repo.update(order_doc_ref, status)),
-                alt(lambda x: (x, "")),  # type: ignore
             )
 
         return flow(  # type: ignore
