@@ -76,16 +76,21 @@ jobs:
         with:
           credentials_json: "${{ secrets.GCP_SA_KEY }}"
 
-      - name: Deploy
-        uses: google-github-actions/deploy-cloud-functions@v0
-        with:
-          name: ${{ needs.set-env.outputs.fn-name }}
-          entry_point: main
-          runtime: python39
-          memory_mb: 2048MB,
-          timeout: 530,
-          service_account_email: ${{ env.GCP_SA }}
-          env_vars_file: ${{ env.ENV_FILE }}
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+
+      - name: Deploy to Cloud Functions
+        run: >-
+          gcloud functions deploy ${{ needs.set-env.outputs.fn-name }}
+          --entry-point=main
+          --region=us-central1
+          --timeout=530
+          --memory=4096MB
+          --runtime=python39
+          --trigger-http
+          --no-user-output-enabled
+          --service-account=${{ env.GCP_SA }}
+          --env-vars-file=${{ env.ENV_FILE }}
 
   clean-up:
     runs-on: ubuntu-latest
