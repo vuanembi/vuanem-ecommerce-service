@@ -10,6 +10,7 @@ from netsuite.sales_order import sales_order, sales_order_service
 from shopee import shopee, shopee_repo, auth_repo, order_repo
 from netsuite.sales_order import sales_order_service
 from netsuite.customer import customer, customer_repo
+from db import bigquery
 
 builder = sales_order_service.build(
     items_fn=lambda x: x["item_list"],
@@ -55,14 +56,13 @@ def _get_orders_items(
             bind(order_repo.update_max_created_at),
         )
 
+
 def _get_items(request_builder: shopee.RequestBuilder):
     with requests.Session() as session:
-        x =  flow(
+        return flow(
             shopee_repo.get_item_list(session, request_builder)(),
             bind(shopee_repo.get_items_info(session, request_builder)),
         )
-        x
-
 
 
 def get_orders_service() -> ResultE[list[shopee.Order]]:
@@ -74,8 +74,16 @@ def get_orders_service() -> ResultE[list[shopee.Order]]:
         )
     )
 
+
 def get_items_service():
     return flow(
         auth_service(),
         bind(_get_items),
+        bind(
+            bigquery.load(
+                "IP_3rdPartyEcommerce",
+                "Shopee_Items",
+                shopee.ItemsSchema,
+            )
+        ),
     )
