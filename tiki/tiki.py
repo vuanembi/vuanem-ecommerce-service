@@ -80,22 +80,31 @@ class Order(TypedDict):
 
 
 ProductsSchema = [
-    {"name": "id", "type": "INTEGER"},
+    {"name": "product_id", "type": "INTEGER"},
     {"name": "sku", "type": "STRING"},
     {"name": "name", "type": "STRING"},
     {"name": "master_id", "type": "INTEGER"},
     {"name": "master_sku", "type": "STRING"},
     {"name": "super_id", "type": "INTEGER"},
     {"name": "super_sku", "type": "STRING"},
+    {"name": "active", "type": "INTEGER"},
     {"name": "original_sku", "type": "STRING"},
     {"name": "type", "type": "STRING"},
     {"name": "entity_type", "type": "STRING"},
     {"name": "price", "type": "INTEGER"},
     {"name": "market_price", "type": "INTEGER"},
-    {"name": "version", "type": "INTEGER"},
     {"name": "created_at", "type": "TIMESTAMP"},
-    {"name": "created_by", "type": "STRING"},
     {"name": "updated_at", "type": "TIMESTAMP"},
-    {"name": "active", "type": "STRING"},
-    {"name": "is_hidden", "type": "BOOLEAN"},
+    {"name": "thumbnail", "type": "STRING"},
+    {
+        "name": "categories",
+        "type": "record",
+        "mode": "repeated",
+        "fields": [
+            {"name": "id", "type": "INTEGER"},
+            {"name": "name", "type": "STRING"},
+            {"name": "url_key", "type": "STRING"},
+            {"name": "is_primary", "type": "BOOLEAN"},
+        ],
+    },
 ]
