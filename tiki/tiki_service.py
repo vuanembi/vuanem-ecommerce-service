@@ -2,7 +2,7 @@ from typing import Callable
 
 from authlib.integrations.requests_client import OAuth2Session
 from returns.result import ResultE, Success
-from returns.pointfree import map_
+from returns.pointfree import map_, bind
 from returns.pipeline import flow
 from returns.iterables import Fold
 from returns.functions import raise_exception
@@ -12,6 +12,8 @@ from netsuite.customer import customer, customer_repo
 from netsuite.order import order_service
 from tiki import tiki, tiki_repo, auth_repo, event_repo
 from telegram import telegram
+
+from db import bigquery
 
 
 def auth_service() -> OAuth2Session:
@@ -107,10 +109,16 @@ def ingest_orders_service():
         return _pull_service(session).bind(_ingest(session))
 
 
-def get_products_service():
+def get_products_service() -> ResultE[int]:
     with auth_service() as session:
-        x = flow(
+        return flow(
             tiki_repo.get_products(session)(),
             map_(tiki_repo.transform_products),
+            bind(
+                bigquery.load(
+                    "IP_3rdPartyEcommerce",
+                    "Tiki_Products",
+                    tiki.ProductsSchema,
+                )
+            ),
         )
-        x

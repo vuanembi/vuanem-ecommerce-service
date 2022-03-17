@@ -105,7 +105,7 @@ def get_products(session: OAuth2Session):
             data = res["data"]
             last_page = res["paging"]["last_page"]
             return data + __get(page + 1) if page != last_page else data
-        
+
         return __get()
 
     return _get
@@ -114,24 +114,33 @@ def get_products(session: OAuth2Session):
 def transform_products(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [
         {
-            "id": row.get("id"),
+            "product_id": row.get("product_id"),
             "sku": row.get("sku"),
             "name": row.get("name"),
             "master_id": row.get("master_id"),
             "master_sku": row.get("master_sku"),
             "super_id": row.get("super_id"),
             "super_sku": row.get("super_sku"),
+            "active": row.get("active"),
             "original_sku": row.get("original_sku"),
             "type": row.get("type"),
             "entity_type": row.get("entity_type"),
             "price": row.get("price"),
             "market_price": row.get("market_price"),
-            "version": row.get("version"),
             "created_at": row.get("created_at"),
-            "created_by": row.get("created_by"),
             "updated_at": row.get("updated_at"),
-            "active": row.get("active"),
-            "is_hidden": row.get("is_hidden"),
+            "thumbnail": row.get("thumbnail"),
+            "categories": [
+                {
+                    "id": category.get("id"),
+                    "name": category.get("name"),
+                    "url_key": category.get("url_key"),
+                    "is_primary": category.get("is_primary"),
+                }
+                for category in row["categories"]
+            ]
+            if row.get("categories")
+            else [],
         }
         for row in rows
     ]

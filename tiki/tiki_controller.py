@@ -14,7 +14,7 @@ def tiki_controller(request: Request):
             services[request.path]()
             .map(
                 lambda x: {
-                    "controller": "tiki",
+                    "controller": request.path,
                     "results": x,
                 }
             )
