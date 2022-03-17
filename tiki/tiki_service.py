@@ -20,7 +20,7 @@ def auth_service() -> OAuth2Session:
     return auth_repo.get_access_token().map(auth_repo.get_auth_session).unwrap()
 
 
-builder = sales_order_service.build(
+_builder = sales_order_service.build(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["product"]["seller_product_code"],
     item_qty_fn=lambda x: x["seller_income_detail"]["item_qty"],
@@ -96,7 +96,7 @@ def ingest_orders_service():
                 .bind(
                     order_service.ingest(
                         order_repo.create,  # type: ignore
-                        builder,
+                        _builder,
                         telegram.TIKI_CHANNEL,
                     )
                 )
@@ -118,7 +118,7 @@ def get_products_service() -> ResultE[int]:
                 bigquery.load(
                     "IP_3rdPartyEcommerce",
                     "Tiki_Products",
-                    tiki.ProductsSchema,
+                    tiki.ProductsSchema, # type: ignore
                 )
             ),
         )
