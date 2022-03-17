@@ -11,8 +11,9 @@ from shopee import shopee, shopee_repo, auth_repo, order_repo
 from netsuite.sales_order import sales_order_service
 from netsuite.customer import customer, customer_repo
 from db import bigquery
+from telegram import telegram
 
-builder = sales_order_service.build(
+_builder = sales_order_service.build(
     items_fn=lambda x: x["item_list"],
     item_sku_fn=lambda x: x["item_sku"],
     item_qty_fn=lambda x: x["model_quantity_purchased"],
@@ -65,12 +66,22 @@ def _get_items(request_builder: shopee.RequestBuilder):
         )
 
 
-def get_orders_service() -> ResultE[list[shopee.Order]]:
+def _get_orders_service() -> ResultE[list[shopee.Order]]:
     return flatten(
         flow(  # type: ignore
             Success(_get_orders_items),
             auth_service().apply,
             order_repo.get_max_created_at().apply,
+        )
+    )
+
+
+def ingest_orders_service():
+    return _get_orders_service().bind(
+        order_repo.ingest(
+            order_repo.create,  # type: ignore
+            _builder,
+            telegram.SHOPEE_CHANNEL,
         )
     )
 

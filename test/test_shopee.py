@@ -51,15 +51,15 @@ class TestOrder:
         res
 
     def test_controller(self):
-        res = run("/shopee")
+        res = run("/shopee/orders/ingest")
         res
+
 
 class TestItems:
     def test_get_items_service(self):
         res = shopee_service.get_items_service()
         res
 
-class TestIntegration:
     def test_controller(self):
-        res = run("/shopee")
+        res = run("/shopee/items")
         res
