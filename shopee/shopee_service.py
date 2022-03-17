@@ -55,6 +55,15 @@ def _get_orders_items(
             bind(order_repo.update_max_created_at),
         )
 
+def _get_items(request_builder: shopee.RequestBuilder):
+    with requests.Session() as session:
+        x =  flow(
+            shopee_repo.get_item_list(session, request_builder)(),
+            bind(shopee_repo.get_items_info(session, request_builder)),
+        )
+        x
+
+
 
 def get_orders_service() -> ResultE[list[shopee.Order]]:
     return flatten(
@@ -63,4 +72,10 @@ def get_orders_service() -> ResultE[list[shopee.Order]]:
             auth_service().apply,
             order_repo.get_max_created_at().apply,
         )
+    )
+
+def get_items_service():
+    return flow(
+        auth_service(),
+        bind(_get_items),
     )

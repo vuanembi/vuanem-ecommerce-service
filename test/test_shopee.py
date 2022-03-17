@@ -28,7 +28,7 @@ class TestAuth:
         res
 
 
-class TestShopee:
+class TestOrder:
     @pytest.fixture()
     def auth_builder(self):
         return shopee_service.auth_service().unwrap()
@@ -50,6 +50,14 @@ class TestShopee:
         res = shopee_service.get_orders_service()
         res
 
+    def test_controller(self):
+        res = run("/shopee")
+        res
+
+class TestItems:
+    def test_get_items_service(self):
+        res = shopee_service.get_items_service()
+        res
 
 class TestIntegration:
     def test_controller(self):
