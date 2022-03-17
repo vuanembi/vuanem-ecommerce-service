@@ -77,3 +77,25 @@ class Order(TypedDict):
     shipping: Shipping
     created_at: str
     updated_at: str
+
+
+ProductsSchema = [
+    {"name": "id", "type": "INTEGER"},
+    {"name": "sku", "type": "STRING"},
+    {"name": "name", "type": "STRING"},
+    {"name": "master_id", "type": "INTEGER"},
+    {"name": "master_sku", "type": "STRING"},
+    {"name": "super_id", "type": "INTEGER"},
+    {"name": "super_sku", "type": "STRING"},
+    {"name": "original_sku", "type": "STRING"},
+    {"name": "type", "type": "STRING"},
+    {"name": "entity_type", "type": "STRING"},
+    {"name": "price", "type": "INTEGER"},
+    {"name": "market_price", "type": "INTEGER"},
+    {"name": "version", "type": "INTEGER"},
+    {"name": "created_at", "type": "TIMESTAMP"},
+    {"name": "created_by", "type": "STRING"},
+    {"name": "updated_at", "type": "TIMESTAMP"},
+    {"name": "active", "type": "STRING"},
+    {"name": "is_hidden", "type": "BOOLEAN"},
+]
