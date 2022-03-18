@@ -34,7 +34,7 @@ def _token_refresh_service(token: shopee.AccessToken) -> ResultE[shopee.AccessTo
         )
 
 
-def auth_service() -> ResultE[shopee.RequestBuilder]:
+def _auth_service() -> ResultE[shopee.RequestBuilder]:
     return (
         auth_repo.get_access_token()
         .bind(_token_refresh_service)
@@ -70,7 +70,7 @@ def _get_orders_service() -> ResultE[list[shopee.Order]]:
     return flatten(
         flow(  # type: ignore
             Success(_get_orders_items),
-            auth_service().apply,
+            _auth_service().apply,
             order_repo.get_max_created_at().apply,
         )
     )
@@ -88,7 +88,7 @@ def ingest_orders_service():
 
 def get_items_service():
     return flow(
-        auth_service(),
+        _auth_service(),
         bind(_get_items),
         bind(
             bigquery.load(
