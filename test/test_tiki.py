@@ -119,6 +119,10 @@ class TestTikiOrder:
         res = tiki_service._get_orders_service(auth_session, events)
         res
 
+    def test_service(self):
+        res = tiki_service.ingest_orders_service()
+        res
+
     def test_controller(self):
         res = run("/tiki/orders/ingest")
         res
