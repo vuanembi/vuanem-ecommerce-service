@@ -56,7 +56,7 @@ class TestAuth:
         assert is_successful(res)
 
 
-class TestLazada:
+class TestOrders:
     @pytest.fixture()
     def auth_builder(self):
         return lazada_service.auth_service().unwrap()
@@ -85,8 +85,12 @@ class TestLazada:
         res = order_repo.get_max_created_at()
         res
 
-
-class TestIntegration:
     def test_controller(self):
         res = run("/lazada")
+        res
+
+
+class TestProducts:
+    def test_service(self):
+        res = lazada_service.get_products_service()
         res

@@ -10,6 +10,8 @@ from dateutil import parser
 import pytz
 import requests
 from returns.result import safe
+from returns.curry import curry
+
 from db.firestore import DB
 from lazada import lazada
 
@@ -128,3 +130,81 @@ def get_order_item(
         }
         for item in res["data"]
     ]
+
+
+def get_products(session: requests.Session, auth_builder: lazada.AuthBuilder):
+    @safe
+    def _get():
+        def __get(offset: int = 0):
+            with session.send(
+                auth_builder(
+                    "/products/get",
+                    {
+                        "filter": "all",
+                        "limit": 50,
+                        "offset": offset,
+                    },
+                )
+            ) as r:
+                res = r.json()
+            products = [
+                {
+                    "item_id": product["item_id"],
+                    "created_time": datetime.utcfromtimestamp(
+                        float(product["created_time"]) / 1000
+                    ).isoformat(timespec='seconds'),
+                    "updated_time": datetime.utcfromtimestamp(
+                        float(product["updated_time"]) / 1000
+                    ).isoformat(timespec='seconds'),
+                    "skus": [
+                        {
+                            "Status": sku.get("Status"),
+                            "quantity": sku.get("quantity"),
+                            "SellerSku": sku.get("SellerSku"),
+                            "ShopSku": sku.get("ShopSku"),
+                            "Url": sku.get("Url"),
+                            "multiWarehouseInventories": [
+                                {
+                                    "occupyQuantity": inv.get("occupyQuantity"),
+                                    "quantity": inv.get("quantity"),
+                                    "totalQuantity": inv.get("totalQuantity"),
+                                    "withholdQuantity": inv.get("withholdQuantity"),
+                                    "warehouseCode": inv.get("warehouseCode"),
+                                    "sellableQuantity": inv.get("sellableQuantity"),
+                                }
+                                for inv in sku["multiWarehouseInventories"]
+                            ]
+                            if sku.get("multiWarehouseInventories")
+                            else [],
+                            "package_width": sku.get("package_width"),
+                            "package_height": sku.get("package_height"),
+                            "special_price": sku.get("special_price"),
+                            "price": sku.get("price"),
+                            "channelInventories": [
+                                {
+                                    "channelName": inv.get("channelName"),
+                                    "startTime": inv.get("startTime"),
+                                    "endTime": inv.get("endTime"),
+                                    "sellableQuantity": inv.get("sellableQuantity"),
+                                }
+                                for inv in sku["channelInventories"]
+                            ]
+                            if sku.get("channelInventories")
+                            else [],
+                            "package_length": sku.get("package_length"),
+                            "package_weight": sku.get("package_weight"),
+                            "SkuId": sku.get("SkuId"),
+                        }
+                        for sku in product["skus"]
+                    ]
+                    if product.get("skus")
+                    else [],
+                    "primary_category": product["primary_category"],
+                }
+                for product in res["data"].get("products", [])
+            ]
+            return products if not products else products + __get(offset + 50)
+
+        return __get()
+
+    return _get
