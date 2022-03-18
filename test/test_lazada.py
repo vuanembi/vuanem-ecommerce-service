@@ -52,14 +52,14 @@ class TestAuth:
         res
 
     def test_auth_service(self, session):
-        res = lazada_service.auth_service(session)
+        res = lazada_service._auth_service(session)
         assert is_successful(res)
 
 
 class TestOrders:
     @pytest.fixture()
     def auth_builder(self):
-        return lazada_service.auth_service().unwrap()
+        return lazada_service._auth_service().unwrap()
 
     def test_get_orders(self, session, auth_builder):
         res = lazada_repo.get_orders(session, auth_builder)(datetime(2022, 2, 15))
@@ -85,12 +85,20 @@ class TestOrders:
         res = order_repo.get_max_created_at()
         res
 
+    def test_service(self):
+        res = lazada_service.ingets_orders_service()
+        res
+
     def test_controller(self):
-        res = run("/lazada")
+        res = run("/lazada/orders/ingest")
         res
 
 
 class TestProducts:
     def test_service(self):
         res = lazada_service.get_products_service()
+        res
+
+    def test_controller(self):
+        res = run("/lazada/products")
         res

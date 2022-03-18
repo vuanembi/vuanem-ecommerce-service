@@ -1,24 +1,22 @@
-from typing import Any
-
 from flask import Request
-from returns.functions import raise_exception
 
-from lazada import lazada_service, order_repo
-from netsuite.order import order_service
-from telegram import telegram
+from lazada import lazada_service
+
+services = {
+    "/lazada/orders/ingest": lazada_service.ingets_orders_service,
+    "/lazada/products": lazada_service.get_products_service,
+}
 
 
-def lazada_controller(request: Request) -> dict[str, Any]:
-    return (
-        lazada_service.get_orders_service()
-        .bind(
-            order_service.ingest(
-                order_repo.create,
-                lazada_service.builder,
-                telegram.LAZADA_CHANNEL,
+def lazada_controller(request: Request):
+    if request.path in services:
+        return (
+            services[request.path]()
+            .map(
+                lambda x: {
+                    "controller": request.path,
+                    "results": x,
+                }
             )
+            .unwrap()
         )
-        .map(lambda x: {"controller": "lazada", "results": x})
-        .lash(raise_exception)
-        .unwrap()
-    )
