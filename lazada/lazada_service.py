@@ -92,7 +92,7 @@ def _get_orders_service() -> ResultE[list[lazada.OrderItems]]:
     )
 
 
-def ingets_orders_service() -> ResultE[dict[str, list[dict]]]:
+def ingest_orders_service() -> ResultE[dict[str, list[dict]]]:
     return _get_orders_service().bind(
         order_service.ingest(
             order_repo.create,

@@ -86,7 +86,7 @@ class TestOrders:
         res
 
     def test_service(self):
-        res = lazada_service.ingets_orders_service()
+        res = lazada_service.ingest_orders_service()
         res
 
     def test_controller(self):

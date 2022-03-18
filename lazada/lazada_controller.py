@@ -3,7 +3,7 @@ from flask import Request
 from lazada import lazada_service
 
 services = {
-    "/lazada/orders/ingest": lazada_service.ingets_orders_service,
+    "/lazada/orders/ingest": lazada_service.ingest_orders_service,
     "/lazada/products": lazada_service.get_products_service,
 }
 
