@@ -10,7 +10,6 @@ from dateutil import parser
 import pytz
 import requests
 from returns.result import safe
-from returns.curry import curry
 
 from db.firestore import DB
 from lazada import lazada
