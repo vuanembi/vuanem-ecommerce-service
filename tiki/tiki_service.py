@@ -118,7 +118,7 @@ def get_products_service() -> ResultE[int]:
                 bigquery.load(
                     "IP_3rdPartyEcommerce",
                     "Tiki_Products",
-                    tiki.ProductsSchema, # type: ignore
+                    tiki.ProductsSchema,  # type: ignore
                 )
             ),
         )

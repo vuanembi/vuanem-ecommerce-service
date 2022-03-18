@@ -152,10 +152,10 @@ def get_products(session: requests.Session, auth_builder: lazada.AuthBuilder):
                     "item_id": product["item_id"],
                     "created_time": datetime.utcfromtimestamp(
                         float(product["created_time"]) / 1000
-                    ).isoformat(timespec='seconds'),
+                    ).isoformat(timespec="seconds"),
                     "updated_time": datetime.utcfromtimestamp(
                         float(product["updated_time"]) / 1000
-                    ).isoformat(timespec='seconds'),
+                    ).isoformat(timespec="seconds"),
                     "skus": [
                         {
                             "Status": sku.get("Status"),
