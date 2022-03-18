@@ -171,3 +171,166 @@ def get_order_items(
         ).map(lambda x: [i for j in x for i in j])
 
     return _get
+
+
+def get_item_list(
+    session: requests.Session,
+    request_builder: shopee.RequestBuilder,
+):
+    @safe
+    def _get():
+        def __get(offset: int = 1) -> list[int]:
+            with session.send(
+                request_builder(
+                    "product/get_item_list",
+                    method="GET",
+                    params={
+                        "page_size": PAGE_SIZE,
+                        "item_status": "NORMAL",
+                        "offset": offset,
+                    },
+                )
+            ) as r:
+                r.raise_for_status()
+                res = r.json()
+            if res["error"]:
+                raise requests.exceptions.HTTPError(res)
+            items = [i["item_id"] for i in res["response"]["item"]]
+            return (
+                items
+                if not res["response"]["has_next_page"]
+                else items + __get(res["response"]["next_offset"])
+            )
+
+        return __get()
+
+    return _get
+
+
+@safe
+def get_items_batch_info(
+    session: requests.Session,
+    request_builder: shopee.RequestBuilder,
+    item_list: list[int],
+) -> list[dict[str, Any]]:
+    with session.send(
+        request_builder(
+            "product/get_item_base_info",
+            method="GET",
+            params={
+                "item_id_list": ",".join([str(i) for i in item_list]),
+            },
+        )
+    ) as r:
+        r.raise_for_status()
+        res = r.json()
+    if res["error"]:
+        raise requests.exceptions.HTTPError(res)
+    return [
+        {
+            "item_id": row.get("item_id"),
+            "category_id": row.get("category_id"),
+            "item_name": row.get("item_name"),
+            "item_sku": row.get("item_sku"),
+            "create_time": row.get("create_time"),
+            "update_time": row.get("update_time"),
+            "attribute_list": [
+                {
+                    "attribute_id": attribute.get("attribute_id"),
+                    "original_attribute_name": attribute.get("original_attribute_name"),
+                    "is_mandatory": attribute.get("is_mandatory"),
+                    "attribute_value_list": [
+                        {
+                            "value_id": value.get("value_id"),
+                            "original_value_name": value.get("original_value_name"),
+                            "value_unit": value.get("value_unit"),
+                        }
+                        for value in attribute["attribute_value_list"]
+                    ]
+                    if attribute.get("attribute_value_list")
+                    else [],
+                }
+                for attribute in row["attribute_list"]
+            ]
+            if row.get("attribute_list")
+            else [],
+            "price_info": [
+                {
+                    "currency": info.get("currency"),
+                    "original_price": info.get("original_price"),
+                    "current_price": info.get("current_price"),
+                }
+                for info in row["price_info"]
+            ]
+            if row.get("price_info")
+            else [],
+            "stock_info": [
+                {
+                    "stock_type": info.get("stock_type"),
+                    "current_stock": info.get("current_stock"),
+                    "normal_stock": info.get("normal_stock"),
+                    "reserved_stock": info.get("reserved_stock"),
+                }
+                for info in row["stock_info"]
+            ]
+            if row.get("stock_info")
+            else [],
+            "weight": row.get("weight"),
+            "dimension": {
+                "package_length": row["dimension"].get("package_length"),
+                "package_width": row["dimension"].get("package_width"),
+                "package_height": row["dimension"].get("package_height"),
+            }
+            if row.get("dimension")
+            else {},
+            "logistic_info": [
+                {
+                    "logistic_id": info.get("logistic_id"),
+                    "logistic_name": info.get("logistic_name"),
+                    "enabled": info.get("enabled"),
+                    "shipping_fee": info.get("shipping_fee"),
+                    "is_free": info.get("is_free"),
+                }
+                for info in row["logistic_info"]
+            ]
+            if row.get("logistic_info")
+            else [],
+            "pre_order": {
+                "is_pre_order": row["pre_order"].get("is_pre_order"),
+                "days_to_ship": row["pre_order"].get("days_to_ship"),
+            }
+            if row.get("pre_order")
+            else {},
+            "condition": row.get("condition"),
+            "size_chart": row.get("size_chart"),
+            "item_status": row.get("item_status"),
+            "has_model": row.get("has_model"),
+            "promotion_id": row.get("promotion_id"),
+            "brand": {
+                "brand_id": row["brand"].get("brand_id"),
+                "original_brand_name": row["brand"].get("original_brand_name"),
+            }
+            if row.get("brand")
+            else {},
+        }
+        for row in res["response"]["item_list"]
+    ]
+
+
+def get_items_info(
+    session: requests.Session,
+    request_builder: shopee.RequestBuilder,
+):
+    def _get(item_list: list[int]) -> ResultE[list[dict[str, Any]]]:
+        item_list_batches = [
+            item_list[i : i + BATCH_SIZE] for i in range(0, len(item_list), BATCH_SIZE)
+        ]
+        return Fold.collect_all(
+            [
+                get_items_batch_info(session, request_builder, item_list_batch)
+                for item_list_batch in item_list_batches
+            ],
+            Success(()),
+        ).map(lambda x: [i for j in x for i in j])
+
+    return _get
