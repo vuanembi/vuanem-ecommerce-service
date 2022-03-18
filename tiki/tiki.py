@@ -77,3 +77,34 @@ class Order(TypedDict):
     shipping: Shipping
     created_at: str
     updated_at: str
+
+
+ProductsSchema = [
+    {"name": "product_id", "type": "NUMERIC"},
+    {"name": "sku", "type": "STRING"},
+    {"name": "name", "type": "STRING"},
+    {"name": "master_id", "type": "NUMERIC"},
+    {"name": "master_sku", "type": "STRING"},
+    {"name": "super_id", "type": "NUMERIC"},
+    {"name": "super_sku", "type": "STRING"},
+    {"name": "active", "type": "NUMERIC"},
+    {"name": "original_sku", "type": "STRING"},
+    {"name": "type", "type": "STRING"},
+    {"name": "entity_type", "type": "STRING"},
+    {"name": "price", "type": "NUMERIC"},
+    {"name": "market_price", "type": "NUMERIC"},
+    {"name": "created_at", "type": "TIMESTAMP"},
+    {"name": "updated_at", "type": "TIMESTAMP"},
+    {"name": "thumbnail", "type": "STRING"},
+    {
+        "name": "categories",
+        "type": "record",
+        "mode": "repeated",
+        "fields": [
+            {"name": "id", "type": "NUMERIC"},
+            {"name": "name", "type": "STRING"},
+            {"name": "url_key", "type": "STRING"},
+            {"name": "is_primary", "type": "BOOLEAN"},
+        ],
+    },
+]

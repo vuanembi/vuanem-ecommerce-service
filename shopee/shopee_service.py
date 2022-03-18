@@ -10,8 +10,10 @@ from netsuite.sales_order import sales_order, sales_order_service
 from shopee import shopee, shopee_repo, auth_repo, order_repo
 from netsuite.sales_order import sales_order_service
 from netsuite.customer import customer, customer_repo
+from db import bigquery
+from telegram import telegram
 
-builder = sales_order_service.build(
+_builder = sales_order_service.build(
     items_fn=lambda x: x["item_list"],
     item_sku_fn=lambda x: x["item_sku"],
     item_qty_fn=lambda x: x["model_quantity_purchased"],
@@ -32,7 +34,7 @@ def _token_refresh_service(token: shopee.AccessToken) -> ResultE[shopee.AccessTo
         )
 
 
-def auth_service() -> ResultE[shopee.RequestBuilder]:
+def _auth_service() -> ResultE[shopee.RequestBuilder]:
     return (
         auth_repo.get_access_token()
         .bind(_token_refresh_service)
@@ -56,11 +58,43 @@ def _get_orders_items(
         )
 
 
-def get_orders_service() -> ResultE[list[shopee.Order]]:
+def _get_items(request_builder: shopee.RequestBuilder):
+    with requests.Session() as session:
+        return flow(
+            shopee_repo.get_item_list(session, request_builder)(),
+            bind(shopee_repo.get_items_info(session, request_builder)),
+        )
+
+
+def _get_orders_service() -> ResultE[list[shopee.Order]]:
     return flatten(
         flow(  # type: ignore
             Success(_get_orders_items),
-            auth_service().apply,
+            _auth_service().apply,
             order_repo.get_max_created_at().apply,
         )
+    )
+
+
+def ingest_orders_service():
+    return _get_orders_service().bind(
+        order_repo.ingest(
+            order_repo.create,  # type: ignore
+            _builder,
+            telegram.SHOPEE_CHANNEL,
+        )
+    )
+
+
+def get_items_service():
+    return flow(
+        _auth_service(),
+        bind(_get_items),
+        bind(
+            bigquery.load(
+                "IP_3rdPartyEcommerce",
+                "Shopee_Items",
+                shopee.ItemsSchema,
+            )
+        ),
     )

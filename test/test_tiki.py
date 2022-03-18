@@ -44,12 +44,12 @@ class TestEvent:
         assert is_successful(res)
 
     def test_pull_service(self, auth_session):
-        ack_id, events = tiki_service.pull_service(auth_session).unwrap()
+        ack_id, events = tiki_service._pull_service(auth_session).unwrap()
         assert ack_id
         assert events
 
 
-class TestTiki:
+class TestTikiOrder:
     @pytest.fixture()
     def events(self):
         return [
@@ -116,11 +116,23 @@ class TestTiki:
         assert res1, res2
 
     def test_get_orders_service(self, auth_session, events):
-        res = tiki_service.get_orders_service(auth_session, events)
+        res = tiki_service._get_orders_service(auth_session, events)
+        res
+
+    def test_service(self):
+        res = tiki_service.ingest_orders_service()
+        res
+
+    def test_controller(self):
+        res = run("/tiki/orders/ingest")
         res
 
 
-class TestIntegration:
+class TestProducts:
+    def test_get_products_service(self):
+        res = tiki_service.get_products_service()
+        res
+
     def test_controller(self):
-        res = run("/tiki")
+        res = run("/tiki/products")
         res

@@ -1,8 +1,7 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
 
 import os
 
-from requests import Session
 from returns.result import ResultE, safe
 from authlib.integrations.requests_client import OAuth2Session
 from db.firestore import DB
@@ -37,7 +36,7 @@ def extract_order(event: tiki.Event) -> str:
     return event["payload"]["order_code"]
 
 
-def get_order(session: Session) -> Callable[[str], ResultE[tiki.Order]]:
+def get_order(session: OAuth2Session) -> Callable[[str], ResultE[tiki.Order]]:
     @safe
     def _get(order_id: str) -> tiki.Order:
         with session.get(
@@ -89,3 +88,59 @@ def get_order(session: Session) -> Callable[[str], ResultE[tiki.Order]]:
         }
 
     return _get
+
+
+def get_products(session: OAuth2Session):
+    @safe
+    def _get():
+        def __get(page: int = 1) -> list[dict[str, str]]:
+            with session.get(
+                f"{BASE_URL}/v2/products",
+                params={
+                    "limit": 50,
+                    "page": page,
+                },
+            ) as r:
+                res = r.json()
+            data = res["data"]
+            last_page = res["paging"]["last_page"]
+            return data + __get(page + 1) if page != last_page else data
+
+        return __get()
+
+    return _get
+
+
+def transform_products(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "product_id": row.get("product_id"),
+            "sku": row.get("sku"),
+            "name": row.get("name"),
+            "master_id": row.get("master_id"),
+            "master_sku": row.get("master_sku"),
+            "super_id": row.get("super_id"),
+            "super_sku": row.get("super_sku"),
+            "active": row.get("active"),
+            "original_sku": row.get("original_sku"),
+            "type": row.get("type"),
+            "entity_type": row.get("entity_type"),
+            "price": row.get("price"),
+            "market_price": row.get("market_price"),
+            "created_at": row.get("created_at"),
+            "updated_at": row.get("updated_at"),
+            "thumbnail": row.get("thumbnail"),
+            "categories": [
+                {
+                    "id": category.get("id"),
+                    "name": category.get("name"),
+                    "url_key": category.get("url_key"),
+                    "is_primary": category.get("is_primary"),
+                }
+                for category in row["categories"]
+            ]
+            if row.get("categories")
+            else [],
+        }
+        for row in rows
+    ]

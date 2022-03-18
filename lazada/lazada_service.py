@@ -13,8 +13,11 @@ from common import utils
 from lazada import lazada, lazada_repo, auth_repo, order_repo
 from netsuite.customer import customer, customer_repo
 from netsuite.sales_order import sales_order, sales_order_service
+from netsuite.order import order_service
+from telegram import telegram
+from db import bigquery
 
-builder = sales_order_service.build(
+_builder = sales_order_service.build(
     items_fn=lambda x: x["items"],
     item_sku_fn=lambda x: x["sku"],
     item_qty_fn=lambda _: 1,
@@ -26,7 +29,7 @@ builder = sales_order_service.build(
 )
 
 
-def token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
+def _token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
     with requests.Session() as session:
         return (
             auth_repo.refresh_token(session, token)
@@ -35,11 +38,11 @@ def token_refresh_service(token: lazada.AccessToken) -> ResultE[lazada.AccessTok
         )
 
 
-def auth_service() -> ResultE[lazada.AuthBuilder]:
+def _auth_service() -> ResultE[lazada.AuthBuilder]:
     return (
         auth_repo.get_access_token()
         .bind(utils.check_expired)  # type: ignore
-        .lash(token_refresh_service)  # type: ignore
+        .lash(_token_refresh_service)  # type: ignore
         .map(lazada_repo.get_auth_builder)  # type: ignore
     )
 
@@ -79,11 +82,39 @@ def _get_orders_items(
         )
 
 
-def get_orders_service() -> ResultE[list[lazada.OrderItems]]:
+def _get_orders_service() -> ResultE[list[lazada.OrderItems]]:
     return flatten(
         flow(  # type: ignore
             Success(_get_orders_items),
-            auth_service().apply,
+            _auth_service().apply,
             order_repo.get_max_created_at().apply,
         )
+    )
+
+
+def ingest_orders_service() -> ResultE[dict[str, list[dict]]]:
+    return _get_orders_service().bind(
+        order_service.ingest(
+            order_repo.create,
+            _builder,
+            telegram.LAZADA_CHANNEL,
+        )
+    )
+
+
+def get_products_service():
+    def _get(auth_builder: lazada.AuthBuilder):
+        with requests.Session() as session:
+            return lazada_repo.get_products(session, auth_builder)()
+
+    return flow(
+        _auth_service(),
+        bind(_get),
+        bind(
+            bigquery.load(
+                "IP_3rdPartyEcommerce",
+                "Lazada_Products",
+                lazada.ProductsSchema,
+            )
+        ),
     )
