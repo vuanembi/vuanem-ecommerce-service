@@ -10,7 +10,7 @@ from returns.functions import raise_exception
 from netsuite.sales_order import sales_order, sales_order_service
 from netsuite.customer import customer, customer_repo
 from netsuite.order import order_service
-from tiki import tiki, tiki_repo, auth_repo, event_repo
+from tiki import tiki, tiki_repo, auth_repo, event_repo, order_repo
 from telegram import telegram
 
 from db import bigquery
