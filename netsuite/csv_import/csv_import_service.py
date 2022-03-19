@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Optional
 
 from returns.result import Result, ResultE, Success
 from returns.pipeline import flow
-from returns.pointfree import map_, lash
+from returns.pointfree import lash
 from returns.methods import cond
 
 from netsuite.restlet import restlet_repo
@@ -22,11 +22,10 @@ def validation_service(
     )
 
 
-def csv_import_service(body: dict[str, Any]) -> ResultE[str]:
+def csv_import_service(body: dict[str, Any]) -> ResultE[dict[str, Optional[str]]]:
     with restlet_repo.netsuite_session() as session:
         return flow(
             body,
             csv_import_repo.request(session),
-            map_(lambda x: x["data"]),  # type: ignore
-            lash(lambda _: Success("")),  # type: ignore
+            lash(lambda _: Success({"data": None})),  # type: ignore
         )
