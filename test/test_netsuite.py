@@ -150,5 +150,5 @@ class TestCSVImportTask:
         res
 
     def test_controller(self, body):
-        res = run("/netsuite/task/csv_import", body)
+        res = run("/netsuite/task/csv_import", {"data": body})
         res
