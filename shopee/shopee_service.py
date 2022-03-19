@@ -10,6 +10,7 @@ from netsuite.sales_order import sales_order, sales_order_service
 from shopee import shopee, shopee_repo, auth_repo, order_repo
 from netsuite.sales_order import sales_order_service
 from netsuite.customer import customer, customer_repo
+from netsuite.order import order_service
 from db import bigquery
 from telegram import telegram
 
@@ -78,7 +79,7 @@ def _get_orders_service() -> ResultE[list[shopee.Order]]:
 
 def ingest_orders_service():
     return _get_orders_service().bind(
-        order_repo.ingest(
+        order_service.ingest(
             order_repo.create,  # type: ignore
             _builder,
             telegram.SHOPEE_CHANNEL,
