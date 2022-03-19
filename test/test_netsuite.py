@@ -6,6 +6,7 @@ from netsuite.customer import customer_repo
 from netsuite.item import item_repo
 from netsuite.order import order_service
 from netsuite.journal_entry import journal_entry_controller
+from netsuite.csv_import import csv_import_service
 
 import pytest
 
@@ -134,4 +135,20 @@ class TestBankInTransit:
 
     def test_controller(self, service, _date):
         res = run(service[0], {"date": _date})
+        res
+
+
+class TestCSVImportTask:
+    @pytest.fixture()
+    def body(self):
+        with open("test/mocks/Item Demand Plan - import.csv") as f:
+            data = f.read()
+        return {"id": 544, "data": data}
+
+    def test_service(self, body):
+        res = csv_import_service.csv_import_service(body)
+        res
+
+    def test_controller(self, body):
+        res = run("/netsuite/task/csv_import", body)
         res
