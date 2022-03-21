@@ -8,7 +8,9 @@
     </head>
     <body>
         <h2>Link JE đã tạo</h2>
-        <a href="{{link}}">{{link}}</a>
+        {% for link in links %}
+            <a href="{{link}}">{{link}}</a>
+        {% endfor %}
         <h2>Danh sách CD/CP</h2>
         <table>
             <thead>

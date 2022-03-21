@@ -10,6 +10,9 @@ services = {
     "/netsuite/journal_entry/bank_in_transit/online": bank_in_transit_service(
         journal_entry.BankInTransitOnline
     ),
+    "/netsuite/journal_entry/bank_in_transit/vnpay": bank_in_transit_service(
+        journal_entry.BankInTransitVNPay
+    ),
 }
 
 

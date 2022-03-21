@@ -25,31 +25,6 @@ def add_working_days(_date: date, days: int = 1) -> date:
     )[-1].date()
 
 
-def build_bank_in_transit_lines(dr_account: int, cr_account: int):
-    def _build(entries: list[dict]) -> list[journal_entry.Line]:
-        return [
-            {
-                "line_type": "debit",
-                "account": dr_account,
-                "entity": None,
-                "location": journal_entry.BANK_IN_TRANSIT_DR_LOCATION,
-                "amount": int(sum([float(entry["amount"]) for entry in entries])),
-            },
-            *[  # type: ignore
-                {
-                    "line_type": "credit",
-                    "account": cr_account,
-                    "entity": int(entry["internalid"]),
-                    "location": int(entry["custbody_in_charge_location"]),
-                    "amount": int(float(entry["amount"])),
-                }
-                for entry in entries
-            ],
-        ]
-
-    return _build
-
-
 def build(entry: journal_entry.JournalEntryDraft) -> journal_entry.JournalEntry:
     return {
         "custbody_journal_type2": journal_entry.CUSTBODY_JOURNAL_TYPE2,
