@@ -1,8 +1,6 @@
 from typing import Callable, TypedDict, Optional
 from dataclasses import dataclass
 
-from netsuite.query.saved_search import saved_search
-
 CUSTBODY_JOURNAL_TYPE2 = 6
 CUSTBODY_CASH_FLOW_CODE = 4100
 
@@ -51,7 +49,7 @@ def build_bank_in_transit_lines(dr_account: int, cr_account: int):
                 {
                     "line_type": "credit",
                     "account": cr_account,
-                    "entity": int(entry["internalid"]),
+                    "entity": int(entry["entity"]),
                     "location": int(entry["custbody_in_charge_location"]),
                     "amount": int(float(entry["amount"])),
                 }
@@ -128,29 +126,25 @@ def build_bank_in_transit_lines_with_payment_method(
 @dataclass
 class BankInTransitOptions:
     name: str
-    saved_search: str
     account_filter: list[str]
-    group_key_fn: Callable[[dict], Optional[str]]
+    group_key_fn: Callable[[dict], Optional[tuple]]
     build_fn: Callable[[tuple[str, list[dict]]], list[Line]]
 
 
 BankInTransitWarehouse = BankInTransitOptions(
     "Warehouse",
-    saved_search.SavedSearch.BankInTransitWarehouse.value,
     ["113343"],
-    lambda _: None,
+    lambda e: (e["subsidiary"]),
     build_bank_in_transit_lines(754, 1232),
 )
 BankInTransitOnline = BankInTransitOptions(
     "Online",
-    saved_search.SavedSearch.BankInTransitOnline.value,
     ["113361"],
-    lambda _: None,
+    lambda e: (e["subsidiary"]),
     build_bank_in_transit_lines(1154, 1173),
 )
 BankInTransitVNPay = BankInTransitOptions(
     "VNPay",
-    saved_search.SavedSearch.BankInTransitVNPay.value,
     ["113344", "113360"],
     lambda e: (e["subsidiary"], e["custbody_payment_method"]),
     build_bank_in_transit_lines_with_payment_method,
