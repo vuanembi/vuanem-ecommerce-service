@@ -66,9 +66,9 @@ def build_bank_in_transit_lines_with_payment_method(
     entries_group: tuple[str, list[dict]]
 ) -> list[Line]:
     group, entries = entries_group
-    subsidiary_id, custbody_deposit_payment_method = [int(i) for i in group.split("-")]
-    dr_account = 1154 if int(custbody_deposit_payment_method) == 13 else 1218
-    cr_account = 1052 if int(custbody_deposit_payment_method) == 13 else 1233
+    subsidiary_id, custbody_payment_method = [int(i) for i in group]
+    dr_account = 1154 if custbody_payment_method == 13 else 1218
+    cr_account = 1052 if custbody_payment_method == 13 else 1233
     if subsidiary_id == 1:
         return [
             {
@@ -82,7 +82,7 @@ def build_bank_in_transit_lines_with_payment_method(
                 {
                     "line_type": "credit",
                     "account": cr_account,
-                    "entity": int(entry["internalid"]),
+                    "entity": int(entry["entity"]),
                     "location": int(entry["custbody_in_charge_location"]),
                     "amount": int(float(entry["amount"])),
                 }
@@ -102,7 +102,7 @@ def build_bank_in_transit_lines_with_payment_method(
                 {
                     "line_type": "credit",
                     "account": cr_account,
-                    "entity": int(entry["internalid"]),
+                    "entity": int(entry["entity"]),
                     "location": int(entry["custbody_in_charge_location"]),
                     "amount": int(float(entry["amount"])),
                 }
@@ -152,6 +152,6 @@ BankInTransitVNPay = BankInTransitOptions(
     "VNPay",
     saved_search.SavedSearch.BankInTransitVNPay.value,
     ["113344", "113360"],
-    lambda e: e["subsidiary_id"],
+    lambda e: (e["subsidiary"], e["custbody_payment_method"]),
     build_bank_in_transit_lines_with_payment_method,
 )
