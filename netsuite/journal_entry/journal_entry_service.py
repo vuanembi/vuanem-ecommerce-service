@@ -14,6 +14,7 @@ from netsuite.restlet import restlet_repo
 from netsuite.location import location
 from netsuite.journal_entry import journal_entry, journal_entry_repo
 from netsuite.query import query_service
+from netsuite.query.saved_search import saved_search
 from mail import sendgrid_repo, template_repo
 
 
@@ -53,41 +54,6 @@ def _send_email_service(
     return je_ids
 
 
-def get_entries_service(
-    session: OAuth1Session,
-    options: journal_entry.BankInTransitOptions,
-    _date: date,
-) -> ResultE[list[tuple[int, list[dict]]]]:
-    return flow(
-        {
-            "id": options.saved_search,
-            "filterExp": [
-                ["trandate", "WITHIN", _date.isoformat(), _date.isoformat()],
-                "AND",
-                ["account.custrecord_intransit_bank_at_store", "IS", "T"],
-                "AND",
-                sum(
-                    [
-                        [i, "OR"]
-                        for i in [
-                            ["account.number", "CONTAINS", i]
-                            for i in options.account_filter
-                        ]
-                    ],
-                    [],
-                )[:-1],
-                "AND",
-                ["type", "ANYOF", "CustDep", "CustPymt"],
-            ],
-        },
-        query_service.saved_search_service(session),
-        bind(lambda x: Success(x) if x else Failure(x)),  # type: ignore
-        map_(  # type: ignore
-            lambda entries: [(k, v) for k, v in groupby(entries, options.group_key_fn)]
-        ),
-    )
-
-
 @curry
 def create_journal_entry_service(
     session: OAuth1Session,
@@ -108,16 +74,16 @@ def create_journal_entry_service(
             },
             # journal_entry_repo.build,
             lambda x: Success(journal_entry_repo.build(x)),
-            map_(lambda x: 1),
-            # bind(journal_entry_repo.create(session)),
-            # map_(lambda x: [x["id"]]),  # type: ignore
+            bind(journal_entry_repo.create(session)),
+            map_(lambda x: [x["id"]]),  # type: ignore
         )
 
-    x = [_create(entries_group) for entries_group in entries_groups]
-    return flatten(Fold.collect(
-        x,
-        Success(()),
-    ))
+    return flatten(
+        Fold.collect(
+            [_create(gr) for gr in entries_groups],
+            Success(()),
+        )
+    )
 
 
 def bank_in_transit_service(options: journal_entry.BankInTransitOptions):
@@ -131,7 +97,7 @@ def bank_in_transit_service(options: journal_entry.BankInTransitOptions):
         with restlet_repo.netsuite_session() as session:
             entries_groups: ResultE[list[tuple[str, Any]]] = flow(
                 {
-                    "id": options.saved_search,
+                    "id": saved_search.SavedSearch.BankInTransit.value,
                     "filterExp": [
                         ["trandate", "WITHIN", _date.isoformat(), _date.isoformat()],
                         "AND",
