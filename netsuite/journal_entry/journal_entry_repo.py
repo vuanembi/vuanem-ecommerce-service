@@ -25,12 +25,17 @@ def add_working_days(_date: date, days: int = 1) -> date:
     )[-1].date()
 
 
-def build(entry: journal_entry.JournalEntryDraft) -> journal_entry.JournalEntry:
-    return {
-        "custbody_journal_type2": journal_entry.CUSTBODY_JOURNAL_TYPE2,
-        "custbody_cash_flow_code": journal_entry.CUSTBODY_CASH_FLOW_CODE,
-        **entry,  # type: ignore
-    }
+def build(_date: date):
+    def _build(entry: journal_entry.JournalEntryDraft) -> journal_entry.JournalEntry:
+        return {
+            "memo": f"VNBI - {_date.isoformat()}",
+            "trandate": add_working_days(_date).isoformat(),
+            "custbody_journal_type2": journal_entry.CUSTBODY_JOURNAL_TYPE2,
+            "custbody_cash_flow_code": journal_entry.CUSTBODY_CASH_FLOW_CODE,
+            **entry,  # type: ignore
+        }
+
+    return _build
 
 
 def create(session: OAuth1Session):

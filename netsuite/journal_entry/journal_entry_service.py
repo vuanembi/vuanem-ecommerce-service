@@ -65,24 +65,17 @@ def create_journal_entry_service(
         return flow(  # type: ignore
             entries_group,
             options.build_fn,
-            lambda x: {
-                "custbody_ref_transaction": None,
-                "subsidiary": location.SUBSIDIARY,
-                "memo": f"VNBI - {_date.isoformat()}",
-                "trandate": journal_entry_repo.add_working_days(_date).isoformat(),
-                "lines": x,
-            },
-            # journal_entry_repo.build,
-            lambda x: Success(journal_entry_repo.build(x)),
-            bind(journal_entry_repo.create(session)),
-            map_(lambda x: [x["id"]]),  # type: ignore
+            journal_entry_repo.build(_date),
+            lambda x: Success(x)
+            # journal_entry_repo.create(session),
+            # map_(lambda x: [x["id"]]),  # type: ignore
         )
 
-    return flatten(
-        Fold.collect(
-            [_create(gr) for gr in entries_groups],
-            Success(()),
-        )
+    x = [_create(gr) for gr in entries_groups]
+    x
+    return Fold.collect(
+        x,
+        Success(()),
     )
 
 
@@ -130,12 +123,9 @@ def bank_in_transit_service(options: journal_entry.BankInTransitOptions):
 
             entries_groups
 
-            je_ids = entries_groups.map(
-                create_journal_entry_service(
-                    session,
-                    options,
-                    _date,
-                )
+            je_ids = flow(
+                entries_groups,
+                bind(create_journal_entry_service(session, options, _date)),
             )
             je_ids
             return (
