@@ -28,42 +28,8 @@ def build_detail(memo: str) -> sales_order.Detail:
 def _build_customer_callback(order: sales_order.Order):
     def _add(customer_id: int) -> sales_order.Order:
         return {
+            **order,  # type: ignore
             "entity": customer_id,
-            "trandate": order["trandate"],
-            "shipdate": order["shipdate"],
-            "subsidiary": order["subsidiary"],
-            "location": order["location"],
-            "department": order["department"],
-            "custbody_customer_phone": order["custbody_customer_phone"],
-            "custbody_expecteddeliverytime": order["custbody_expecteddeliverytime"],
-            "custbody_recipient": order["custbody_recipient"],
-            "custbody_recipient_phone": order["custbody_recipient_phone"],
-            "shippingaddress": order["shippingaddress"],
-            "shipaddress": customer_repo.serialize_shipping_address(
-                order["shipaddress"]
-            ),
-            "custbody_order_payment_method": order["custbody_order_payment_method"],
-            "custbody_expected_shipping_method": order[
-                "custbody_expected_shipping_method"
-            ],
-            "custbody_print_form": order["custbody_print_form"],
-            "memo": order["memo"],
-            "salesrep": order["salesrep"],
-            "leadsource": order["leadsource"],
-            "partner": order["partner"],
-            "custbody_onl_rep": order["custbody_onl_rep"],
-            "item": [
-                {
-                    "item": i["item"],
-                    "quantity": i["quantity"],
-                    "price": i["price"],
-                    "amount": i["amount"],
-                    "commitinventory": i["commitinventory"],
-                    "location": i["location"],
-                    "custcol_deliver_location": i["custcol_deliver_location"],
-                }
-                for i in order["item"]
-            ],
         }
 
     return _add
@@ -85,10 +51,11 @@ def create(session: OAuth1Session):
     def _create(order: sales_order.Order) -> ResultE[dict]:
         return restlet_repo.request(
             session,
-            restlet.SalesOrder,
+            restlet.Record,
             "POST",
             body={
-                **order,
+                "type": "salesorder",
+                "data": order,
             },
         )
 
@@ -99,9 +66,10 @@ def close(session: OAuth1Session):
     def _delete(order_id: int) -> ResultE[dict]:
         return restlet_repo.request(
             session,
-            restlet.SalesOrder,
+            restlet.Record,
             "DELETE",
             params={
+                "type": "salesorder",
                 "id": order_id,
             },
         )

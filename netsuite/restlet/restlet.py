@@ -6,8 +6,9 @@ class Restlet(TypedDict):
     deploy: int
 
 
-SalesOrder: Restlet = {"script": 997, "deploy": 1}
-Customer: Restlet = {"script": 1099, "deploy": 1}
+# SalesOrder: Restlet = {"script": 997, "deploy": 1}
+# Customer: Restlet = {"script": 1099, "deploy": 1}
+Record: Restlet = {"script": 1236, "deploy": 1}
 
 SavedSearch: Restlet = {"script": 1208, "deploy": 1}
 Analytics: Restlet = {"script": 1098, "deploy": 1}
