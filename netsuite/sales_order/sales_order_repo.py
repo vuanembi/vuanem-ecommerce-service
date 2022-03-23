@@ -66,9 +66,10 @@ def close(session: OAuth1Session):
     def _delete(order_id: int) -> ResultE[dict]:
         return restlet_repo.request(
             session,
-            restlet.SalesOrder,
+            restlet.Record,
             "DELETE",
             params={
+                "type": "salesorder",
                 "id": order_id,
             },
         )
