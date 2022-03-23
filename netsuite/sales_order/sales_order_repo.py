@@ -28,8 +28,8 @@ def build_detail(memo: str) -> sales_order.Detail:
 def _build_customer_callback(order: sales_order.Order):
     def _add(customer_id: int) -> sales_order.Order:
         return {
-            "entity": customer_id,
             **order,  # type: ignore
+            "entity": customer_id,
         }
 
     return _add

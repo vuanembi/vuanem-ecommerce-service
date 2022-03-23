@@ -54,7 +54,7 @@ class TestSalesOrder:
         assert res
 
     def test_close_service(self, prepared_order):
-        res = sales_order_service.close(prepared_order)
+        res = sales_order_service.close({**prepared_order, "id": 4169371})
         assert res
 
 
@@ -109,6 +109,7 @@ class TestAnalytics:
     def test_coupon_code_analytics_controller(self, coupon_codes):
         res = run("/netsuite/analytics/coupon_code", {"data": coupon_codes})
         assert res
+
 
 class TestTask:
     class TestCSVImport:
