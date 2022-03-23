@@ -70,17 +70,18 @@ def _create(session: OAuth1Session):
     def _req(customer_req: customer.CustomerReq) -> ResultE[str]:
         return restlet_repo.request(
             session,
-            restlet.Customer,
+            restlet.Record,
             "POST",
             body={
-                "leadsource": customer.LEAD_SOURCE,
-                "firstname": customer_req["firstname"],
-                "lastname": customer_req["lastname"],
-                "phone": customer_req["phone"],
+                "type": "customer",
+                "data": {
+                    "leadsource": customer.LEAD_SOURCE,
+                    "firstname": customer_req["firstname"],
+                    "lastname": customer_req["lastname"],
+                    "phone": customer_req["phone"],
+                },
             },
-        ).map(
-            lambda x: x["id"]
-        )  # type: ignore
+        ).map(lambda x: x["id"])
 
     return _req
 
