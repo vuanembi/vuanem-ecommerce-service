@@ -5,7 +5,6 @@ from netsuite.sales_order import sales_order_repo, sales_order_service
 from netsuite.customer import customer_repo
 from netsuite.item import item_repo
 from netsuite.order import order_service
-from netsuite.journal_entry import journal_entry_controller
 from netsuite.task import task_service
 
 import pytest
@@ -110,33 +109,6 @@ class TestAnalytics:
     def test_coupon_code_analytics_controller(self, coupon_codes):
         res = run("/netsuite/analytics/coupon_code", {"data": coupon_codes})
         assert res
-
-
-class TestBankInTransit:
-    @pytest.fixture(
-        params=journal_entry_controller.services.items(),
-        ids=[i.split("/")[-1] for i in journal_entry_controller.services.keys()],
-    )
-    def service(self, request):
-        return request.param
-
-    @pytest.fixture(
-        params=[
-            None,
-            "2022-02-20",
-        ],
-    )
-    def _date(self, request):
-        return request.param
-
-    def test_service(self, service, _date):
-        res = service[1]({"date": _date})
-        res
-
-    def test_controller(self, service, _date):
-        res = run(service[0], {"date": _date})
-        res
-
 
 class TestTask:
     class TestCSVImport:
