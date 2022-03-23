@@ -94,6 +94,7 @@ jobs:
 
   clean-up:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     needs: deploy
     steps:
       - run: echo "" > ${{ env.ENV_FILE }}

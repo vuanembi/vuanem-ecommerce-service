@@ -11,7 +11,7 @@ from test.conftest import run
 
 class TestAuth:
     def test_get_token(self, session):
-        res = auth_repo.get_token(session, "6d4c6175565544636b45717a554b4267")
+        res = auth_repo.get_token(session, "796645794941755567714e684a576d67")
         res
 
     def test_refresh_token(self, session):

@@ -1,5 +1,6 @@
 from returns.result import safe
 import requests
+from google.cloud.firestore import SERVER_TIMESTAMP
 
 from shopee import shopee, shopee_repo
 
@@ -51,5 +52,15 @@ def get_access_token() -> shopee.AccessToken:
 
 @safe
 def update_access_token(token: shopee.AccessToken) -> shopee.AccessToken:
-    shopee_repo.SHOPEE.set({"state": {"access_token": token}}, merge=True)
+    shopee_repo.SHOPEE.set(
+        {
+            "state": {
+                "access_token": {
+                    **token,
+                    "updated_at": SERVER_TIMESTAMP,
+                }
+            }
+        },
+        merge=True,
+    )
     return token
