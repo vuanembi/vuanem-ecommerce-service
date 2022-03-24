@@ -3,7 +3,7 @@ from datetime import datetime, date, timedelta
 
 from returns.result import Result, ResultE, Success
 from returns.pipeline import flow
-from returns.pointfree import lash, bind
+from returns.pointfree import lash, bind, map_
 from returns.methods import cond
 
 from netsuite.restlet import restlet, restlet_repo
@@ -45,5 +45,6 @@ def bank_in_transit_service(body: dict[str, Any]) -> ResultE[dict[str, Any]]:
                 "date": _date,
             },
             task_repo.request(session, restlet.BankInTransitTask),
+            map_(lambda x: {"data": x}),  # type: ignore
             lash(lambda _: Success({"data": None})),  # type: ignore
         )
