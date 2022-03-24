@@ -45,6 +45,7 @@ def serialize_shipping_address(address: str) -> str:
 
 def _build_request(name: str, phone: str) -> customer.CustomerReq:
     return {
+        "subsidiary": 1,
         "leadsource": customer.LEAD_SOURCE,
         "firstname": "Anh Chị",
         "lastname": name,

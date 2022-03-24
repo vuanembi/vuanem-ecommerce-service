@@ -30,6 +30,7 @@ class Customer(TypedDict):
 
 
 class CustomerReq(TypedDict):
+    subsidiary: int
     leadsource: int
     phone: str
     firstname: str
