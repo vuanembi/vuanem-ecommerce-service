@@ -76,6 +76,7 @@ def _create(session: OAuth1Session):
             body={
                 "type": "customer",
                 "data": {
+                    "subsidiary": customer_req["subsidiary"],
                     "leadsource": customer.LEAD_SOURCE,
                     "firstname": customer_req["firstname"],
                     "lastname": customer_req["lastname"],
