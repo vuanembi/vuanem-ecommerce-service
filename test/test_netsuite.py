@@ -140,5 +140,5 @@ class TestTask:
             res
 
         def test_controller(self, body):
-            res = run("/netsuite/task/bank_in_transit", {"data": body})
+            res = run("/netsuite/task/bank_in_transit", {"date": body})
             res
