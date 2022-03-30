@@ -37,7 +37,7 @@ def bank_in_transit_service(body: dict[str, Any]) -> ResultE[dict[str, Any]]:
     _date = (
         datetime.strptime(body["date"], "%Y-%m-%d").date().isoformat()
         if body and "date" in body and body["date"]
-        else (date.today() - timedelta(days=3)).isoformat()
+        else (date.today() - timedelta(days=1)).isoformat()
     )
     with restlet_repo.netsuite_session() as session:
         return flow(
