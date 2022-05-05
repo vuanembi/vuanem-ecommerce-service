@@ -8,7 +8,7 @@ from netsuite.order import order
 from netsuite.sales_order import sales_order_repo
 from telegram import telegram, telegram_repo
 
-DIVIDER = "\=\=\=\=\=\=\=\=\=\=\="
+DIVIDER = "\=\=\=\=\=\="
 
 
 def safe_encode(value: Any) -> Optional[Any]:
@@ -43,7 +43,7 @@ def send_new_order(channel: telegram.Channel):
                                 .items()
                             },
                             allow_unicode=True,
-                        ),
+                        )[:4090],
                         "```",
                     ]
                 ),
