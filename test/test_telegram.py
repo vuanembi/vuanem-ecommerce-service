@@ -3,7 +3,7 @@ import pytest
 from telegram import telegram, message_service
 
 channels = [
-    telegram.TIKI_CHANNEL,
+    telegram.TIKI_ORDER_CHANNEL,
 ]
 
 

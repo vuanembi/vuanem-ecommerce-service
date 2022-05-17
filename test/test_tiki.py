@@ -133,6 +133,10 @@ class TestProducts:
         res = tiki_service.get_products_service()
         res
 
+    def test_alert_products_service(self):
+        res = tiki_service.alert_products_service()
+        res
+
     def test_controller(self):
         res = run("/tiki/products")
         res

@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import io
 
 import requests
 
@@ -19,7 +20,7 @@ def build_callback_data(type_: str, action: int, value: str) -> str:
     )
 
 
-def send(payload: telegram.Payload) -> None:
+def sendMessage(payload: telegram.Payload) -> None:
     with requests.post(
         f"{BASE_URL}/sendMessage",
         json={
@@ -29,7 +30,23 @@ def send(payload: telegram.Payload) -> None:
     ) as r:
         if r.status_code == 429:
             time.sleep(3)
-            return send(payload)
+            return sendMessage(payload)
+        else:
+            r.raise_for_status()
+
+
+def sendDocuments(
+    payload: telegram.Payload,
+    files: list[tuple[str, tuple[str, io.BytesIO, str]]],
+) -> None:
+    with requests.post(
+        f"{BASE_URL}/sendDocument",
+        params={**payload},
+        files=files,
+    ) as r:
+        if r.status_code == 429:
+            time.sleep(3)
+            return sendMessage(payload)
         else:
             r.raise_for_status()
 
