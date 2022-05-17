@@ -11,9 +11,13 @@ class Channel:
     chat_id: str
 
 
-TIKI_CHANNEL = Channel(
+TIKI_ORDER_CHANNEL = Channel(
     "Tiki",
     "-1001685563275" if os.getenv("PYTHON_ENV") == "prod" else "-645664226",
+)
+TIKI_PRODUCT_CHANNEL = Channel(
+    "Tiki",
+    "-688466638" if os.getenv("PYTHON_ENV") == "prod" else "-645664226",
 )
 LAZADA_CHANNEL = Channel(
     "Lazada",

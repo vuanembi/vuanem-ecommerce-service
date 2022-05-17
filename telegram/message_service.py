@@ -7,6 +7,7 @@ from google.cloud.firestore import DocumentReference
 from netsuite.order import order
 from netsuite.sales_order import sales_order_repo
 from telegram import telegram, telegram_repo
+from common.utils import json_to_csv
 
 DIVIDER = "\=\=\=\=\=\="
 
@@ -25,7 +26,7 @@ def get_url(id):
 
 def send_new_order(channel: telegram.Channel):
     def _send(order_ref: DocumentReference) -> DocumentReference:
-        telegram_repo.send(
+        telegram_repo.sendMessage(
             {
                 "chat_id": channel.chat_id,
                 "text": "\n".join(
@@ -71,7 +72,7 @@ def send_new_order(channel: telegram.Channel):
 def send_create_order_success(chat_id: str, message_id: int):
     def _send(order_ref: DocumentReference) -> DocumentReference:
         _order: order.Order = order_ref.get(["order.id", "order.memo"])
-        telegram_repo.send(
+        telegram_repo.sendMessage(
             {
                 "chat_id": chat_id,
                 "reply_to_message_id": message_id,
@@ -105,7 +106,7 @@ def send_create_order_success(chat_id: str, message_id: int):
 
 def send_create_order_error(chat_id: str, message_id: int):
     def _send(error: Exception) -> Exception:
-        telegram_repo.send(
+        telegram_repo.sendMessage(
             {
                 "chat_id": chat_id,
                 "reply_to_message_id": message_id,
@@ -128,7 +129,7 @@ def send_create_order_error(chat_id: str, message_id: int):
 def send_close_order_success(chat_id: str, message_id: int):
     def _send(order_ref: DocumentReference) -> tuple[int, str]:
         _order = order_ref.get(["order.id", "order.memo"])
-        telegram_repo.send(
+        telegram_repo.sendMessage(
             {
                 "chat_id": chat_id,
                 "reply_to_message_id": message_id,
@@ -148,7 +149,7 @@ def send_close_order_success(chat_id: str, message_id: int):
 
 def send_close_order_error(chat_id: str, message_id: int):
     def _send(error: Exception) -> Exception:
-        telegram_repo.send(
+        telegram_repo.sendMessage(
             {
                 "chat_id": chat_id,
                 "reply_to_message_id": message_id,
@@ -164,5 +165,21 @@ def send_close_order_error(chat_id: str, message_id: int):
             }
         )
         return error
+
+    return _send
+
+
+def send_products_alert(channel: telegram.Channel):
+    def _send(products: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if products:
+            telegram_repo.sendDocuments(
+                {"chat_id": channel.chat_id, "caption": "Có biến"},
+                [("document", ('results.csv', json_to_csv(products), "text/csv"))],
+            )
+        else:
+            telegram_repo.sendMessage(  # type: ignore
+                {"chat_id": channel.chat_id, "text": "Ko có biến"}
+            )
+        return products
 
     return _send

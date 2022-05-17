@@ -11,7 +11,7 @@ from netsuite.sales_order import sales_order, sales_order_service
 from netsuite.customer import customer, customer_repo
 from netsuite.order import order_service
 from tiki import tiki, tiki_repo, auth_repo, event_repo, order_repo
-from telegram import telegram
+from telegram import message_service, telegram
 
 from db import bigquery
 
@@ -97,7 +97,7 @@ def ingest_orders_service():
                     order_service.ingest(
                         order_repo.create,  # type: ignore
                         _builder,
-                        telegram.TIKI_CHANNEL,
+                        telegram.TIKI_ORDER_CHANNEL,
                     )
                 )
                 .bind(_ack_service(ack_id))
@@ -121,4 +121,26 @@ def get_products_service() -> ResultE[int]:
                     tiki.ProductsSchema,  # type: ignore
                 )
             ),
+        )
+
+
+def alert_products_service() -> ResultE[int]:
+    with auth_service() as session:
+        return flow(
+            tiki_repo.get_products(session)(),
+            map_(tiki_repo.transform_products),
+            map_(
+                lambda products: [
+                    {
+                        "name": product["name"],
+                        "price": product["price"],
+                        "market_price": product["market_price"],
+                    }
+                    for product in products  # type: ignore
+                    if product["price"] == product["market_price"]
+                    and product["price"] != 0
+                    and product["active"] == "1"
+                ]
+            ),  # type: ignore
+            map_(message_service.send_products_alert(telegram.TIKI_PRODUCT_CHANNEL)),
         )
