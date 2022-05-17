@@ -139,7 +139,7 @@ def alert_products_service() -> ResultE[int]:
                     for product in products  # type: ignore
                     if product["price"] == product["market_price"]
                     and product["price"] != 0
-                    # and product["active"] == "1"
+                    and product["active"] == "1"
                 ]
             ),  # type: ignore
             map_(message_service.send_products_alert(telegram.TIKI_PRODUCT_CHANNEL)),
