@@ -173,8 +173,12 @@ def send_products_alert(channel: telegram.Channel):
     def _send(products: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if products:
             telegram_repo.sendDocuments(
-                {"chat_id": channel.chat_id, "caption": "Có biến"},
-                [("document", ('results.csv', json_to_csv(products), "text/csv"))],
+                {
+                    "chat_id": channel.chat_id,
+                    "caption": "Có biến",
+                    "disable_notification": True,
+                },
+                [("document", ("results.csv", json_to_csv(products), "text/csv"))],
             )
         else:
             telegram_repo.sendMessage(  # type: ignore
