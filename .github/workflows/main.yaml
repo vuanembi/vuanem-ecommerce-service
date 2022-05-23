@@ -18,7 +18,7 @@ jobs:
   set-env:
     runs-on: ubuntu-latest
     outputs:
-      fn-name: ${{ steps.set-fn-name.outputs.fn-name }}
+      fn-name: ${{ steps.set-output.outputs.fn-name }}
     steps:
       - if: github.ref_name == 'dev'
         run: |
@@ -32,7 +32,8 @@ jobs:
           echo "PYTHON_ENV=prod" >> $GITHUB_ENV
           echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
 
-      - run: echo "::set-output name=fn-name::${{ env.FUNCTION_NAME}}"
+      - id: set-output
+        run: echo "::set-output name=fn-name::${{ env.FUNCTION_NAME}}"
 
       - run: |
           echo "PYTHON_ENV: ${{ env.PYTHON_ENV }}" >> ${{ env.ENV_FILE }}
