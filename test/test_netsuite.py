@@ -112,6 +112,13 @@ class TestAnalytics:
 
 
 class TestTask:
+    @pytest.fixture(
+        params=[None, "2022-03-22"],
+        ids=["auto", "manual"],
+    )
+    def timeframe(self, request):
+        return request.param
+
     class TestCSVImport:
         @pytest.fixture()
         def body(self):
@@ -128,17 +135,19 @@ class TestTask:
             res
 
     class TestBankInTransit:
-        @pytest.fixture(
-            params=[None, "2022-03-22"],
-            ids=["auto", "manual"],
-        )
-        def body(self, request):
-            return request.param
-
-        def test_service(self, body):
-            res = task_service.bank_in_transit_service(body)
+        def test_service(self, timeframe):
+            res = task_service.bank_in_transit_service({"date": timeframe})
             res
 
-        def test_controller(self, body):
-            res = run("/netsuite/task/bank_in_transit", {"date": body})
+        def test_controller(self, timeframe):
+            res = run("/netsuite/task/bank_in_transit", {"date": timeframe})
+            res
+
+    class TestVoucherAdjustments:
+        def test_service(self, timeframe):
+            res = task_service.voucher_adjustments_service({"date": timeframe})
+            res
+
+        def test_controller(self, timeframe):
+            res = run("/netsuite/task/voucher_adjustments", {"date": timeframe})
             res
