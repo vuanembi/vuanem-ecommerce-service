@@ -7,8 +7,9 @@ from returns.result import safe
 
 from netsuite.restlet import restlet
 
+ACCOUNT_ID = "4975572"
 
-BASE_URL = f"https://{os.getenv('ACCOUNT_ID')}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
+BASE_URL = f"https://{ACCOUNT_ID}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
 
 
 class RestletError(Exception):
@@ -21,7 +22,7 @@ def netsuite_session() -> OAuth1Session:
         client_secret=os.getenv("CONSUMER_SECRET"),
         resource_owner_key=os.getenv("ACCESS_TOKEN"),
         resource_owner_secret=os.getenv("TOKEN_SECRET"),
-        realm=os.getenv("ACCOUNT_ID"),
+        realm=ACCOUNT_ID,
         signature_method=SIGNATURE_HMAC_SHA256,
     )
 
