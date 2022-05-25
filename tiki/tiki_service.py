@@ -30,7 +30,6 @@ _builder = sales_order_service.build(
     - x["seller_income_detail"]["discount"]["discount_coupon"]["seller_discount"]
     if x["_fulfillment_type"] == "tiki_delivery"
     else x["seller_income_detail"]["sub_total"],
-    item_location=sales_order.TIKI_ECOMMERCE["location"],
     ecom=sales_order.TIKI_ECOMMERCE,
     memo_builder=lambda x: f"{x['code']} - tiki",
     customer_builder=lambda x: customer_repo.add(

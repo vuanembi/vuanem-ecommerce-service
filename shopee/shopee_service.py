@@ -19,7 +19,6 @@ _builder = sales_order_service.build(
     item_sku_fn=lambda x: x["item_sku"],
     item_qty_fn=lambda x: x["model_quantity_purchased"],
     item_amt_fn=lambda x: x["model_discounted_price"],
-    item_location=sales_order.SHOPEE_ECOMMERCE["location"],
     ecom=sales_order.SHOPEE_ECOMMERCE,
     memo_builder=lambda x: f"{x['order_sn']} - shopee",
     customer_builder=lambda _: customer_repo.add(customer.SHOPEE_CUSTOMER),
