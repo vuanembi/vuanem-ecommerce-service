@@ -65,7 +65,7 @@ def update_access_token(seller: Seller) -> shopee.AccessToken:
             {
                 "state": {
                     "access_token": {
-                        **token, # type: ignore
+                        **token,  # type: ignore
                         "updated_at": datetime.utcnow(),
                     }
                 }

@@ -106,7 +106,7 @@ def get_products_service(seller: Seller):
             bigquery.load(
                 "IP_3rdPartyEcommerce",
                 "Lazada_Products",
-                lazada.ProductsSchema, # type: ignore
+                lazada.ProductsSchema,  # type: ignore
             )
         ),
     )
