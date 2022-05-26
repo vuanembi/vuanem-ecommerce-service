@@ -17,7 +17,7 @@ def lazada_controller(request: Request):
             .map(
                 lambda x: {
                     "controller": request.path,
-                    "seller": _seller,
+                    "seller": _seller.name,
                     "results": x,
                 }
             )
