@@ -54,7 +54,7 @@ def build_shopee_request(
         params: dict[str, Union[int, str]] = {},
         body: dict[str, Union[int, str]] = {},
     ) -> requests.PreparedRequest:
-        shop_id = seller.id
+        shop_id = seller.id if seller.id else 0
         return requests.Request(
             method,
             url=f"{BASE_URL}/{API_PATH}/{uri}",
@@ -162,7 +162,7 @@ def get_order_items(
         ordersn_batches = [
             order_sns[i : i + BATCH_SIZE] for i in range(0, len(order_sns), BATCH_SIZE)
         ]
-        return Fold.collect_all(
+        return Fold.collect_all( # type: ignore
             [
                 get_orders_batch_item(session, request_builder, ordersn_batch)
                 for ordersn_batch in ordersn_batches
@@ -325,7 +325,7 @@ def get_items_info(
         item_list_batches = [
             item_list[i : i + BATCH_SIZE] for i in range(0, len(item_list), BATCH_SIZE)
         ]
-        return Fold.collect_all(
+        return Fold.collect_all( # type: ignore
             [
                 get_items_batch_info(session, request_builder, item_list_batch)
                 for item_list_batch in item_list_batches

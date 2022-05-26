@@ -71,7 +71,7 @@ def ingest_orders_service(seller: Seller):
     return _get_orders_service(seller).bind(
         order_service.ingest(
             order_repo.create(seller),
-            seller.order_builder,
+            seller.order_builder, # type: ignore
             seller.name,
             seller.chat_id,
         )

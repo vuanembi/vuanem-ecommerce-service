@@ -62,7 +62,7 @@ def _get_orders_service(
     session: OAuth2Session,
     events: list[tiki.Event],
 ) -> ResultE[list[tiki.Order]]:
-    return Fold.collect_all(
+    return Fold.collect_all( # type: ignore
         [
             flow(
                 event,

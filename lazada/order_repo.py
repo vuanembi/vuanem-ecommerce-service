@@ -25,7 +25,7 @@ def get_max_created_at(seller: Seller) -> datetime:
     return seller.db.get([max_created_at]).get(max_created_at).replace(tzinfo=None)
 
 
-def update_max_created_at(seller: Seller) -> list[lazada.OrderItems]:
+def update_max_created_at(seller: Seller):
     @safe
     def _update(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
         if orders:

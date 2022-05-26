@@ -9,7 +9,7 @@ from shopee import shopee
 ORDER = "Order"
 
 
-def create(seller: Seller) -> DocumentReference:
+def create(seller: Seller):
     @safe
     def _create(order: shopee.Order) -> DocumentReference:
         doc_ref = seller.db.collection(ORDER).document(str(order["order_sn"]))
@@ -25,7 +25,7 @@ def get_max_created_at(seller: Seller) -> datetime:
     return seller.db.get([max_created_at]).get(max_created_at)
 
 
-def update_max_created_at(seller: Seller) -> list[shopee.Order]:
+def update_max_created_at(seller: Seller):
     @safe
     def _update(orders: list[shopee.Order]) -> list[shopee.Order]:
         if orders:

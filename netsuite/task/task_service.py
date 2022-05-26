@@ -16,7 +16,7 @@ TIMEZONE = pytz.timezone("Asia/Ho_Chi_Minh")
 def validation_service(
     request_data: dict[str, Any]
 ) -> Result[dict[str, Any], dict[str, Any]]:
-    return cond(
+    return cond( # type: ignore
         Result,
         "data" in request_data
         and "id" in request_data["data"]

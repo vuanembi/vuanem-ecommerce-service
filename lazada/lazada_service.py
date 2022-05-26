@@ -16,7 +16,7 @@ from netsuite.order import order_service
 from db import bigquery
 
 
-def _token_refresh_service(seller: Seller) -> ResultE[lazada.AccessToken]:
+def _token_refresh_service(seller: Seller):
     def _svc(token: lazada.AccessToken) -> ResultE[lazada.AccessToken]:
         with requests.Session() as session:
             return (
@@ -39,7 +39,7 @@ def _auth_service(seller: Seller) -> ResultE[lazada.AuthBuilder]:
 
 def _get_items(session: requests.Session, auth_builder: lazada.AuthBuilder):
     def _get(orders: list[lazada.Order]) -> ResultE[lazada.OrderItems]:
-        return Fold.collect_all(
+        return Fold.collect_all( # type: ignore
             [
                 lazada_repo.get_order_item(session, auth_builder, order["order_id"])
                 for order in orders
@@ -87,7 +87,7 @@ def ingest_orders_service(seller: Seller) -> ResultE[dict[str, list[dict]]]:
     return _get_orders_service(seller).bind(
         order_service.ingest(
             order_repo.create(seller),
-            seller.order_builder,
+            seller.order_builder, # type: ignore
             seller.name,
             seller.chat_id,
         )

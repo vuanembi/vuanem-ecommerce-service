@@ -32,7 +32,7 @@ def build(
         order = order_doc_ref.get().to_dict()
         with restlet_repo.netsuite_session() as session:
             return (
-                Fold.collect_all(
+                Fold.collect_all( # type: ignore
                     [
                         item_repo.build(
                             session,

@@ -12,7 +12,9 @@ sellers = {
 
 
 def orders_controller(request: Request):
-    return lazada_service.ingest_orders_service(sellers[request.get_json()["seller"]])
+    return lazada_service.ingest_orders_service(
+        sellers[(request.get_json() or {})["seller"]]
+    )
 
 
 services = {
@@ -24,7 +26,7 @@ services = {
 def lazada_controller(request: Request):
     if request.path in services:
         return (
-            services[request.path](request)
+            services[request.path](request)  # type: ignore
             .map(
                 lambda x: {
                     "controller": request.path,
