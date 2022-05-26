@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from returns.result import safe
 import requests
-from google.cloud.firestore import SERVER_TIMESTAMP
 
 from common.seller import Seller
 from shopee import shopee, shopee_repo
@@ -64,8 +65,8 @@ def update_access_token(seller: Seller) -> shopee.AccessToken:
             {
                 "state": {
                     "access_token": {
-                        **token,
-                        "updated_at": SERVER_TIMESTAMP,
+                        **token,  # type: ignore
+                        "updated_at": datetime.utcnow(),
                     }
                 }
             },

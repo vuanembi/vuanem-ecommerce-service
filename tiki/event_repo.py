@@ -1,5 +1,6 @@
+from datetime import datetime
+
 from returns.result import safe
-from google.cloud import firestore
 
 from db.firestore import DB
 
@@ -18,9 +19,10 @@ def update_ack_id(ack_id: str) -> str:
             "state": {
                 "ack": {
                     "ack_id": ack_id,
-                    "updated_at": firestore.SERVER_TIMESTAMP,
+                    "updated_at": datetime.utcnow(),
                 }
-            }
+            },
+            "test": datetime.utcnow(),
         },
         merge=True,
     )
