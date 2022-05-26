@@ -5,14 +5,14 @@ from returns.pipeline import is_successful
 
 import pytest
 
-from lazada import lazada_controller, lazada_service, auth_repo, lazada_repo, order_repo
+from lazada import lazada_service, auth_repo, lazada_repo, order_repo, seller as seller_
 
 from test.conftest import run
 
 
 @pytest.fixture(
-    params=lazada_controller.sellers.values(),
-    ids=lazada_controller.sellers.keys(),
+    params=seller_.SELLERS.values(),
+    ids=seller_.SELLERS.keys(),
 )
 def seller(request):
     return request.param

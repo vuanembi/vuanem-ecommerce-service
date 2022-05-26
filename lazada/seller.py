@@ -37,5 +37,10 @@ _lazada_seller = lambda name, location_, chat_id: Seller(
     chat_id=chat_id,
 )
 
-LAZADA = _lazada_seller("Lazada", 789, "-661578343")
-LAZADA2 = _lazada_seller("Lazada2", 862, "-770270636")
+SELLERS = {
+    i.name: i
+    for i in [
+        _lazada_seller("Lazada", 789, "-661578343"),
+        _lazada_seller("Lazada2", 862, "-770270636"),
+    ]
+}

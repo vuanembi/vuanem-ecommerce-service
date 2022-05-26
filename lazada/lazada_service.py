@@ -94,19 +94,19 @@ def ingest_orders_service(seller: Seller) -> ResultE[dict[str, list[dict]]]:
     )
 
 
-def get_products_service(*args):
+def get_products_service(seller: Seller):
     def _get(auth_builder: lazada.AuthBuilder):
         with requests.Session() as session:
             return lazada_repo.get_products(session, auth_builder)()
 
     return flow(
-        _auth_service(),
+        _auth_service(seller),
         bind(_get),
         bind(
             bigquery.load(
                 "IP_3rdPartyEcommerce",
                 "Lazada_Products",
-                lazada.ProductsSchema,
+                lazada.ProductsSchema, # type: ignore
             )
         ),
     )
