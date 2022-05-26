@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from returns.result import Result, ResultE, Success, Failure, safe
-from google.cloud.firestore import DocumentReference, SERVER_TIMESTAMP
+from google.cloud.firestore import DocumentReference
 
 from netsuite.order import order
 from netsuite.sales_order import sales_order
@@ -18,7 +20,7 @@ def create(
         existing_ref = existing[0].reference
         existing_ref.update(
             {
-                "updated_at": SERVER_TIMESTAMP,
+                "updated_at": datetime.utcnow(),
             }
         )
         return existing_ref
@@ -29,8 +31,8 @@ def create(
                 "source_ref": source_ref,
                 "order": order,
                 "status": "pending",
-                "created_at": SERVER_TIMESTAMP,
-                "updated_at": SERVER_TIMESTAMP,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
                 "is_deleted": False,
             },
         )
@@ -63,7 +65,7 @@ def update(order_doc_ref: DocumentReference, status: str):
             {
                 "status": status,
                 "order.id": id,
-                "updated_at": SERVER_TIMESTAMP,
+                "updated_at": datetime.utcnow(),
             },
         )
         return order_doc_ref

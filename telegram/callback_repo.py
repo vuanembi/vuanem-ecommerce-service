@@ -1,5 +1,6 @@
 from typing import Callable
 import json
+from datetime import datetime
 
 from google.cloud import firestore
 from returns.pipeline import flow
@@ -30,7 +31,7 @@ def _validate_unique(
                         "id": update["callback_query"]["id"],
                         "data": update["callback_query"]["data"],
                     },
-                    "created_at": firestore.SERVER_TIMESTAMP,
+                    "created_at": datetime.utcnow(),
                 }
             )
             return Success(update)

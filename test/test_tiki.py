@@ -2,7 +2,7 @@ import pytest
 from returns.result import Success
 from returns.pipeline import is_successful
 
-from tiki import tiki_service, tiki_repo, auth_repo, event_repo
+from tiki import tiki_service, tiki_repo, auth_repo, event_repo, seller
 
 from test.conftest import run
 
@@ -111,7 +111,7 @@ class TestTikiOrder:
         assert is_successful(res)
 
     def test_build_order(self, order, static_order):
-        res1 = order.bind(tiki_service.builder)
+        res1 = order.bind(seller.TIKI.order_builder)
         res2 = static_order.bind(tiki_service.builder)
         assert res1, res2
 
