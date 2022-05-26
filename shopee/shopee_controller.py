@@ -24,7 +24,7 @@ services = {
 def shopee_controller(request: Request):
     if request.path in services:
         return (
-            services[request.path](request) # type: ignore
+            services[request.path](request)  # type: ignore
             .map(
                 lambda x: {
                     "controller": request.path,

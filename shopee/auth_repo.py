@@ -30,7 +30,11 @@ def get_token(seller: Seller, session: requests.Session, code: str):
 
 
 @safe
-def refresh_token(seller: Seller, session: requests.Session, access_token: shopee.AccessToken):
+def refresh_token(
+    seller: Seller,
+    session: requests.Session,
+    access_token: shopee.AccessToken,
+):
     with session.send(
         auth_request(seller)(
             "auth/access_token/get",
