@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vuanem-ecommerce-service"
-version = "5.9.0"
+version = "6.0.1"
 description = ""
 authors = ["HM <hieumdd@gmail.com>"]
 

@@ -2,15 +2,18 @@ from returns.result import safe
 import requests
 from google.cloud.firestore import SERVER_TIMESTAMP
 
+from common.seller import Seller
 from shopee import shopee, shopee_repo
 
-auth_request = shopee_repo.build_shopee_request(shop_id_position="body")
+
+def auth_request(seller: Seller):
+    return shopee_repo.build_shopee_request(seller=seller, shop_id_position="body")
 
 
 @safe
-def get_token(session: requests.Session, code: str):
+def get_token(seller: Seller, session: requests.Session, code: str):
     with session.send(
-        auth_request(
+        auth_request(seller)(
             "auth/token/get",
             method="POST",
             body={
@@ -27,9 +30,9 @@ def get_token(session: requests.Session, code: str):
 
 
 @safe
-def refresh_token(session: requests.Session, access_token: shopee.AccessToken):
+def refresh_token(seller: Seller, session: requests.Session, access_token: shopee.AccessToken):
     with session.send(
-        auth_request(
+        auth_request(seller)(
             "auth/access_token/get",
             method="POST",
             body={
@@ -46,21 +49,24 @@ def refresh_token(session: requests.Session, access_token: shopee.AccessToken):
 
 
 @safe
-def get_access_token() -> shopee.AccessToken:
-    return shopee_repo.SHOPEE.get(["state.access_token"]).get("state.access_token")
+def get_access_token(seller: Seller) -> shopee.AccessToken:
+    return seller.db.get(["state.access_token"]).get("state.access_token")
 
 
-@safe
-def update_access_token(token: shopee.AccessToken) -> shopee.AccessToken:
-    shopee_repo.SHOPEE.set(
-        {
-            "state": {
-                "access_token": {
-                    **token,
-                    "updated_at": SERVER_TIMESTAMP,
+def update_access_token(seller: Seller) -> shopee.AccessToken:
+    @safe
+    def _update(token: shopee.AccessToken) -> shopee.AccessToken:
+        seller.db.set(
+            {
+                "state": {
+                    "access_token": {
+                        **token,
+                        "updated_at": SERVER_TIMESTAMP,
+                    }
                 }
-            }
-        },
-        merge=True,
-    )
-    return token
+            },
+            merge=True,
+        )
+        return token
+
+    return _update

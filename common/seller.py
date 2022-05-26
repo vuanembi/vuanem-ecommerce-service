@@ -1,3 +1,4 @@
+from typing import Optional, Any
 from dataclasses import dataclass, field
 
 from google.cloud.firestore import DocumentReference
@@ -12,6 +13,7 @@ class Seller:
     name: str
     order_builder: OrderBuilder
     chat_id: str
+    id: Optional[Any] = None
     db: DocumentReference = field(init=False)
 
     def __post_init__(self):
