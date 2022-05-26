@@ -1,4 +1,5 @@
 from typing import Optional, Any
+import os
 import json
 
 import yaml
@@ -6,7 +7,7 @@ from google.cloud.firestore import DocumentReference
 
 from netsuite.order import order
 from netsuite.sales_order import sales_order_repo
-from telegram import telegram, telegram_repo
+from telegram import telegram_repo
 from common.utils import json_to_csv
 
 DIVIDER = "\=\=\=\=\=\="
@@ -20,18 +21,22 @@ def safe_encode(value: Any) -> Optional[Any]:
         return None
 
 
-def get_url(id):
-    return f"[{sales_order_repo.get_url(id)}]({sales_order_repo.get_url(id)})"
+def get_url(id_):
+    return f"[{sales_order_repo.get_url(id_)}]({sales_order_repo.get_url(id_)})"
 
 
-def send_new_order(channel: telegram.Channel):
+def get_chat_id(id_: str) -> str:
+    return id_ if os.getenv("PYTHON_ENV") == "prod" else "-645664226"
+
+
+def send_new_order(name: str, chat_id: str):
     def _send(order_ref: DocumentReference) -> DocumentReference:
         telegram_repo.sendMessage(
             {
-                "chat_id": channel.chat_id,
+                "chat_id": chat_id,
                 "text": "\n".join(
                     [
-                        f"Đơn hàng *{channel.ecom}* mới",
+                        f"Đơn hàng *{name}* mới",
                         DIVIDER,
                         "```",
                         yaml.dump(
@@ -169,21 +174,19 @@ def send_close_order_error(chat_id: str, message_id: int):
     return _send
 
 
-def send_products_alert(channel: telegram.Channel):
+def send_products_alert(chat_id: str):
     def _send(products: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if products:
             telegram_repo.sendDocuments(
                 {
-                    "chat_id": channel.chat_id,
+                    "chat_id": chat_id,
                     "caption": "Có biến",
                     "disable_notification": True,
                 },
                 [("document", ("results.csv", json_to_csv(products), "text/csv"))],
             )
         else:
-            telegram_repo.sendMessage(  # type: ignore
-                {"chat_id": channel.chat_id, "text": "Ko có biến"}
-            )
+            telegram_repo.sendMessage({"chat_id": chat_id, "text": "Ko có biến"})  # type: ignore
         return products
 
     return _send

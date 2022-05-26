@@ -16,7 +16,7 @@ def compose(*func):
 
 
 def check_expired(token: dict) -> Result[dict, dict]:
-    return cond(Result, token["expires_at"] > time.time() + 3600, token, token)
+    return cond(Result, token["expires_at"] > time.time() + 3600, token, token)  # type: ignore
 
 
 def json_to_csv(data: list[dict[str, Any]]) -> io.BytesIO:

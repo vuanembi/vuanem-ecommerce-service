@@ -8,13 +8,13 @@ import requests
 from returns.result import ResultE, Success, safe
 from returns.iterables import Fold
 
+from common.seller import Seller
 from db.firestore import DB
 from shopee import shopee
 
 BASE_URL = "https://partner.shopeemobile.com"
 API_PATH = "api/v2"
 PARTNER_ID = 2002943
-SHOP_ID = 179124960
 TIME_RANGE_FIELD = "create_time"
 PAGE_SIZE = 100
 BATCH_SIZE = 45
@@ -44,6 +44,7 @@ def sign_params(
 
 
 def build_shopee_request(
+    seller: Seller,
     access_token: str = "",
     shop_id_position: str = "query",
 ) -> shopee.RequestBuilder:
@@ -53,29 +54,28 @@ def build_shopee_request(
         params: dict[str, Union[int, str]] = {},
         body: dict[str, Union[int, str]] = {},
     ) -> requests.PreparedRequest:
+        shop_id = seller.id if seller.id else 0
         return requests.Request(
             method,
             url=f"{BASE_URL}/{API_PATH}/{uri}",
             params=sign_params(
                 uri,
                 access_token,
-                SHOP_ID if shop_id_position == "query" else "",
+                shop_id if shop_id_position == "query" else "",
                 params,
             ),
             json={
                 **body,
                 **(
                     {
-                        "shop_id": SHOP_ID,
+                        "shop_id": shop_id,
                         "partner_id": PARTNER_ID,
                     }
                     if shop_id_position == "body"
                     else {}
                 ),
             },
-            headers={
-                "Content-Type": "application/json",
-            },
+            headers={"Content-Type": "application/json"},
         ).prepare()
 
     return _build
@@ -162,7 +162,7 @@ def get_order_items(
         ordersn_batches = [
             order_sns[i : i + BATCH_SIZE] for i in range(0, len(order_sns), BATCH_SIZE)
         ]
-        return Fold.collect_all(
+        return Fold.collect_all(  # type: ignore
             [
                 get_orders_batch_item(session, request_builder, ordersn_batch)
                 for ordersn_batch in ordersn_batches
@@ -325,7 +325,7 @@ def get_items_info(
         item_list_batches = [
             item_list[i : i + BATCH_SIZE] for i in range(0, len(item_list), BATCH_SIZE)
         ]
-        return Fold.collect_all(
+        return Fold.collect_all(  # type: ignore
             [
                 get_items_batch_info(session, request_builder, item_list_batch)
                 for item_list_batch in item_list_batches

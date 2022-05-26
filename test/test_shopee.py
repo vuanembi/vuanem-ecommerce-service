@@ -4,18 +4,27 @@ from returns.pipeline import is_successful
 
 import pytest
 
-from shopee import shopee_service, shopee_repo, auth_repo
+from shopee import shopee_service, shopee_repo, auth_repo, shopee_controller
 
 from test.conftest import run
 
 
+@pytest.fixture(
+    params=shopee_controller.sellers.values(),
+    ids=shopee_controller.sellers.keys(),
+)
+def seller(request):
+    return request.param
+
+
 class TestAuth:
-    def test_get_token(self, session):
-        res = auth_repo.get_token(session, "796645794941755567714e684a576d67")
+    def test_get_token(self, seller, session):
+        res = auth_repo.get_token(seller, session, "5555555243484b634e64736369514354")
         res
 
-    def test_refresh_token(self, session):
+    def test_refresh_token(self, seller, session):
         res = auth_repo.refresh_token(
+            seller,
             session,
             {
                 "refresh_token": "5748426a7877766343674f51594b786b",
@@ -23,8 +32,8 @@ class TestAuth:
         )
         res
 
-    def test_auth_service(self):
-        res = shopee_service._auth_service()
+    def test_auth_service(self, seller):
+        res = shopee_service._auth_service(seller)
         res
 
 
@@ -46,12 +55,12 @@ class TestOrder:
         )
         res
 
-    def test_service(self):
-        res = shopee_service._get_orders_service()
+    def test_service(self, seller):
+        res = shopee_service.ingest_orders_service(seller)
         res
 
-    def test_controller(self):
-        res = run("/shopee/orders/ingest")
+    def test_controller(self, seller):
+        res = run("/shopee/orders/ingest", {"seller": seller.name})
         res
 
 
