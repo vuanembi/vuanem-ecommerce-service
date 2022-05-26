@@ -8,13 +8,14 @@ from google.cloud.firestore import DocumentReference
 
 from netsuite.sales_order import sales_order, sales_order_service
 from netsuite.order import order, order_repo
-from telegram import telegram, message_service
+from telegram import message_service
 
 
 def ingest(
     creator: Callable[[Any], ResultE[DocumentReference]],
     builder: Callable[[dict], ResultE[sales_order.Order]],
-    channel: telegram.Channel,
+    name: str,
+    chat_id: str,
 ):
     def _svc(orders: list[dict]) -> ResultE[dict[str, list[dict]]]:
         return Fold.collect_all(
@@ -24,7 +25,7 @@ def ingest(
                     creator,
                     bind(builder),
                     bind(order_repo.create),
-                    map_(message_service.send_new_order(channel)),
+                    map_(message_service.send_new_order(name, chat_id)),
                     map_(
                         lambda x: x.get(["source_ref"])  # type: ignore
                         .get("source_ref")

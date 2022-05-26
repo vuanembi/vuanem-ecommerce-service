@@ -11,11 +11,9 @@ import pytz
 import requests
 from returns.result import safe
 
-from db.firestore import DB
 from lazada import lazada
 
 LAZ_APP_KEY = "104842"
-LAZADA = DB.document("Lazada")
 PAGE_LIMIT = 100
 
 

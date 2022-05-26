@@ -14,7 +14,7 @@ services = {
 def validation_service(
     request_data: dict[str, Any]
 ) -> Result[dict[str, Any], dict[str, Any]]:
-    return cond(
+    return cond(  # type: ignore
         Result,
         "data" in request_data and isinstance(request_data["data"], list),
         request_data,

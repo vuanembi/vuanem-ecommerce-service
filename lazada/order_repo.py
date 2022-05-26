@@ -3,37 +3,42 @@ from datetime import datetime
 from returns.result import safe
 from google.cloud.firestore import DocumentReference
 
-from lazada import lazada, lazada_repo
+from common.seller import Seller
+from lazada import lazada
+
+ORDER = "Order"
 
 
-ORDER = lazada_repo.LAZADA.collection("Order")
+def create(seller: Seller):
+    @safe
+    def _create(order: lazada.OrderItems) -> DocumentReference:
+        doc_ref = seller.db.collection(ORDER).document(str(order["order_id"]))
+        doc_ref.set(order)
+        return doc_ref
 
-
-@safe
-def create(order: lazada.OrderItems) -> DocumentReference:
-    doc_ref = ORDER.document(str(order["order_id"]))
-    doc_ref.set(order)
-    return doc_ref
-
-
-@safe
-def get_max_created_at() -> datetime:
-    return (
-        lazada_repo.LAZADA.get(["state.max_created_at"])
-        .get("state.max_created_at")
-        .replace(tzinfo=None)
-    )
+    return _create
 
 
 @safe
-def update_max_created_at(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
-    if orders:
-        lazada_repo.LAZADA.set(
-            {
-                "state": {
-                    "max_created_at": max([order["created_at"] for order in orders]),
+def get_max_created_at(seller: Seller) -> datetime:
+    max_created_at = "state.max_created_at"
+    return seller.db.get([max_created_at]).get(max_created_at).replace(tzinfo=None)
+
+
+def update_max_created_at(seller: Seller):
+    @safe
+    def _update(orders: list[lazada.OrderItems]) -> list[lazada.OrderItems]:
+        if orders:
+            seller.db.set(
+                {
+                    "state": {
+                        "max_created_at": max(
+                            [order["created_at"] for order in orders]
+                        ),
+                    },
                 },
-            },
-            merge=True,
-        )
-    return orders
+                merge=True,
+            )
+        return orders
+
+    return _update

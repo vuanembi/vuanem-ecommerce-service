@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vuanem-ecommerce-service"
-version = "5.9.0"
+version = "6.1.0"
 description = ""
 authors = ["HM <hieumdd@gmail.com>"]
 
@@ -45,4 +45,5 @@ testpaths = [
 python_version = 3.9
 ignore_missing_imports = true
 namespace_packages = true
-plugins = ["returns.contrib.mypy.returns_plugin"]
+
+# plugins = ["returns.contrib.mypy.returns_plugin"]

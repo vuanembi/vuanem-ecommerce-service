@@ -1,9 +1,24 @@
 from flask import Request
 
-from lazada import lazada_service
+from lazada import lazada_service, seller
+
+sellers = {
+    i.name: i
+    for i in [
+        seller.LAZADA,
+        seller.LAZADA2,
+    ]
+}
+
+
+def orders_controller(request: Request):
+    return lazada_service.ingest_orders_service(
+        sellers[(request.get_json() or {})["seller"]]
+    )
+
 
 services = {
-    "/lazada/orders/ingest": lazada_service.ingest_orders_service,
+    "/lazada/orders/ingest": orders_controller,
     "/lazada/products": lazada_service.get_products_service,
 }
 
@@ -11,7 +26,7 @@ services = {
 def lazada_controller(request: Request):
     if request.path in services:
         return (
-            services[request.path]()
+            services[request.path](request)  # type: ignore
             .map(
                 lambda x: {
                     "controller": request.path,
