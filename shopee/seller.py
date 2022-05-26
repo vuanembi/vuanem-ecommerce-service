@@ -38,5 +38,10 @@ _shopee_seller = lambda name, id_, location_, chat_id: Seller(
     id=id_,
 )
 
-SHOPEE = _shopee_seller("Shopee", 179124960, 789, "-628755636")
-SHOPEE2 = _shopee_seller("Shopee2", 653870673, 882, "-694445118")
+SELLERS = {
+    i.name: i
+    for i in [
+        _shopee_seller("Shopee", 179124960, 789, "-628755636"),
+        _shopee_seller("Shopee2", 653870673, 882, "-694445118"),
+    ]
+}

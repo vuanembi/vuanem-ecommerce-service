@@ -4,14 +4,14 @@ from returns.pipeline import is_successful
 
 import pytest
 
-from shopee import shopee_service, shopee_repo, auth_repo, shopee_controller
+from shopee import shopee_service, shopee_repo, auth_repo, seller as seller_
 
 from test.conftest import run
 
 
 @pytest.fixture(
-    params=shopee_controller.sellers.values(),
-    ids=shopee_controller.sellers.keys(),
+    params=seller_.SELLERS.values(),
+    ids=seller_.SELLERS.keys(),
 )
 def seller(request):
     return request.param

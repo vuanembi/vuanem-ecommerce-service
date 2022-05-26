@@ -80,7 +80,7 @@ def ingest_orders_service(seller: Seller):
 
 def get_items_service(*args):
     return flow(
-        _auth_service(),
+        _auth_service(args["seller"]),
         bind(_get_items),
         bind(
             bigquery.load(
