@@ -4,7 +4,7 @@ from netsuite.location import location
 
 from common.seller import Seller
 
-_shopee_seller = lambda name, id_, location_, chat_id: Seller(
+_shopee_seller = lambda name, id_, location_, onl_rep, chat_id: Seller(
     name=name,
     order_builder=sales_order_service.build(
         items_fn=lambda x: x["item_list"],
@@ -18,7 +18,7 @@ _shopee_seller = lambda name, id_, location_, chat_id: Seller(
             custbody_order_payment_method=41,
             salesrep=1664,
             partner=915574,
-            custbody_onl_rep=933725,
+            custbody_onl_rep=onl_rep,
         ),
         memo_builder=lambda x: f"{x['order_sn']} - shopee",
         customer_builder=lambda _: customer_repo.add(
@@ -41,7 +41,7 @@ _shopee_seller = lambda name, id_, location_, chat_id: Seller(
 SELLERS = {
     i.name: i
     for i in [
-        _shopee_seller("Shopee", 179124960, 789, "-628755636"),
-        _shopee_seller("Shopee2", 653870673, 882, "-694445118"),
+        _shopee_seller("Shopee", 179124960, 789, 933725, "-628755636"),
+        _shopee_seller("Shopee2", 653870673, 882, 942960, "-694445118"),
     ]
 }
