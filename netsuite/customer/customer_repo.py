@@ -28,6 +28,8 @@ def add(
             "custbody_recipient_phone": phone,
             "custbody_recipient": name,
             "shippingaddress": {
+                "custrecord_cityprovince": customer.ADDRESS__CITYPROVINCE,
+                "custrecord_districts": customer.ADDRESS__DISTRICT,
                 "addressee": name,
             },
             "shipaddress": address,
