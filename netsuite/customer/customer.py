@@ -18,6 +18,8 @@ ROOT_ADDRESS = f"{SHIPPING_ADDRESS_SEPARATOR} ".join(
 
 class ShippingAddress(TypedDict):
     addressee: str
+    custrecord_cityprovince: int
+    custrecord_districts: int
 
 
 class Customer(TypedDict):

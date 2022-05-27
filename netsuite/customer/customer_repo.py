@@ -10,6 +10,9 @@ from netsuite.restlet import restlet, restlet_repo
 from netsuite.query import query_service
 from netsuite.query.saved_search import saved_search
 
+ADDRESS__CITYPROVINCE = 66
+ADDRESS__DISTRICT = 1
+
 
 def add_shipping_address(components: list[str]) -> str:
     return f"{customer.SHIPPING_ADDRESS_SEPARATOR} ".join(components)
@@ -28,6 +31,8 @@ def add(
             "custbody_recipient_phone": phone,
             "custbody_recipient": name,
             "shippingaddress": {
+                "custrecord_cityprovince": ADDRESS__CITYPROVINCE,
+                "custrecord_districts": ADDRESS__DISTRICT,
                 "addressee": name,
             },
             "shipaddress": address,
