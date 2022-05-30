@@ -21,7 +21,7 @@ _shopee_seller = lambda name, id_, location_, onl_rep, chat_id: Seller(
             custbody_onl_rep=onl_rep,
         ),
         memo_builder=lambda x: f"{x['order_sn']} - shopee",
-        customer_builder=lambda _: customer_repo.add(
+        customer_builder=lambda _: customer_repo.add( # type: ignore
             customer.Customer(
                 entity=None,
                 custbody_customer_phone="1998103101",
@@ -29,6 +29,8 @@ _shopee_seller = lambda name, id_, location_, onl_rep, chat_id: Seller(
                 custbody_recipient="TEMP Shopee",
                 shippingaddress={
                     "addressee": "TEMP Shopee",
+                    "custrecord_cityprovince": 66,
+                    "custrecord_districts": 1,
                 },
                 shipaddress=customer.ROOT_ADDRESS,
             )

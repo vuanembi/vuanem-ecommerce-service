@@ -21,7 +21,7 @@ _lazada_seller = lambda name, location_, chat_id: Seller(
             custbody_onl_rep=722312,
         ),
         memo_builder=lambda x: f"{x['order_id']} - lazada",
-        customer_builder=lambda _: customer_repo.add(
+        customer_builder=lambda _: customer_repo.add(  # type: ignore
             customer.Customer(
                 entity=None,
                 custbody_customer_phone="1998103103",
@@ -29,6 +29,8 @@ _lazada_seller = lambda name, location_, chat_id: Seller(
                 custbody_recipient="TEMP Lazada",
                 shippingaddress={
                     "addressee": "TEMP Lazada",
+                    "custrecord_cityprovince": 66,
+                    "custrecord_districts": 1,
                 },
                 shipaddress=customer.ROOT_ADDRESS,
             )
