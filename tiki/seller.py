@@ -27,7 +27,7 @@ TIKI = Seller(
             custbody_onl_rep=942960,
         ),
         memo_builder=lambda x: f"{x['code']} - tiki",
-        customer_builder=lambda x: customer_repo.add(
+        customer_builder=lambda x: customer_repo.add(  # type: ignore
             customer.Customer(
                 entity=None,
                 custbody_customer_phone="1998103102",
@@ -35,6 +35,8 @@ TIKI = Seller(
                 custbody_recipient="TEMP Tiki",
                 shippingaddress={
                     "addressee": "TEMP Tiki",
+                    "custrecord_cityprovince": 66,
+                    "custrecord_districts": 1,
                 },
                 shipaddress=customer.ROOT_ADDRESS,
             ),

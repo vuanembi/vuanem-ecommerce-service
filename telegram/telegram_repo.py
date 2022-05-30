@@ -42,7 +42,7 @@ def sendDocuments(
     with requests.post(
         f"{BASE_URL}/sendDocument",
         params={**payload},
-        files=files,
+        files=files,  # type: ignore
     ) as r:
         if r.status_code == 429:
             time.sleep(3)

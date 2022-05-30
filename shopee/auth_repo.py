@@ -58,7 +58,7 @@ def get_access_token(seller: Seller) -> shopee.AccessToken:
     return seller.db.get(["state.access_token"]).get("state.access_token")
 
 
-def update_access_token(seller: Seller) -> shopee.AccessToken:
+def update_access_token(seller: Seller):
     @safe
     def _update(token: shopee.AccessToken) -> shopee.AccessToken:
         seller.db.set(
