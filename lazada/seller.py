@@ -4,7 +4,7 @@ from netsuite.location import location
 
 from common.seller import Seller
 
-_lazada_seller = lambda name, location_, chat_id: Seller(
+_lazada_seller = lambda name, location_, onl_rep, chat_id: Seller(
     name=name,
     order_builder=sales_order_service.build(
         items_fn=lambda x: x["items"],
@@ -42,7 +42,7 @@ _lazada_seller = lambda name, location_, chat_id: Seller(
 SELLERS = {
     i.name: i
     for i in [
-        _lazada_seller("Lazada", 789, "-661578343"),
-        _lazada_seller("Lazada2", 862, "-770270636"),
+        _lazada_seller("Lazada", 789, 722312, "-661578343"),
+        _lazada_seller("Lazada2", 862, 933725, "-770270636"),
     ]
 }
