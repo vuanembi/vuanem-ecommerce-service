@@ -18,7 +18,7 @@ _lazada_seller = lambda name, location_, onl_rep, chat_id: Seller(
             custbody_order_payment_method=44,
             salesrep=1664,
             partner=923414,
-            custbody_onl_rep=722312,
+            custbody_onl_rep=onl_rep,
         ),
         memo_builder=lambda x: f"{x['order_id']} - lazada",
         customer_builder=lambda _: customer_repo.add(  # type: ignore
