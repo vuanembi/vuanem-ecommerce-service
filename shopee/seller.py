@@ -43,7 +43,7 @@ _shopee_seller = lambda name, id_, location_, onl_rep, chat_id: Seller(
 SELLERS = {
     i.name: i
     for i in [
-        _shopee_seller("Shopee", 179124960, 789, 933725, "-628755636"),
+        _shopee_seller("Shopee", 179124960, 787, 933725, "-628755636"),
         _shopee_seller("Shopee2", 653870673, 882, 942960, "-694445118"),
     ]
 }
