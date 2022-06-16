@@ -43,6 +43,6 @@ SELLERS = {
     i.name: i
     for i in [
         _lazada_seller("Lazada", 789, 722312, "-661578343"),
-        _lazada_seller("Lazada2", 862, 722312, "-770270636"),
+        _lazada_seller("Lazada2", 862, 933725, "-770270636"),
     ]
 }
