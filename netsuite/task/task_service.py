@@ -27,7 +27,7 @@ def validation_service(
     )
 
 
-def _parse_date(body: dict[str, Any], default_: date) -> list[str]:
+def _parse_date_range(body: dict[str, Any], default_: date) -> list[str]:
     if body and "date" in body and body["date"]:
         return [datetime.strptime(body["date"], "%Y-%m-%d").date().isoformat()]
 
@@ -47,6 +47,14 @@ def _parse_date(body: dict[str, Any], default_: date) -> list[str]:
         return [default_.isoformat()]
 
 
+def _parse_date(body: dict[str, Any], default_: date) -> str:
+    return (
+        datetime.strptime(body["date"], "%Y-%m-%d").date().isoformat()
+        if body and "date" in body and body["date"]
+        else default_.isoformat()
+    )
+
+
 def csv_import_service(body: dict[str, Any]) -> ResultE[dict[str, Optional[str]]]:
     with restlet_repo.netsuite_session() as session:
         return flow(
@@ -58,7 +66,7 @@ def csv_import_service(body: dict[str, Any]) -> ResultE[dict[str, Optional[str]]
 
 
 def bank_in_transit_service(body: dict[str, Any]) -> ResultE[dict[str, Any]]:
-    dates = _parse_date(body, date.today() - timedelta(days=1))
+    dates = _parse_date_range(body, date.today() - timedelta(days=1))
 
     with restlet_repo.netsuite_session() as session:
         return (
@@ -80,22 +88,10 @@ def bank_in_transit_service(body: dict[str, Any]) -> ResultE[dict[str, Any]]:
 
 
 def voucher_adjustments_service(body: dict[str, Any]) -> ResultE[dict[str, Any]]:
-    dates = _parse_date(body, datetime.now(TIMEZONE).date())
-
     with restlet_repo.netsuite_session() as session:
-        return (
-            Fold.collect_all(
-                [
-                    flow(
-                        {"date": _date},
-                        task_repo.request(session, restlet.VoucherAdjustmentsTask),
-                        map_(lambda x: {"data": x}),  # type: ignore
-                        lash(lambda _: Success({"data": None})),  # type: ignore
-                    )
-                    for _date in dates
-                ],
-                Success(()),
-            )
-            .map(lambda x: {"data": x})
-            .lash(lambda _: Success({"data": None}))
-        )
+        return flow(
+            {"date": _parse_date(body, datetime.now(TIMEZONE).date())},
+            task_repo.request(session, restlet.VoucherAdjustmentsTask),
+            map_(lambda x: {"data": x}),  # type: ignore
+            lash(lambda _: Success({"data": None})),
+        )  # type: ignore
